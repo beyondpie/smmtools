@@ -155,7 +155,7 @@ def snap_bmat(
         for key in bins:
             if key in bin_dict:
                 l.append(f"{bin_dict[key]:bins[key]}")
-        lines.append(l)
+        lines.append(",".join(l))
     ## output result
     if len(lines) > 0:
         ## output genome bins
