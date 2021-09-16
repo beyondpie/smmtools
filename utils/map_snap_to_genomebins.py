@@ -90,15 +90,12 @@ def snap_bmat(
     - file 2, bed file to record the the column content.
       - each row: chr, start, end
     """
-    # check if snap_file is a snap-format file
-    file_format = snaptools.utilities.checkFileFormat(snap_file)
-    # create the bin list
     f = h5py.File(snap_file, "a", libver="earliest")
     ## load genome dict
     genome_dict: Dict[str, int] = readGenomeSizeFromTxt(genome_fname)
     # extract the barcodes
     # barcode_dict = getBarcodesFromSnap(snap_file=snap_file)
-    barcode_dict: Dict[str, int] = collections.OrderedDict(lambda: 0)
+    barcode_dict: Dict[str, int] = collections.OrderedDict()
     with open(barcodes_file, "r") as f:
         lines = f.readlines()
     for i, l in enumerate(lines):
@@ -117,8 +114,8 @@ def snap_bmat(
     # number of count
 
     lines: List[str] = []
-    l: List[str] = []
     for barcode_id, barcode_encode in enumerate(f["BD"]["name"]):
+        l: List[str] = []
         barcode: str = barcode_encode.decode()
         if barcode not in barcode_dict:
             continue
@@ -158,18 +155,15 @@ def snap_bmat(
         for key in bins:
             if key in bin_dict:
                 l.append(f"{bin_dict[key]:bins[key]}")
-        l.append("\n")
         lines.append(l)
     ## output result
     if len(lines) > 0:
         ## output genome bins
         with open(col_outf, "w") as f:
-            f.writelines(
-                [f"{chrom}\t{spos}\t{epos}\n" for chrom, spos, epos in bin_dict.keys()]
-            )
+            f.write("\n".join([f"{chrom}\t{spos}\t{epos}" for chrom, spos, epos in bin_dict.keys()]))
         ## output bmat
         with open(bmat_outf, "w") as f:
-            f.writelines(lines)
+            f.write("\n".join(lines))
     return 0
 
 

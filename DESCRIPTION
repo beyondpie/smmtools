@@ -1,0 +1,15 @@
+Package: smmtools
+Title: Single-cell multi-omics sequenceing data tools
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Songpeng",
+           family = "Zu",
+           role = c("aut", "cre"),
+           email = "szu@health.ucsd.edu",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Handle single-cell multi-omics sequencing data. Provide a series of tools.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
