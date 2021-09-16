@@ -96,8 +96,8 @@ def snap_bmat(
     # extract the barcodes
     # barcode_dict = getBarcodesFromSnap(snap_file=snap_file)
     barcode_dict: Dict[str, int] = collections.OrderedDict()
-    with open(barcodes_file, "r") as f:
-        lines = f.readlines()
+    with open(barcodes_file, "r") as tmpf:
+        lines = tmpf.readlines()
     for i, l in enumerate(lines):
         barcode = l.strip()
         barcode_dict[barcode] = i
@@ -105,13 +105,6 @@ def snap_bmat(
     bin_dict: Dict[Tuple[str, int, int], int] = getBinsFromGenomeSize(
         genome_dict=genome_dict, bin_size=bin_size
     )
-
-    idxList = collections.defaultdict(list)
-    # barcode index list
-    idyList = collections.defaultdict(list)
-    # bin index list
-    countList = collections.defaultdict(list)
-    # number of count
 
     lines: List[str] = []
     for barcode_id, barcode_encode in enumerate(f["BD"]["name"]):
@@ -154,7 +147,7 @@ def snap_bmat(
 
         for key in bins:
             if key in bin_dict:
-                l.append(f"{bin_dict[key]:bins[key]}")
+                l.append(f"{bin_dict[key]}:{bins[key]}")
         lines.append(",".join(l))
     ## output result
     if len(lines) > 0:
@@ -186,3 +179,13 @@ if __name__ == "__main__":
         bmat_outf=args.bmatoutf,
         col_outf=args.coloutf,
     )
+
+    ## debug
+    # snap_bmat(
+    #     snap_file="/Users/szu/git-recipes/snATAC_coloncancer/out/QY_1277.snap",
+    #     bin_size=int(float(1e+07)),
+    #     genome_fname="/Users/szu/git-recipes/snATAC_coloncancer/genome/chrom_length.txt",
+    #     barcodes_file="/Users/szu/git-recipes/snATAC_coloncancer/out/barcode_QY_1277.txt",
+    #     bmat_outf="/Users/szu/git-recipes/snATAC_coloncancer/out/bmat_QY_1277.smmtools",
+    #     col_outf="/Users/szu/git-recipes/snATAC_coloncancer/out/bmat_QY_1277_columns.smmtools",
+    # )
