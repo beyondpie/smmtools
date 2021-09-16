@@ -9,7 +9,7 @@ from typing import List
 import h5py
 import collections
 
-def readGenomeSizeFromTxt(fname):
+def readGenomeSizeFromTxt(fname) -> Dict[str, int]:
     """
     Read genome information.
     
@@ -67,53 +67,26 @@ def getBarcodesFromSnap(fname: str) -> List[str]:
 
 
 def snap_bmat(snap_file,
-              bin_size_list,
-              tmp_folder,
-              verbose):
-
+              bin_size_list: List[int],
+              genome_fname:str):
     """
-    Pre-processing to create a snap file from a bam that contains alignments or a bed file that contains fragments.
+    Pre-processing to create a snap file from a bam that
+    contains alignments or a bed file that contains fragments.
 
     Args:
     --------
     snap_file: 
         a snap format file.
-    
-    Optional
-    --------
     bin_size_list: 
-            a list object contains all bin sizes [5000]
-    
-    verbose: 
-            a boolen variable indicates whether to output the progress [True];
     """
-
-    if not os.path.exists(snap_file):
-        print(('error: ' + snap_file + ' does not exist!'));
-        sys.exit(1);
-    
     # check if snap_file is a snap-format file
     file_format = snaptools.utilities.checkFileFormat(snap_file);
-    if file_format != "snap":
-        print(("error: input file %s is not a snap file!" % snap_file));
-        sys.exit(1);
-    
     # create the bin list
     f = h5py.File(snap_file, "a", libver='earliest');
-
-    if "AM" in f:
-        print("error: AM - cell x bin accessibility matrix already exists, delete it first using snap-del ")
-        sys.exit(1)
-    
-    try:        
-        genome_dict = dict(list(zip([item.decode() for item in f["HD"]["SQ"]["SN"][:]], f["HD"]["SQ"]["SL"][:])))
-    except KeyError:
-        print("error: unable to read genome information")
-        sys.exit(1)
-    
+    ## load genome dict
+    genome_dict: Dict[str, int] = readGenomeSizeFromTxt(genome_fname)
     # extract the barcodes
-    barcode_dict = snaptools.snap.getBarcodesFromSnap(snap_file);
-
+    barcode_dict = getBarcodesFromSnap(snap_file);
     bin_dict_list = collections.defaultdict(dict);
 
     for bin_size in bin_size_list:
