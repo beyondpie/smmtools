@@ -172,11 +172,11 @@ if __name__ == "__main__":
         prog="Map Snapfile to genomeBins for the given barcodes."
     )
     parser.add_argument("--snapfile", type=str, required=True)
-    parser.add_argument("--binsize", type=int, required=True)
-    parser.add_argument("--genomefname", type=int, required=True)
+    parser.add_argument("--binsize", type=lambda x:int(float(x)), required=True)
+    parser.add_argument("--genomefname", type=str, required=True)
     parser.add_argument("--barcodesfile", type=str, required=True)
-    parser.add_argument("--bmatoutf", type=int, required=True)
-    parser.add_argument("--coloutf", type=int, required=True)
+    parser.add_argument("--bmatoutf", type=str, required=True)
+    parser.add_argument("--coloutf", type=str, required=True)
     args = parser.parse_args()
     snap_bmat(
         snap_file=args.snapfile,
