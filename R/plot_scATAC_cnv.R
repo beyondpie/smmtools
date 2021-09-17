@@ -1,10 +1,5 @@
 ## Analysis of copy number variations across genome.
-## Codes from R package Alleloscope
-
-library(matrixStats)
-library(optparse)
-library(GenomicRanges)
-library(pheatmap)
+## Codes mainly from R package Alleloscope
 
 #' Generate Alleloscope object for analysis
 #'
@@ -19,14 +14,16 @@ library(pheatmap)
 #' @param var.filter Logical (TRUE/FALSE) Whether or not to filter our highly variable features.
 #' 
 #' @import matrixStats
+#' @import GenomicRanges
+#' @import pheatmap
 #' @return A vector indicating the ordered cluster number (from hierarchical clustering) of each cell and a heatmap saved.
 #'
 #' @export
 plot_scATAC_cnv=function(raw_mat=NULL,cell_type=NULL,normal_lab="normal", size=NULL,
-                         window_w=10000000, window_step=2000000, plot_path=NULL, nclust=3, var.filter=FALSE){
+                         window_w=10000000, window_step=2000000, plot_path=NULL, nclust=3, var.filter=FALSE, ...){
   
   if(is.null(plot_path)){
-    plot_path=paste0("./plots/CNV_cov_w",window_w,"_s",window_step,"_sub.pdf")
+    plot_path=paste0("./plots/CNV_cov_w",window_w,"_s",window_step,"_sub.png")
     dir.create("./plots/")
   }
   ## normlize by cell size
@@ -110,7 +107,8 @@ plot_scATAC_cnv=function(raw_mat=NULL,cell_type=NULL,normal_lab="normal", size=N
                          clustering_method = "ward.D2",
                          gaps_col=cumsum(chrgap),
                          cutree_rows = nclust,
-                         annotation_row=celltype[, ncol(celltype),drop=F])
+                         annotation_row=celltype[, ncol(celltype),drop=F],
+                         ...)
   
   dev.off()
   
@@ -121,12 +119,7 @@ plot_scATAC_cnv=function(raw_mat=NULL,cell_type=NULL,normal_lab="normal", size=N
   clust=cutree(tmp$tree_row, k=nclust)
   clust_order=clust[od]
   
-  
   cov_obj=list(clust_order=clust_order, plot_matrix=plot_matrix)
   return(cov_obj)
 }
-
-
-## ==================
-## main
 
