@@ -30,7 +30,7 @@ read_columns <- function(filenm, cols = c(1), sep = ",", ...) {
 #' @return sparseMatrix
 #'
 #' @export
-load_sparse_matrix <- function(matfile) {
+load_sparse_matrix <- function(matfile, ... ) {
   lines <- data.table::fread(input = matfile, sep = "\n", header = FALSE)
   row_col_value <- lapply(seq(nrow(lines)), FUN = function(j) {
     l <- as.character(lines[j,1])
@@ -42,5 +42,5 @@ load_sparse_matrix <- function(matfile) {
     r <- cbind(j, col_value)
   })
   r <- as.data.frame(do.call(what = rbind, args = row_col_value))
-  invisible(Matrix::sparseMatrix(i = r[, 1], j = r[, 2], x = r[, 3]))
+  invisible(Matrix::sparseMatrix(i = r[, 1], j = r[, 2], x = r[, 3],...))
 }
