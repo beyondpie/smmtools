@@ -179,13 +179,3 @@ if __name__ == "__main__":
         bmat_outf=args.bmatoutf,
         col_outf=args.coloutf,
     )
-
-    ## debug
-    # snap_bmat(
-    #     snap_file="/Users/szu/git-recipes/snATAC_coloncancer/out/QY_1277.snap",
-    #     bin_size=int(float(1e+07)),
-    #     genome_fname="/Users/szu/git-recipes/snATAC_coloncancer/genome/chrom_length.txt",
-    #     barcodes_file="/Users/szu/git-recipes/snATAC_coloncancer/out/barcode_QY_1277.txt",
-    #     bmat_outf="/Users/szu/git-recipes/snATAC_coloncancer/out/bmat_QY_1277.smmtools",
-    #     col_outf="/Users/szu/git-recipes/snATAC_coloncancer/out/bmat_QY_1277_columns.smmtools",
-    # )
