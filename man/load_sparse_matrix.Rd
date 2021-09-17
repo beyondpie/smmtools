@@ -4,7 +4,7 @@
 \alias{load_sparse_matrix}
 \title{Load sparse matrix from mat file}
 \usage{
-load_sparse_matrix(matfile)
+load_sparse_matrix(matfile, ...)
 }
 \arguments{
 \item{matfile}{str}
