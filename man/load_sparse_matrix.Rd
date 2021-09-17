@@ -8,6 +8,8 @@ load_sparse_matrix(matfile, ...)
 }
 \arguments{
 \item{matfile}{str}
+
+\item{...}{for Matrix::sparseMatrix usage}
 }
 \value{
 sparseMatrix

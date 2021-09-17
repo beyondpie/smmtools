@@ -26,6 +26,7 @@ read_columns <- function(filenm, cols = c(1), sep = ",", ...) {
 #' Each row of matfile: barcode[,genome_bin_index:counts]
 #'
 #' @param matfile str
+#' @param ... for Matrix::sparseMatrix usage
 #'
 #' @return sparseMatrix
 #'

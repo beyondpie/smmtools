@@ -13,7 +13,7 @@ plot_scATAC_cnv(
   window_step = 2e+06,
   plot_path = NULL,
   nclust = 3,
-  var.filter = FALSE,
+  var_filter = FALSE,
   ...
 )
 }
@@ -34,7 +34,9 @@ plot_scATAC_cnv(
 
 \item{nclust}{Integer. Number of clusters the rows are divided into for visualization and clustering.}
 
-\item{var.filter}{Logical (TRUE/FALSE) Whether or not to filter our highly variable features.}
+\item{var_filter}{Logical (TRUE/FALSE) Whether or not to filter our highly variable features.}
+
+\item{...}{parameters for pheatmap::pheatmap}
 }
 \value{
 A vector indicating the ordered cluster number (from hierarchical clustering) of each cell and a heatmap saved.

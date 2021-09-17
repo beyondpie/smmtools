@@ -3,6 +3,3 @@
 export(load_sparse_matrix)
 export(plot_scATAC_cnv)
 export(read_columns)
-import(GenomicRanges)
-import(matrixStats)
-import(pheatmap)
