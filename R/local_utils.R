@@ -32,8 +32,8 @@ read_columns <- function(filenm, cols = c(1), sep = ",", ...) {
 #' @export
 load_sparse_matrix <- function(matfile) {
   lines <- data.table::fread(input = matfile, sep = "\n", header = FALSE)
-  row_col_value <- lapply(seq_along(lines), FUN = function(j) {
-    l <- lines[j]
+  row_col_value <- lapply(seq(nrow(lines)), FUN = function(j) {
+    l <- as.character(lines[j,1])
     a <- unlist(strsplit(x = l, split = ","))
     barcode <- a[1]
     col_value <- t(vapply(a[-1], FUN = function(i) {
