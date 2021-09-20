@@ -39,13 +39,13 @@ plot_scATAC_cnv = function(raw_mat = NULL, cell_type = NULL, normal_lab = "norma
     size[, 1] = paste0("chr", size[, 1])
   }
   size = size[(size[, 1] %in% paste0('chr', 1:22)), ]
-  cnv_bin0 = GenomicRanges::GRanges(size[, 1], GenomicRanges::IRanges(1, as.numeric(size[, 2])))
+  cnv_bin0 = GenomicRanges::GRanges(size[, 1], IRanges(1, as.numeric(size[, 2])))
   sw = IRanges::slidingWindows(x = cnv_bin0, width = window_w, step = window_step)
   # width(sw)
   cnv_bin = sw@unlistData
 
   subject = GenomicRanges::GRanges(sapply(strsplit(rownames(raw_mat), ":|_|-"), '[', 1),
-    GenomicRanges::IRanges(as.numeric(sapply(strsplit(rownames(raw_mat), ":|_|-"), '[', 2)) + 1,
+                                   IRanges(as.numeric(sapply(strsplit(rownames(raw_mat), ":|_|-"), '[', 2)) + 1,
       as.numeric(sapply(strsplit(rownames(raw_mat), ":|_|-"), '[', 3))))
   ov = IRanges::findOverlaps(cnv_bin, subject)
   ov = as.matrix(ov)
@@ -96,9 +96,6 @@ plot_scATAC_cnv = function(raw_mat = NULL, cell_type = NULL, normal_lab = "norma
   # pdf(plot_path, width=16, height=9)
   grDevices::png(plot_path, width = 800, height = 450)
   tmp = pheatmap::pheatmap(plot_matrix,
-    cluster_cols = F, cluster_rows = TRUE,
-    show_rownames = F,
-    show_colnames = T,
     color = setcolor,
     breaks = setbreaks,
     labels_col = col_lab,
@@ -114,10 +111,10 @@ plot_scATAC_cnv = function(raw_mat = NULL, cell_type = NULL, normal_lab = "norma
   message("Plot successfully generated!")
   cat("Path: ", plot_path, "\n")
 
-  od = tmp$tree_row$order
-  clust = stats::cutree(tmp$tree_row, k = nclust)
-  clust_order = clust[od]
+  ## od = tmp$tree_row$order
+  ## clust = stats::cutree(tmp$tree_row, k = nclust)
+  ## clust_order = clust[od]
 
-  cov_obj = list(clust_order = clust_order, plot_matrix = plot_matrix)
-  return(cov_obj)
+  ## cov_obj = list(clust_order = clust_order, plot_matrix = plot_matrix)
+  return(0)
 }
