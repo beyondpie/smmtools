@@ -18,7 +18,7 @@
 #'
 #' @export
 plot_scATAC_cnv = function(raw_mat = NULL, cell_type = NULL, normal_lab = "normal", size = NULL,
-                           window_w = 10000000, window_step = 2000000, plot_path = NULL, nclust = 3, var_filter = FALSE, ...) {
+                           window_w = 10000000, window_step = 2000000, plot_path = NULL, var_filter = FALSE, ...) {
 
   if (is.null(plot_path)) {
     plot_path = paste0("./plots/CNV_cov_w", window_w, "_s", window_step, "_sub.png")
@@ -102,7 +102,6 @@ plot_scATAC_cnv = function(raw_mat = NULL, cell_type = NULL, normal_lab = "norma
     clustering_distance_rows = "correlation",
     clustering_method = "ward.D2",
     gaps_col = cumsum(chrgap),
-    cutree_rows = nclust,
     annotation_row = celltype[, ncol(celltype), drop = F],
     ...)
 
