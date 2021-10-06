@@ -34,3 +34,12 @@ And the development version from [GitHub](https://github.com/) with:
 # install.packages("devtools")
 devtools::install_github("beyondpie/smmtools")
 ```
+
+### Under inst dir, we have some utilities, which is now organised as a python package named smmuty.
+
+```shell
+## install the local package smmuty
+git clone https://github.com/beyondpie/smmtools
+cd smmtools/inst
+pip install -e smmuty
+```
