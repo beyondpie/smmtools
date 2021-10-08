@@ -167,7 +167,10 @@ getAnnotFromArchRData <- function(tag, genome) {
   if(!(lowergenome %in% smmenv$genomeInfo$genome)){
     stop(paste0(genome, " not in ", paste0(smmenv$genomeInfo$genome, collapse = ",")))
   }
-  ArchRtag <- "ArchRgeneAnnotation" if tag == "gene" else "ArchRgenomeAnnotation"
+  ArchRtag <- "ArchRgeneAnnotation"
+  if(tag == "genome") {
+    ArchRtag <- "ArchRgenomeAnnotation"
+  }
   AnnoName <- smmtools$genomeInfo[genome, ArchRtag]
   eval(parse(txt = paste0("data(", AnnoName, ")")))
   return(eval(parse(txt = grub("ArchR", "", AnnoName))))
