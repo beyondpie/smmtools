@@ -29,6 +29,18 @@ assign(
       "org.Mm.eg.db",
       "org.Mm.eg.db"
     ),
+    ArchRgeneAnnotation = c(
+      "ArchRgeneAnnoHg19",
+      "ArchRgeneAnnoHg38",
+      "ArchRgeneAnnoMm9",
+      "ArchRgeneAnnoMm10"
+    ),
+    ArchRgenomeAnnotation = c(
+      "ArchRgenomeAnnoHg19",
+      "ArchRgenomeAnnoHg38",
+      "ArchRgenomeAnnoMm9",
+      "ArchRgenomeAnnoMm10"
+    ),
     row.names = c("hg19", "hg38", "mm9", "mm10")
   ),
   envir = smmenv
@@ -58,7 +70,6 @@ installGenomeRelatedDatabase <- function(genome, dbnm) {
     BiocManager::install(fulldb, update = FALSE)
   }
   return(fulldb)
-  
 }
 
 #' get black list
@@ -126,16 +137,38 @@ filterChrGR <- function(gr = NULL, remove = NULL, understcore = TRUE){
 #'
 #' Ref: ArchR createGeneAnnotation
 #'
-#' @param TxDb TxDbobjet  library(TxDb.Mmusculus.UCSC.mm10.knownGene); TxDb <- TxDb.Mmusculus.UCSC.mm10.knownGene
+#' @param TxDb TxDbobjet
 #' @return TSS GenomicRanges
 #' @export
 #' @examples
 #' library(TxDb.Mmusculus.UCSC.mm10.knownGene)
 #' TxDb <- TxDb.Mmusculus.UCSC.mm10.knownGene
-#' TSS <- getTSS(TxDb)
-getTSS <- function(TxDb) {
+#' TSS <- getTSSFromTxDb(TxDb)
+getTSSFromTxDb <- function(TxDb) {
   return(BiocGenerics::unique(IRanges::resize(x = GenomicFeatures::transcripts(TxDb), width = 1, fix = "start")))
 }
 
-
-
+#' get gene or genome Annotation from ArchR data.
+#'
+#' Ref: ArchR getArchRGenome
+#'
+#' @param tag string, gene or genome
+#' @param genome string genomenm
+#' @return annotation SimpleGenomicRangesList
+#' @export
+#' @examples
+#' getAnnotFromArchRData(tag = "gene", genome = "mm10")
+getAnnotFromArchRData <- function(tag, genome) {
+  lowertag <- tolower(tag)
+  if (!(lowertag %in% c("gene", "genome"))) {
+    stop(paste0(lowertag, " not in ", paste0(c("gene", "genome"), collapse = ",")))
+  }
+  lowergenome <- tolower(genome)
+  if(!(lowergenome %in% smmenv$genomeInfo$genome)){
+    stop(paste0(genome, " not in ", paste0(smmenv$genomeInfo$genome, collapse = ",")))
+  }
+  ArchRtag <- "ArchRgeneAnnotation" if tag == "gene" else "ArchRgenomeAnnotation"
+  AnnoName <- smmtools$genomeInfo[genome, ArchRtag]
+  eval(parse(txt = paste0("data(", AnnoName, ")")))
+  return(eval(parse(txt = grub("ArchR", "", AnnoName))))
+}
