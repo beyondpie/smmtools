@@ -136,3 +136,6 @@ filterChrGR <- function(gr = NULL, remove = NULL, understcore = TRUE){
 getTSS <- function(TxDb) {
   return(BiocGenerics::unique(IRanges::resize(x = GenomicFeatures::transcripts(TxDb), width = 1, fix = "start")))
 }
+
+
+

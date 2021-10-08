@@ -1,0 +1,2 @@
+
+getFragmentInfo <- function(fragmentFile, )
