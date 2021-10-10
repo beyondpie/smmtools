@@ -175,3 +175,35 @@ getAnnotFromArchRData <- function(tag, genome) {
   eval(parse(txt = paste0("data(", AnnoName, ")")))
   return(eval(parse(txt = grub("ArchR", "", AnnoName))))
 }
+
+
+#' subset GeneAnnotation by GenomeAnnotation
+#'
+#' Ref: ArchR .validGeneAnnoByGenomeAnno
+#' @param geneAnnotation SimpleGenomicRangesList for genes
+#' @param genomeAnnotation SimpleGenomicRangesList for genomic
+#' @return geneAnnotation SimpleGenomicRangesList limited by genomicAnnotation
+#' @export
+subsetGeneAnnoByGenomeAnno <- function(geneAnnotation, genomeAnnotation) {
+  genomeChrs <- unique(GenomeInfoDb::seqnames(genomeAnnotation$chromSize))
+  geneChrs <- unique(GenomeInfoDb::seqnames(geneAnnotation$genes))
+  if(!all(geneChrs %in% genomeChrs)) {
+    geneNotIn <- geneChrs[!(geneChrs %in% genomeChrs)]
+    message("Found Gene Seqnames not in GenomeAnnotation chromSizes, Removing: ", paste0(geneNotIn, collapse = ","))
+    geneAnnotation$genes <- subsetSeqnamesGR(gr = geneAnnotation$genes, names = genomeChrs)
+  }
+  exonChrs <- unique(GenomeInfoDb::seqnames(geneAnnotation$genes))
+  if(!all(exonChrs %in% genomeChrs)) {
+    exonNotIn <- exonChrs[!(exonChrs %in% genomeChrs)]
+    message("Found Exon Seqnames not in GenomeAnnotation chromSizes, Removing: ", paste0(exonNotIn, collapse = ","))
+    geneAnnotation$exons <- subsetSeqnamesGR(gr = geneAnnotation$exons, names = genomeChrs)
+  }
+  TSSChrs <- unique(GenomeInfoDb::seqnames(geneAnnotation$genes))
+  if(!all(TSSChrs %in% genomeChrs)) {
+    TSSNotIn <- TSSChrs[!(TSSChrs %in% genomeChrs)]
+    message("Found TSS Seqnames not in GenomeAnnotation chromSizes, Removing: ", paste0(TSSNotIn, collapse = ","))
+    geneAnnotation$TSS <- subsetSeqnamesGR(gr = geneAnnotation$TSS, names = genomeChrs)
+  }
+  return(geneAnnotation)
+}
+

@@ -31,10 +31,10 @@ read_columns <- function(filenm, cols = c(1), sep = ",", ...) {
 #' @return sparseMatrix
 #'
 #' @export
-load_sparse_matrix <- function(matfile, ... ) {
+load_sparse_matrix <- function(matfile, ...) {
   lines <- data.table::fread(input = matfile, sep = "\n", header = FALSE)
   row_col_value <- lapply(seq(nrow(lines)), FUN = function(j) {
-    l <- as.character(lines[j,1])
+    l <- as.character(lines[j, 1])
     a <- unlist(strsplit(x = l, split = ","))
     barcode <- a[1]
     col_value <- t(vapply(a[-1], FUN = function(i) {
@@ -43,8 +43,33 @@ load_sparse_matrix <- function(matfile, ... ) {
     r <- cbind(j, col_value)
   })
   r <- as.data.frame(do.call(what = rbind, args = row_col_value))
-  invisible(Matrix::sparseMatrix(i = r[, 1], j = r[, 2], x = r[, 3],...))
+  invisible(Matrix::sparseMatrix(i = r[, 1], j = r[, 2], x = r[, 3], ...))
 }
 
-## TODO: support mtx in R instead of the sparse matrix we defined before.
-## This is more general, can be directly used in Python.
+#' Remove chr in GRSeqnames
+#'
+#' Ref: ArchR .convertGRSeqnames
+#' @param gr GenomeRanges
+#' @return gr2 GenomeRanges simplified
+#' @export
+simplifyGRSeqnames <- function(gr) {
+  gr2 <- GenomicRanges::GRanges(
+    seqnames = gsub("chr", "", GenomeInfoDb::seqnames(gr)),
+    ranges = IRanges::ranges(gr), strand = GenomicRanges::strand(gr)
+  )
+  S4Vectors::mcols(gr2) <- S4Vectors::mcols(gr)
+  return(gr2)
+}
+
+#' get subset of GR
+#'
+#' Ref: ArchR .subsetSeqnamesGR
+#' @param gr GenomeRanges
+#' @param names chromosome
+#' @return gr2 subset of gr whose seqnames limited in names
+#' @export
+subsetSeqnamesGR <- function(gr, names) {
+  gr <- gr[which(as.character(GenomeInfoDb::seqnames(gr)) %in% names), ]
+  GenomeInfoDb::seqlevels(gr) <- as.character(unique(GenomeInfoDb::seqnames(gr)))
+  return(gr)
+}
