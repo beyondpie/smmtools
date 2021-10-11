@@ -73,3 +73,9 @@ subsetSeqnamesGR <- function(gr, names) {
   GenomeInfoDb::seqlevels(gr) <- as.character(unique(GenomeInfoDb::seqnames(gr)))
   return(gr)
 }
+
+#' Suppress message
+#' Ref: ArchR .suppressAll
+suppressAll <- function(expr = NULL) {
+  suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
+}
