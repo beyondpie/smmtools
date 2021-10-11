@@ -3,33 +3,25 @@
 #' Ref: ArchR .tabixTotmp
 #'
 #' @param tabixFile string fragment file name, only tab/tab.gz file (.tabix should be in the same folder)
-#' @param chromSizes GenomeRanges
+#' @param tileChromSizes GenomeRanges, tiled ChromSizes
 #' @param sampleName string the sample corresponding to the fragment file
 #' @param barcodes vector of string, optional, barcodes we want
 #' @param outH5File string filename of the output h5file
 #' @param nChunk integer partition each chrom into nChunk pieces
 #' @return outputH5File string name of the output file
 #' @export
-tabixToh5SingleThread <- function(tabixFile, chromSizes = NULL,
+tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
                                   sampleName = NULL, barcodes = NULL,
                                   outH5File = tempfile(
                                     pattern = paste0("tmp-", sampleName, ".h5"),
                                     tmpdir = tempdir()
-                                  ),
-                                  nChunk = 3) {
+                                  )) {
   tstart <- Sys.time()
   message(paste("Tabix to h5 with single thread starts at", tstart))
   o <- rhdf5::h5closeAll()
   o <- rhdf5::h5createFile(file = outH5File)
   o <- rhdf5::h5createGroup(file = outH5File, group = "Fragments")
   o <- rhdf5::h5createGroup(file = outH5File, group = "Metadata")
-
-  ## after unlist, tileChromSizes is GenomicRanges object
-  tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
-  S4Vectors::mcols(tileChromSizes)$chunkName <- paste0(
-    GenomeInfoDb::seqnames(tileChromSizes), "#chunk",
-    seq_along(tileChromSizes)
-  )
 
   for (x in seq_along(tileChromSizes)) {
     if (x %% 10 == 0) {
@@ -38,6 +30,12 @@ tabixToh5SingleThread <- function(tabixFile, chromSizes = NULL,
     tileChromStringVector <- Rsamtools::scanTabix(file = tabixFile, param = tileChromSizes[x])[[1]]
     tmp <- read.table(textConnection(tileChromStringVector))
     dt <- data.table::data.table(start = as.integer(tmp$V2 + 1), end = tmp$V3, barcode = tmp$V4)
+    # Care for Break Points from ArchR
+    dt <- dt[dt$start >= S4Vectors::start(tileChromSizes[x]), ]
+
+    if (!is.null(barcodes)) {
+      dt <- dt[dt$barcode %in% barcodes, ]
+    }
     message(paste0(
       sampleName, " Fragment-Chunk-(", x, " of ", length(tileChromSizes), ")-",
       nrow(dt)
@@ -46,18 +44,12 @@ tabixToh5SingleThread <- function(tabixFile, chromSizes = NULL,
       sampleName, " Barcodes-Chunk-(", x, " of ", length(tileChromSizes), ")-",
       unique(dt$barcode)
     ))
-    # Care for Break Points from ArchR
-    dt <- dt[dt$start >= S4Vectors::start(tileChromSizes[x]), ]
-
-    if (!is.null(barcodes)) {
-      dt <- dt[dt$barcode %in% barcodes, ]
-    }
     # Order by barcodes
     data.table::setkey(dt, barcode)
     dt <- dt[order(barcode)]
     barcodeRle <- Rle(paste0(dt$barcode))
     fragmentRanges <- paste0("Fragments/", chrRegion, "/Ranges")
-    barcodeLength <- paste0("Fragments/", chrRegion, "/BarcodeLenght")
+    barcodeLength <- paste0("Fragments/", chrRegion, "/BarcodeLength")
     barcodeValue <- paste0("Fragments/", chrRegion, "/BarcodeValue")
 
     chrRegion <- S4Vectors::mcols(tileChromSizes)$chunkName[x]

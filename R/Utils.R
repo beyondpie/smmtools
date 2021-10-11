@@ -79,3 +79,18 @@ subsetSeqnamesGR <- function(gr, names) {
 suppressAll <- function(expr = NULL) {
   suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
 }
+
+#' tile ChromeSize
+#' Ref: ArchR
+#' @param chromSizes GenomeRanges
+#' @param nChunk integer, default is 3
+#' @return tileChromSizes GenomeRanges
+#' @export
+tileChrom <- function(chromSizes, nChunk = 3) {
+  tileChromSizes <- unlist(GenomicRanges::tile(chromSizes, nChunk))
+  S4Vectors::mcols(tileChromSizes)$chunkName <- paste0(
+    GenomeInfoDb::seqnames(tileChromSizes), "#chunk",
+    seq_along(tileChromSizes)
+  )
+  return(tileChromSizes)
+}
