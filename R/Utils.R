@@ -94,3 +94,39 @@ tileChrom <- function(chromSizes, nChunk = 3) {
   )
   return(tileChromSizes)
 }
+
+#' Get fragments from a given chromsome in rawH5File.
+#' Ref: ArchR .getFragsFromArrow
+#' @return fragments IRanges
+#' @export
+getFragsOfAChromFromRawH5File <- function(chr, rawH5File, sampleName, tileChromSizes, nChunk) {
+  o <- rhdf5::h5closeAll()
+}
+
+
+#' Fast read H5 file
+#' Ref: ArchR .h5read
+#' @return results return by h5read
+#' @export
+fastH5Read <- function(
+  file = NULL,
+  name = NULL,
+  method = "fast",
+  index = NULL,
+  start = NULL,
+  block = NULL,
+  count = NULL
+  ){
+
+  if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
+    fid <- rhdf5::H5Fopen(file)
+    dapl <- rhdf5::H5Pcreate("H5P_DATASET_ACCESS")
+    did <- .Call("_H5Dopen", fid@ID, name, dapl@ID, PACKAGE='rhdf5')
+    res <- .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, fid@native, PACKAGE='rhdf5')
+    invisible(.Call("_H5Dclose", did, PACKAGE='rhdf5'))   
+  }else{
+    res <- h5read(file = file, name = name, index = index, start = start, block = block, count = count)
+  }
+  o <- h5closeAll()
+  return(res)
+}

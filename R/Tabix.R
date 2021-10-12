@@ -45,6 +45,7 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
       unique(dt$barcode)
     ))
     # Order by barcodes
+    chrRegion <- S4Vectors::mcols(tileChromSizes)$chunkName[x]
     data.table::setkey(dt, barcode)
     dt <- dt[order(barcode)]
     barcodeRle <- Rle(paste0(dt$barcode))
@@ -52,7 +53,6 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
     barcodeLength <- paste0("Fragments/", chrRegion, "/BarcodeLength")
     barcodeValue <- paste0("Fragments/", chrRegion, "/BarcodeValue")
 
-    chrRegion <- S4Vectors::mcols(tileChromSizes)$chunkName[x]
     o <- rhdf5::h5createGroup(file = outH5File, group = paste0("Fragments/", chrRegion))
     o <- suppressAll(expr = rhdf5::h5createDataset(
       file = outH5File, dataset = fragmentRanges,
