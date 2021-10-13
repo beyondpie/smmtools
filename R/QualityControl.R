@@ -1,3 +1,7 @@
+#' get barcodes-related fragments stats.
+#'
+#' Ref: ArchR
+#' 
 #' @param nChunk integer partition each chrom into nChunk pieces
 #' @export
 sumFragmentSingleThread <- function(tabixFile, chromsSizes, outdir,
@@ -52,13 +56,16 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
   return(dt)
 }
 
+#' Get TSS Enrichment scores
+#'
+#' Ref: ArchR
+#' @return List two element: TSSE, TSSReads
 #' @importFrom S4Vectors mcols split DataFrame
 #' @importFrom BiocGenerics strand match start end pmax
 #' @importFrom GenomicRanges GRanges findOverlaps subjectHits queryHits
 #' @importFrom IRanges IRanges width ranges
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom rhdf5 h5ls
-#' @return List two element: TSSE, TSSReads
 #' @export
 fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
                                              rawH5File, nChunkInRawH5File = 3,
