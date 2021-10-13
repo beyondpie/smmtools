@@ -137,15 +137,11 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
           temp <- IRanges(end(fragments), width = 1)
         }
         o <- findOverlaps(ranges(feature), temp)
-        ## CPP
-        mat <- tabulate2dCpp(
-          x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
-          xmin = 1,
-          xmax = length(barcodes),
-          y = mcols(feature)$typeIdx[queryHits(o)],
-          ymin = 1,
-          ymax = 2
-        )
+        x <- as.vector(mcols(fragments)$RG[subjectHits(o)])
+        x <-  (x >= 1) & (x <= length(barcodes))
+        y <- mcols(feature)$typeIdx[queryHits(o)]
+        y <- (y >= 1) & (y <= 2)
+        mat <- y %*% t(x)
         nWindow <- nWindow + mat[1, ]
         nFlank <- nFlank + mat[2, ]
       }
