@@ -135,7 +135,7 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
 
 #' Fast read H5 file
 #' Ref: ArchR .h5read
-#' @importFrom rhdf5 h5read h5closeAl H5Fopen H5Pcreate l _H5Dopen _H5Dread _H5Dclose
+#' @importFrom rhdf5 h5read h5closeAl H5Fopen H5Pcreate _H5Dopen _H5Dread _H5Dclose
 #' @return results return by h5read
 #' @export
 fastH5Read <- function(
