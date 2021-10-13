@@ -52,53 +52,119 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
   return(dt)
 }
 
+#' @importFrom S4Vectors mcols split DataFrame
+#' @importFrom BiocGenerics strand match start end pmax
+#' @importFrom GenomicRanges GRanges findOverlaps subjectHits queryHits
+#' @importFrom IRanges IRanges width ranges
+#' @importFrom GenomeInfoDb seqnames
+#' @importFrom rhdf5 h5ls
+#' @return List two element: TSSE, TSSReads
 #' @export
 fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
-                                             rawH5File,
+                                             rawH5File, nChunkInRawH5File = 3,
                                              window = 101, norm = 100,
                                              flank = 2000, minNorm = 0.2, maxFragSize = NULL,
+                                             sampleName = NULL,
                                              nthread = 2) {
   tstart <- Sys.time()
-  message(paste("Get TSS Encrichment Scores starts at", tstart))
+  message(paste("Get TSS Enrichment Scores starts at", tstart))
   TSS <- resize(x = TSS, width = 1, fix = "start")
-  BiocGenerics::strand(x = TSS) <- "*"
+  strand(x = TSS) <- "*"
   TSS <- unique(TSS)
   tssWindow <- resize(x = TSS, width = window, fix = "center")
   tssWindow$type <- "window"
   tssFlank <- c(
-    GenomicRanges::GRanges(
-      seqnames = GenomeInfoDb::seqnames(TSS),
-      ranges = IRanges::IRanges(start = BiocGenerics::end(TSS) + flank - norm + 1,
-                                end = BiocGenerics::end(TSS) + flank)
+    GRanges(
+      seqnames = seqnames(TSS),
+      ranges = IRanges(
+        start = end(TSS) + flank - norm + 1,
+        end = end(TSS) + flank
+      )
     ),
-    GenomicRanges::GRanges(
-      seqnames = GenomeInfoDb::seqnames(TSS),
-      ranges = IRanges::IRanges(
-        start = BiocGenerics::start(TSS) - flank,
-        end = BiocGenerics::start(TSS) - flank + norm - 1
+    GRanges(
+      seqnames = seqnames(TSS),
+      ranges = IRanges(
+        start = start(TSS) - flank,
+        end = start(TSS) - flank + norm - 1
       )
     )
   )
   tssFlank$type <- "flank"
   tssFeatures <- c(tssWindow, tssFlank)
-  tssFeatureList <- S4Vectors::split(x = tssFeature, f = GenomeInfoDb::seqnames(tssFeatures))
+  tssFeatureList <- split(x = tssFeature, f = seqnames(tssFeatures))
   ## get Available chrs
-  groups <- rhdf5::h5ls(file = rawH5File)
+  groups <- h5ls(file = rawH5File)
   groups <- groups[groups$group == "/" & groups$otype == "H5I_GROUP", "name"]
   groups <- groups[grepl("Fragments", groups)]
-  
-  chrs <- gsub(pattern = "Fragments", replacement = "",
-               unique(unlist(strsplit(x = groups, split = "#"))[1]))
-  
-  tssFeatureList <- S4Vectors::split(x = tssFeature, f = GenomeInfoDb::seqnames(tssFeatures))
+
+  chrs <- gsub(
+    pattern = "Fragments", replacement = "",
+    unique(unlist(strsplit(x = groups, split = "#"))[1])
+  )
+
+  tssFeatureList <- split(x = tssFeature, f = seqnames(tssFeatures))
   tssFeatureList <- tssFeatureList[chrs]
 
-  coutDF <- mclapply(X=seq_along(featureList), FUN = function(x) {
+  countDF <- mclapply(X = seq_along(tssFeatureList), FUN = function(i) {
     nWindow <- rep(0, length(barcodes))
     names(nWindow) <- barcodes
     ## clone in R
     nFlank <- nWindow
-    feature <- featureList[[x]]
-    
+    feature <- tssFeatureList[[i]]
+    fragments <- getFragsOfAChrFromRawH5File(
+      rawH5File = rawH5File, chr = names(tssFeatureList)[i],
+      sampleName = sampleName, nChunk = nChunkInRawH5File
+    )
+    if (length(fragments) == 0) {
+      names(nWindow) <- NULL
+      names(nFlank) <- NULL
+      return(DataFrame(nWindow = nWindow, nFlank = nFlank))
+    }
+    if (length(fragments) > 0) {
+      if (!is.null(maxFragSize)) {
+        fragments <- fragments[width(fragments) <= maxFragSize]
+      }
+      mcols(fragments)$RG@values <- match(
+        mcols(fragments)$RG@values,
+        barcodes
+      )
+      mcols(feature)$RG@typeIdx <- match(mcols(feature)$type, c("window", "flank"))
+      ## count each insertion
+      for(y in seq_len(2)) {
+        if(y == 1) {
+          temp <- IRanges(start(fragments), width = 1)
+        } else {
+          temp <- IRanges(end(fragments), width = 1)
+        }
+        o <- findOverlaps(ranges(feature), temp)
+        ## CPP
+        mat <- tabulate2dCpp(
+          x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
+          xmin = 1,
+          xmax = length(barcodes),
+          y = mcols(feature)$typeIdx[queryHits(o)],
+          ymin = 1,
+          ymax = 2
+        )
+        nWindow <- nWindow + mat[1, ]
+        nFlank <- nFlank + mat[2, ]
+      }
+    }
+    names(nWindow) <- NULL
+    names(nFlank) <- NULL
+    return(DataFrame(nWindow = nWindow, nFlank = nFlank))
   }, mc.cores = nthread)
+  cumDF <- countDF[[i]]
+  for(i in 2:length(countDF)) {
+    cumDF$nWindow <- cumDF$nWindow + countDF[[i]]$nWindow
+    cumDF$nFlank <- cumDF$nFlank + countDF[[i]]$nFlank
+  }
+  cWn <- cumDF[,1] / window
+  cFn <- cumDF[,2] / norm
+  ## pmax: like Relu(vec - scalar) + scalar
+  tssScores <- round(2 * cWn / pmax(cFn, minNorm), 3)
+  names(tssScores) <- barcodes
+  tend <- Sys.time()
+  message(paste("Get TSS Enrichment Scores ends at", tend))
+  return(list(TSSE = tssScores, TSSReads = cumDf[,1]))
 }

@@ -99,7 +99,7 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' Ref: ArchR .getFragsFromArrow
 #' @return fragments IRanges
 #' @export
-getFragsOfAChromFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, nChunk=3) {
+getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, nChunk=3) {
   o <- rhdf5::h5closeAll()
   nFrags <- 0
   fragList <- list()
