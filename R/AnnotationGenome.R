@@ -173,7 +173,7 @@ getAnnotFromArchRData <- function(tag, genome) {
   }
   AnnoName <- smmtools$genomeInfo[genome, ArchRtag]
   eval(parse(txt = paste0("data(", AnnoName, ")")))
-  return(eval(parse(txt = grub("ArchR", "", AnnoName))))
+  return(eval(parse(txt = gsub("ArchR", "", AnnoName))))
 }
 
 

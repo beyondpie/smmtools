@@ -28,7 +28,7 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
       sprintf("%s Reading TableFile %s Percent", sampleName, round(100 * x / length(tileChromSizes)), 3)
     }
     tileChromStringVector <- Rsamtools::scanTabix(file = tabixFile, param = tileChromSizes[x])[[1]]
-    tmp <- read.table(textConnection(tileChromStringVector))
+    tmp <- utils::read.table(textConnection(tileChromStringVector))
     dt <- data.table::data.table(start = as.integer(tmp$V2 + 1), end = tmp$V3, barcode = tmp$V4)
     # Care for Break Points from ArchR
     dt <- dt[dt$start >= S4Vectors::start(tileChromSizes[x]), ]

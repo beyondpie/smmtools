@@ -135,6 +135,7 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
 
 #' Fast read H5 file
 #' Ref: ArchR .h5read
+#' @importFrom rhdf5 h5read h5closeAl H5Fopen H5Pcreate l _H5Dopen _H5Dread _H5Dclose
 #' @return results return by h5read
 #' @export
 fastH5Read <- function(
@@ -148,8 +149,8 @@ fastH5Read <- function(
   ){
 
   if(tolower(method) == "fast" & is.null(index) & is.null(start) & is.null(block) & is.null(count)){
-    fid <- rhdf5::H5Fopen(file)
-    dapl <- rhdf5::H5Pcreate("H5P_DATASET_ACCESS")
+    fid <- H5Fopen(file)
+    dapl <- H5Pcreate("H5P_DATASET_ACCESS")
     did <- .Call("_H5Dopen", fid@ID, name, dapl@ID, PACKAGE='rhdf5')
     res <- .Call("_H5Dread", did, NULL, NULL, NULL, TRUE, 0L, FALSE, fid@native, PACKAGE='rhdf5')
     invisible(.Call("_H5Dclose", did, PACKAGE='rhdf5'))   

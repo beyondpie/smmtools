@@ -3,7 +3,8 @@
 
 #' Generate Alleloscope object for analysis
 #'
-#' @param raw_mat A binned coverage matrix (m1 bin by n1 cell) with values being read counts for scATAC-seq of tumor sample (with some normal cells). The matrix can be generated using https://github.com/seasoncloud/Basic_CNV_SNV/blob/main/scripts/Gen_bin_cell_atac.R
+#' @param raw_mat A binned coverage matrix (m1 bin by n1 cell) with values being read counts for scATAC-seq of tumor sample (with some normal cells).
+#'                The matrix can be generated using https://github.com/seasoncloud/Basic_CNV_SNV/blob/main/scripts/Gen_bin_cell_atac.R
 #' @param cell_type A matrix with two columns: COL1- cell barcodes; COL2- cell types (Tumor cells should be labeled with "tumor1, tumor2 and etc.").
 #' @param normal_lab Character(s) indicating the cell types considered as normal cells. If not specify, "normal" cell type should exist in the cell_type dataframe.
 #' @param size A matrix with two columns: col1: different chromosome; col2: for the size (bp) of different chromosomes (eq.1-22).
