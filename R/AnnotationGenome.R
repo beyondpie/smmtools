@@ -2,7 +2,7 @@
 ## Ref: https://stackoverflow.com/questions/12598242/global-variables-in-packages-in-r/12605694
 smmenv <- new.env(parent = emptyenv())
 assign(
-  x = geomeInfo,
+  x = "genomeInfo",
   value = data.frame(
     genome = c("hg19", "hg38", "mm9", "mm10"),
     BSGenome = c(
