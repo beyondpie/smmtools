@@ -99,8 +99,37 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' Ref: ArchR .getFragsFromArrow
 #' @return fragments IRanges
 #' @export
-getFragsOfAChromFromRawH5File <- function(chr, rawH5File, sampleName, tileChromSizes, nChunk) {
+getFragsOfAChromFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, nChunk=3) {
   o <- rhdf5::h5closeAll()
+  nFrags <- 0
+  fragList <- list()
+  barcodeValueList <- list()
+  barcodeList <- list()
+  for(i in 1:nChunk) {
+    barcodeValueList[[i]]  <- fastH5Read(file = rawH5File,
+                             name = paste0("Fragments/", chr, "#chunk", i, "/BarcodeLength"),
+                             method = "fast")
+    nFrags <- sum(barcodeValueList[[i]]) + nFrags
+    fragList[[i]] <- fastH5Read(file = rawH5File,
+                                name = paste0("Fragments/", chr, "#chunk", i, "/Ranges"),
+                                method = "fast")
+    barcodeList[[i]] <- fastH5Read(file = rawH5File,
+                                   name = paste0("Fragments/", chr, "#chunk", i, "/BarcodeValue"),
+                                   method = "fast")
+  }
+  if(nFrags == 0) {
+    output <- IRanges::IRanges(start = 1, end = 1)
+    S4Vectors::mcols(output)$RG <- c("tmp")
+    output <- output[-1, ]
+    return(output)
+  }
+  frags <- do.call(what = rbind, args = fragList)
+  output <- IRanges::IRanges(start = frags[,1], end = frags[,2])
+  barcodes <- do.call("c", barcodeList)
+  barcodeValue <- do.call("c", barcodeValueList)
+  S4Vectors::mcols(output)$RG <- Rle(values = paste0(sampleName, "#", barcodes),
+                                     lengths = barcodeValue)
+  return(output)
 }
 
 
