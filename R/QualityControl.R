@@ -60,9 +60,9 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
 #'
 #' Ref: ArchR
 #' @return List two element: TSSE, TSSReads
-#' @importFrom S4Vectors mcols split DataFrame
+#' @importFrom S4Vectors mcols split DataFrame queryHits subjectHits
 #' @importFrom BiocGenerics strand match start end pmax
-#' @importFrom GenomicRanges GRanges findOverlaps subjectHits queryHits
+#' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges width ranges
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom rhdf5 h5ls
