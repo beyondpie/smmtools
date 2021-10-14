@@ -4,9 +4,10 @@
 #' 
 #' @param nChunk integer partition each chrom into nChunk pieces
 #' @export
-sumFragmentSingleThread <- function(tabixFile, chromsSizes, outdir,
+sumFragmentSingleThread <- function(tabixFile, chromSizes, outdir,
                                     sampleName = NULL, barcodes = NULL,
                                     nChunk = 3) {
+  dir.create(outdir, showWarnings = TRUE, recursive = TRUE)
   rawH5File <- file.path(outdir, paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
   fragmentH5File <- file.path(outdir, paste0(sampleName, "sumFragment.h5"))
   o <- suppressAll(file.remove(fragmentH5File))
@@ -20,7 +21,7 @@ sumFragmentSingleThread <- function(tabixFile, chromsSizes, outdir,
   tabixToH5SingleThread(
     tabixFile = tabixFile, tileChromSizes = tileChromSizes,
     sampleName = sampleName, outH5File = rawH5File,
-    barcodes = barcodes
+    barcode = barcodes
   )
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode

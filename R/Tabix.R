@@ -17,7 +17,7 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
                                     tmpdir = tempdir()
                                   )) {
   tstart <- Sys.time()
-  message(paste("Tabix to h5 with single thread starts at", tstart))
+  message(paste("Tabix to h5 with single thread starts at", tstart), "...")
   o <- rhdf5::h5closeAll()
   o <- rhdf5::h5createFile(file = outH5File)
   o <- rhdf5::h5createGroup(file = outH5File, group = "Fragments")
@@ -36,19 +36,19 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
     if (!is.null(barcodes)) {
       dt <- dt[dt$barcode %in% barcodes, ]
     }
-    message(paste0(
-      sampleName, " Fragment-Chunk-(", x, " of ", length(tileChromSizes), ")-",
-      nrow(dt)
-    ))
-    message(paste0(
-      sampleName, " Barcodes-Chunk-(", x, " of ", length(tileChromSizes), ")-",
-      unique(dt$barcode)
-    ))
+    ## message(paste0(
+    ##   sampleName, " Fragment-Chunk-(", x, " of ", length(tileChromSizes), ")-",
+    ##   nrow(dt)
+    ## ))
+    ## message(paste0(
+    ##   sampleName, " Barcodes-Chunk-(", x, " of ", length(tileChromSizes), ")-",
+    ##   unique(dt$barcode)
+    ## ))
     # Order by barcodes
     chrRegion <- S4Vectors::mcols(tileChromSizes)$chunkName[x]
     data.table::setkey(dt, barcode)
-    dt <- dt[order(barcode)]
-    barcodeRle <- Rle(paste0(dt$barcode))
+    dt <- dt[order(dt$barcode), ]
+    barcodeRle <- S4Vectors::Rle(paste0(dt$barcode))
     fragmentRanges <- paste0("Fragments/", chrRegion, "/Ranges")
     barcodeLength <- paste0("Fragments/", chrRegion, "/BarcodeLength")
     barcodeValue <- paste0("Fragments/", chrRegion, "/BarcodeValue")
@@ -66,10 +66,10 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
 
     o <- suppressAll(expr = rhdf5::h5createDataset(
       file = outH5File,
-      datast = barcodeValue,
+      dataset = barcodeValue,
       storage.mode = "character",
       dims = c(length(barcodeRle@lengths), 1), level = 0,
-      size = max(nchar(barcoeRle@values)) + 1
+      size = max(nchar(barcodeRle@values)) + 1
     ))
     o <- rhdf5::h5write(obj = cbind(dt$start, dt$end-dt$start +1), file = outH5File, name = fragmentRanges)
     o <- rhdf5::h5write(obj = barcodeRle@lengths, file = outH5File, name = barcodeLength)
