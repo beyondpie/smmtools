@@ -19,7 +19,7 @@ sumFragmentSingleThread <- function(tabixFile, chromsSizes, outdir,
   ## Transform tab.gz to h5 file
   tabixToH5SingleThread(
     tabixFile = tabixFile, tileChromSizes = tileChromSizes,
-    sampleName = sampleName, rawH5File = rawH5File,
+    sampleName = sampleName, outH5File = rawH5File,
     barcodes = barcodes
   )
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
