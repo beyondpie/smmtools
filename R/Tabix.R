@@ -24,7 +24,7 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
   o <- rhdf5::h5createGroup(file = outH5File, group = "Metadata")
 
   for (x in seq_along(tileChromSizes)) {
-    if (x %% 10 == 0) {
+    if (x %% 5 == 0) {
       message(paste("Reading", sampleName, "TableFile", round(100 * x / length(tileChromSizes), 3), "Percent."))
     }
     tileChromStringVector <- Rsamtools::scanTabix(file = tabixFile, param = tileChromSizes[x])[[1]]
