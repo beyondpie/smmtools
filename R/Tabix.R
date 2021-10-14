@@ -25,7 +25,7 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
 
   for (x in seq_along(tileChromSizes)) {
     if (x %% 10 == 0) {
-      sprintf("%s Reading TableFile %s Percent", sampleName, round(100 * x / length(tileChromSizes)), 3)
+      message(paste("Reading", sampleName, "TableFile", round(100 * x / length(tileChromSizes), 3), "Percent."))
     }
     tileChromStringVector <- Rsamtools::scanTabix(file = tabixFile, param = tileChromSizes[x])[[1]]
     tmp <- utils::read.table(textConnection(tileChromStringVector))
