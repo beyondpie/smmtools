@@ -29,9 +29,17 @@ sumFragmentSingleThread <- function(tabixFile, chromSizes, outdir,
   return(dtNfragmentPerBarcode)
 }
 
+#' get numebr of fragments per barcode
+#' Ref: ArchR
+#'
+#' @param chrRegions array of characters, chrRegion names in rawH5File
+#' @param rawH5File string 
+#' @return tibble shape = [length(barcodes), 2], colnames = c("barcode", "count")
+#' @importFrom dplyr %>% group_by summarise arrange desc
+#' @export
 getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
   ## get nfrag per barcode
-  dtList <- laaply(seq_along(chrRegions), function(x) {
+  dtList <- lapply(seq_along(chrRegions), function(x) {
     chrRegion <- chrRegions[x]
     ## fragmentRanges <- paste0("Fragments/", chrRegion, "/Ranges")
     barcodeLength <- rhdf5::h5read(
@@ -44,17 +52,17 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
     )
     dt <- NULL
     if ((length(barcodeValue) > 0) & (length(barcodeLength) > 0)) {
-      dt <- data.table(
+      dt <- data.table::data.table(
         values = barcodeValue,
         lengths = barcodeLength
       )
     }
+    invisible(dt)
   })
   names(dtList) <- chrRegions
   dt <- Reduce(f = "rbind", dtList)
-  dt <- dt[, sum(lengths.V1), by = list(values.V1)]
-  ## Order to reduce numebr of hyperslabs
-  dt <- dt[order(V1, descreasing = TRUE)]
+  colnames(dt) <- c("barcode", "count")
+  dt <- dt %>% group_by(barcode) %>% summarise(count = sum(count)) %>% arrange(desc(count))
   return(dt)
 }
 

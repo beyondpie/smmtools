@@ -6,7 +6,7 @@
 \usage{
 sumFragmentSingleThread(
   tabixFile,
-  chromsSizes,
+  chromSizes,
   outdir,
   sampleName = NULL,
   barcodes = NULL,
