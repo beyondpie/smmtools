@@ -25,6 +25,7 @@ sumFragmentSingleThread <- function(tabixFile, chromsSizes, outdir,
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode
   dtNfragmentPerBarcode <- getNfragmentPerBarcode(chrRegions = chunkName, rawH5File = rawH5File)
+  return(dtNfragmentPerBarcode)
 }
 
 getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
