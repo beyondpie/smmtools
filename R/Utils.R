@@ -124,10 +124,10 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
     return(output)
   }
   frags <- do.call(what = rbind, args = fragList)
-  output <- IRanges::IRanges(start = frags[,1], end = frags[,2])
+  output <- IRanges::IRanges(start = frags[,1], width = frags[,2])
   barcodes <- do.call("c", barcodeList)
   barcodeValue <- do.call("c", barcodeValueList)
-  S4Vectors::mcols(output)$RG <- Rle(values = paste0(sampleName, "#", barcodes),
+  S4Vectors::mcols(output)$RG <- S4Vectors::Rle(values = paste0(sampleName, "#", barcodes),
                                      lengths = barcodeValue)
   return(output)
 }

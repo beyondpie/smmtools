@@ -71,9 +71,9 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
 #' Ref: ArchR
 #' @return List two element: TSSE, TSSReads
 #' @importFrom S4Vectors mcols split DataFrame queryHits subjectHits
-#' @importFrom BiocGenerics strand match start end pmax
+#' @importFrom BiocGenerics strand<- match start end pmax 
 #' @importFrom GenomicRanges GRanges findOverlaps
-#' @importFrom IRanges IRanges width ranges
+#' @importFrom IRanges IRanges width ranges resize
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom rhdf5 h5ls
 #' @export
@@ -106,23 +106,20 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
       )
     )
   )
-  tssFlank$type <- "flank"
-  tssFeatures <- c(tssWindow, tssFlank)
-  tssFeatureList <- split(x = tssFeature, f = seqnames(tssFeatures))
   ## get Available chrs
   groups <- h5ls(file = rawH5File)
-  groups <- groups[groups$group == "/" & groups$otype == "H5I_GROUP", "name"]
-  groups <- groups[grepl("Fragments", groups)]
+  groups <- groups[groups$group == "/Fragments" & groups$otype == "H5I_GROUP", "name"]
 
-  chrs <- gsub(
-    pattern = "Fragments", replacement = "",
-    unique(unlist(strsplit(x = groups, split = "#"))[1])
-  )
-
-  tssFeatureList <- split(x = tssFeature, f = seqnames(tssFeatures))
+  chrs <- unique(gsub(pattern = "#chunk\\d+",
+                      replacement = "",
+                      x = groups))
+  
+  tssFlank$type <- "flank"
+  tssFeatures <- c(tssWindow, tssFlank)
+  tssFeatureList <- split(x = tssFeatures, f = seqnames(tssFeatures))
   tssFeatureList <- tssFeatureList[chrs]
 
-  countDF <- mclapply(X = seq_along(tssFeatureList), FUN = function(i) {
+  countDF <- parallel::mclapply(X = seq_along(tssFeatureList), FUN = function(i) {
     nWindow <- rep(0, length(barcodes))
     names(nWindow) <- barcodes
     ## clone in R
@@ -167,7 +164,7 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
     names(nFlank) <- NULL
     return(DataFrame(nWindow = nWindow, nFlank = nFlank))
   }, mc.cores = nthread)
-  cumDF <- countDF[[i]]
+  cumDF <- countDF[[1]]
   for(i in 2:length(countDF)) {
     cumDF$nWindow <- cumDF$nWindow + countDF[[i]]$nWindow
     cumDF$nFlank <- cumDF$nFlank + countDF[[i]]$nFlank
