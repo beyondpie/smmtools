@@ -182,5 +182,5 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
   names(tssScores) <- barcodes
   tend <- Sys.time()
   message(paste("Get TSS Enrichment Scores ends at", tend))
-  return(list(TSSE = tssScores, TSSReads = cumDf[,1]))
+  return(list(TSSE = tssScores, TSSReads = cumDF[,1]))
 }

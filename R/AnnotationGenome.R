@@ -1,4 +1,4 @@
-#' @useDynLib ArchR
+#' @useDynLib smmtools
 #' @importFrom Rcpp sourceCpp
 NULL
 
