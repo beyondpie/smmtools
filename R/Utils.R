@@ -98,24 +98,31 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' Get fragments from a given chromsome in rawH5File.
 #' Ref: ArchR .getFragsFromArrow
 #' @return fragments IRanges
+#' @importFrom rhdf5 h5ls h5read
 #' @export
-getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, nChunk=3) {
+getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL) {
   o <- rhdf5::h5closeAll()
   nFrags <- 0
   fragList <- list()
   barcodeValueList <- list()
   barcodeList <- list()
-  for(i in 1:nChunk) {
-    barcodeValueList[[i]]  <- fastH5Read(file = rawH5File,
-                             name = paste0("Fragments/", chr, "#chunk", i, "/BarcodeLength"),
-                             method = "fast")
+  groups <- h5ls(file = rawH5File)
+  groups <- groups[groups$group == "/Fragments" & groups$otype == "H5I_GROUP", "name"]
+  groups <- groups[grep(pattern = paste0(chr, "#"), x = groups)]
+  for(i in seq_along(groups)) {
+    g <- groups[i]
+    barcodeValueList[[i]]  <- h5read(file = rawH5File,
+                             name = paste0("Fragments/", g, "/BarcodeLength"))
+    rhdf5::h5closeAll()
     nFrags <- sum(barcodeValueList[[i]]) + nFrags
-    fragList[[i]] <- fastH5Read(file = rawH5File,
-                                name = paste0("Fragments/", chr, "#chunk", i, "/Ranges"),
-                                method = "fast")
-    barcodeList[[i]] <- fastH5Read(file = rawH5File,
-                                   name = paste0("Fragments/", chr, "#chunk", i, "/BarcodeValue"),
-                                   method = "fast")
+    fragList[[i]] <- h5read(file = rawH5File,
+                            name = paste0("Fragments/", g, "/Ranges"))
+    rhdf5::h5closeAll()
+
+    barcodeList[[i]] <- h5read(file = rawH5File,
+                               name = paste0("Fragments/", g, "/BarcodeValue"))
+    rhdf5::h5closeAll()
+
   }
   if(nFrags == 0) {
     output <- IRanges::IRanges(start = 1, end = 1)
@@ -128,7 +135,8 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
   barcodes <- do.call("c", barcodeList)
   barcodeValue <- do.call("c", barcodeValueList)
   S4Vectors::mcols(output)$RG <- S4Vectors::Rle(values = paste0(sampleName, "#", barcodes),
-                                     lengths = barcodeValue)
+                                                lengths = barcodeValue)
+  rhdf5::h5closeAll()
   return(output)
 }
 

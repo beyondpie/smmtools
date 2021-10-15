@@ -78,12 +78,11 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom rhdf5 h5ls
 #' @export
-fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
-                                             rawH5File, nChunkInRawH5File = 3,
+fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
+                                             rawH5File, 
                                              window = 101, norm = 100,
                                              flank = 2000, minNorm = 0.2, maxFragSize = NULL,
-                                             sampleName = NULL,
-                                             nthread = 2) {
+                                             sampleName = NULL) {
   tstart <- Sys.time()
   message(paste("Get TSS Enrichment Scores starts at", tstart))
   TSS <- resize(x = TSS, width = 1, fix = "start")
@@ -120,15 +119,14 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
   tssFeatureList <- split(x = tssFeatures, f = seqnames(tssFeatures))
   tssFeatureList <- tssFeatureList[chrs]
 
-  countDF <- parallel::mclapply(X = seq_along(tssFeatureList), FUN = function(i) {
+  countDF <- lapply(X = seq_along(tssFeatureList), FUN = function(i) {
     nWindow <- rep(0, length(barcodes))
     names(nWindow) <- barcodes
-    ## clone in R
-    nFlank <- nWindow
-    feature <- tssFeatureList[[i]]
+    nFlank <- rep(0, length(barcodes))
+    names(nFlank) <- barcodes
     fragments <- getFragsOfAChrFromRawH5File(
       rawH5File = rawH5File, chr = names(tssFeatureList)[i],
-      sampleName = sampleName, nChunk = nChunkInRawH5File
+      sampleName = sampleName
     )
     if (length(fragments) == 0) {
       names(nWindow) <- NULL
@@ -143,6 +141,7 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
         mcols(fragments)$RG@values,
         barcodes
       )
+      feature <- tssFeatureList[[i]]
       mcols(feature)$typeIdx <- match(mcols(feature)$type, c("window", "flank"))
       ## count each insertion
       for(y in seq_len(2)) {
@@ -169,7 +168,7 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
     names(nWindow) <- NULL
     names(nFlank) <- NULL
     return(DataFrame(nWindow = nWindow, nFlank = nFlank))
-  }, mc.cores = nthread)
+  })
   cumDF <- countDF[[1]]
   for(i in 2:length(countDF)) {
     cumDF$nWindow <- cumDF$nWindow + countDF[[i]]$nWindow
