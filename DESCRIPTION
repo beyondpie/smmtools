@@ -9,6 +9,7 @@ Authors@R:
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Handle single-cell multi-omics sequencing data. Provide a series of tools.
 License: MIT + file LICENSE
+LinkingTo: Rcpp
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
@@ -19,4 +20,5 @@ Imports:
     GenomicRanges,
     pheatmap,
     matrixStats,
-    IRanges
+    IRanges,
+    Rcpp (>= 0.12.16)

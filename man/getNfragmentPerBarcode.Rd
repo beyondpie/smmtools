@@ -5,7 +5,7 @@
 \title{get numebr of fragments per barcode
 Ref: ArchR}
 \usage{
-getNfragmentPerBarcode(chrRegions, rawH5File)
+getNfragmentPerBarcode(chrRegions, rawH5File, sampleName = NULL)
 }
 \arguments{
 \item{chrRegions}{array of characters, chrRegion names in rawH5File}

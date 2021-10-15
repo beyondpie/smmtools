@@ -25,7 +25,8 @@ sumFragmentSingleThread <- function(tabixFile, chromSizes, outdir,
   )
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode
-  dtNfragmentPerBarcode <- getNfragmentPerBarcode(chrRegions = chunkName, rawH5File = rawH5File)
+  dtNfragmentPerBarcode <- getNfragmentPerBarcode(chrRegions = chunkName, rawH5File = rawH5File,
+                                                  sampleName = sampleName)
   return(dtNfragmentPerBarcode)
 }
 
@@ -37,7 +38,7 @@ sumFragmentSingleThread <- function(tabixFile, chromSizes, outdir,
 #' @return tibble shape = [length(barcodes), 2], colnames = c("barcode", "count")
 #' @importFrom dplyr %>% group_by summarise arrange desc
 #' @export
-getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
+getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
   ## get nfrag per barcode
   dtList <- lapply(seq_along(chrRegions), function(x) {
     chrRegion <- chrRegions[x]
@@ -53,7 +54,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
     dt <- NULL
     if ((length(barcodeValue) > 0) & (length(barcodeLength) > 0)) {
       dt <- data.table::data.table(
-        values = barcodeValue,
+        values = paste(sampleName, barcodeValue, sep = "#"),
         lengths = barcodeLength
       )
     }
@@ -70,7 +71,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File) {
 #'
 #' Ref: ArchR
 #' @return List two element: TSSE, TSSReads
-#' @importFrom S4Vectors mcols split DataFrame queryHits subjectHits
+#' @importFrom S4Vectors mcols mcols<- split DataFrame queryHits subjectHits
 #' @importFrom BiocGenerics strand<- match start end pmax 
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges width ranges resize
@@ -142,7 +143,7 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
         mcols(fragments)$RG@values,
         barcodes
       )
-      mcols(feature)$RG@typeIdx <- match(mcols(feature)$type, c("window", "flank"))
+      mcols(feature)$typeIdx <- match(mcols(feature)$type, c("window", "flank"))
       ## count each insertion
       for(y in seq_len(2)) {
         if(y == 1) {
@@ -151,11 +152,16 @@ fastGetTSSEnrichmentMultiThreads <- function(TSS, barcodes,
           temp <- IRanges(end(fragments), width = 1)
         }
         o <- findOverlaps(ranges(feature), temp)
-        x <- as.vector(mcols(fragments)$RG[subjectHits(o)])
-        x <-  (x >= 1) & (x <= length(barcodes))
-        y <- mcols(feature)$typeIdx[queryHits(o)]
-        y <- (y >= 1) & (y <= 2)
-        mat <- y %*% t(x)
+        ## CALL CPP
+        mat <- tabulate2dCpp(
+          x = as.vector(mcols(fragments)$RG[subjectHits(o)]),
+          xmin = 1,
+          xmax = length(barcodes),
+          y = mcols(feature)$typeIdx[queryHits(o)],
+          ymin = 1,
+          ymax = 2
+        )
+
         nWindow <- nWindow + mat[1, ]
         nFlank <- nFlank + mat[2, ]
       }

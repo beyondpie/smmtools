@@ -1,3 +1,7 @@
+#' @useDynLib ArchR
+#' @importFrom Rcpp sourceCpp
+NULL
+
 ## use  package-local variables
 ## Ref: https://stackoverflow.com/questions/12598242/global-variables-in-packages-in-r/12605694
 smmenv <- new.env(parent = emptyenv())
