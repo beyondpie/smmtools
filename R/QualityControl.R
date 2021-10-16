@@ -1,20 +1,26 @@
-#' get barcodes-related fragments stats.
+#' Transform original tabix File to H5File, then get barcodes-related fragments stats.
 #'
-#' Ref: ArchR
-#' 
-#' @param nChunk integer partition each chrom into nChunk pieces
-#' @export
-sumFragmentSingleThread <- function(tabixFile, chromSizes, outdir,
+#' - Ref: ArchR
+#' - Method is run on single core, but the speed should be OK.
+#' - No filtering barcodes here unless we provide barcode array ourselves.
+#' - Side Effect:
+#'   - output rawH5File
+#'   - output sumFragment File (descreasingly ordered by nUniqFrag)
+#'
+#' @param tabixFile string, 10x cell ranger result tab/tab.gz file name
+#' @param chromSizes GRanges, chromname with chromsizes
+#' @param TSS GRanges, transcription start sites
+#' @param outdir string, where to store rawH5File
+#' @param sampleName string, name for the tabix file
+#' @param barcodes vector of string, limite fragment on specific barcodes
+#' @param nChunk integer, partition each chrom into nChunk pieces
+#' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
+#' @export 
+sumFragmentSingleThread <- function(tabixFile, chromSizes, TSS, outdir,
                                     sampleName = NULL, barcodes = NULL,
                                     nChunk = 3) {
   dir.create(outdir, showWarnings = TRUE, recursive = TRUE)
   rawH5File <- file.path(outdir, paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
-  fragmentH5File <- file.path(outdir, paste0(sampleName, "sumFragment.h5"))
-  o <- suppressAll(file.remove(fragmentH5File))
-  o <- rhdf5::h5closeAll()
-  o <- rhdf5::h5createFile(file = fragmentH5File)
-  o <- rhdf5::h5createGroup(file = fragmentH5File, group = "Metadata")
-  o <- rhdf5::h5createGroup(file = fragmentH5File, group = "Fragments")
 
   tileChromSizes <- tileChrom(chromSizes = chromSizes, nChunk = nChunk)
   ## Transform tab.gz to h5 file
@@ -25,9 +31,20 @@ sumFragmentSingleThread <- function(tabixFile, chromSizes, outdir,
   )
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode
-  dtNfragmentPerBarcode <- getNfragmentPerBarcode(chrRegions = chunkName, rawH5File = rawH5File,
+  nFragPerBarcode <- getNfragmentPerBarcode(chrRegions = chunkName, rawH5File = rawH5File,
                                                   sampleName = sampleName)
-  return(dtNfragmentPerBarcode)
+  TSSEnrich <- fastGetTSSEnrichmentSingleThread(TSS = TSS, barcodes = barcodes,
+                                                rawH5File = rawH5File,
+                                                window = 101, norm = 100, flank = 2000,
+                                                minNorm = 0.2, maxFragSize = NULL,
+                                                sampleName = sampleName)
+  sumFrag <- as.data.frame(merge(x = nFragPerBarcode, y = TSSEnrich, by = "barcode", all = TRUE))
+  sumFrag <- sumFrag[order(sumFrag$nUniqFrag, decreasing = TRUE), ]
+  write.table(x = sumFrag,
+              file = file.path(outdir, paste0(sampleName, "sumFragment.csv")),
+              quote = FALSE,
+              sep = ",", row.names = FALSE, col.names = TRUE)
+  return(sumFrag)
 }
 
 #' get numebr of fragments per barcode
@@ -62,7 +79,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
   })
   names(dtList) <- chrRegions
   dt <- Reduce(f = "rbind", dtList)
-  colnames(dt) <- c("barcode", "count")
+  colnames(dt) <- c("barcode", "nUniqFrag")
   dt <- dt %>% group_by(barcode) %>% summarise(count = sum(count)) %>% arrange(desc(count))
   return(dt)
 }
@@ -77,6 +94,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
 #' @importFrom IRanges IRanges width ranges resize
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom rhdf5 h5ls
+#' @return dataframe with cols: barcode,TSSE,TSSRead
 #' @export
 fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
                                              rawH5File, 
@@ -181,5 +199,5 @@ fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
   names(tssScores) <- barcodes
   tend <- Sys.time()
   message(paste("Get TSS Enrichment Scores ends at", tend))
-  return(list(TSSE = tssScores, TSSReads = cumDF[,1]))
+  return(data.frame(barcode = barcodes, TSSE = tssScores, TSSRead = cumDF[, 1]))
 }
