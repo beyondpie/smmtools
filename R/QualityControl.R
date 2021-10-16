@@ -21,6 +21,7 @@
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
 sumFragmentSingleThread <- function(tabixFile, outdir,
+                                    coverH5File = FALSE,
                                     genome = "mm10",
                                     sampleName = NULL, barcodes = NULL,
                                     nChunk = 3,
@@ -35,14 +36,16 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
 
   dir.create(outdir, showWarnings = TRUE, recursive = TRUE)
   rawH5File <- file.path(outdir, paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
-
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
-  ## Transform tab.gz to h5 file
-  tabixToH5SingleThread(
-    tabixFile = tabixFile, tileChromSizes = tileChromSizes,
-    sampleName = sampleName, outH5File = rawH5File,
-    barcode = barcodes
-  )
+  if (!(file.exists(rawH5File) & coverH5File)) {
+    ## Transform tab.gz to h5 file
+    tabixToH5SingleThread(
+      tabixFile = tabixFile, tileChromSizes = tileChromSizes,
+      sampleName = sampleName, outH5File = rawH5File,
+      barcode = barcodes
+    )
+  }
+
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode
   nFragPerBarcode <- getNfragmentPerBarcode(
