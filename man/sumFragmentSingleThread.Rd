@@ -2,20 +2,57 @@
 % Please edit documentation in R/QualityControl.R
 \name{sumFragmentSingleThread}
 \alias{sumFragmentSingleThread}
-\title{get barcodes-related fragments stats.}
+\title{Transform original tabix File to H5File, then get barcodes-related fragments stats.}
 \usage{
 sumFragmentSingleThread(
   tabixFile,
-  chromSizes,
   outdir,
+  genome = "mm10",
   sampleName = NULL,
   barcodes = NULL,
-  nChunk = 3
+  nChunk = 3,
+  tsseWindow = 101,
+  tsseNorm = 100,
+  tsseFlank = 2000,
+  tsseMinNorm = 0.2,
+  tsseMaxFragSize = NULL
 )
 }
 \arguments{
-\item{nChunk}{integer partition each chrom into nChunk pieces}
+\item{tabixFile}{string, 10x cell ranger result tab/tab.gz file name}
+
+\item{outdir}{string, where to store rawH5File}
+
+\item{genome}{string, namely mm9, mm10, hg19 or hg38}
+
+\item{sampleName}{string, name for the tabix file}
+
+\item{barcodes}{vector of string, limite fragment on specific barcodes}
+
+\item{nChunk}{integer, partition each chrom into nChunk pieces}
+
+\item{tsseWindow}{integer}
+
+\item{tsseNorm}{interger}
+
+\item{tsseFlank}{integer}
+
+\item{tsseMinNorm}{float}
+
+\item{tsseMaxFragSize}{integer}
+}
+\value{
+data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 }
 \description{
-Ref: ArchR
+\itemize{
+\item Ref: ArchR
+\item Method is run on single core, but the speed should be OK.
+\item No filtering barcodes here unless we provide barcode array ourselves.
+\item Side Effect:
+\itemize{
+\item output rawH5File
+\item output sumFragment File (descreasingly ordered by nUniqFrag)
+}
+}
 }

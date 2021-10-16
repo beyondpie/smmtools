@@ -8,21 +8,35 @@
 #'   - output sumFragment File (descreasingly ordered by nUniqFrag)
 #'
 #' @param tabixFile string, 10x cell ranger result tab/tab.gz file name
-#' @param chromSizes GRanges, chromname with chromsizes
-#' @param TSS GRanges, transcription start sites
+#' @param genome string, namely mm9, mm10, hg19 or hg38
 #' @param outdir string, where to store rawH5File
 #' @param sampleName string, name for the tabix file
 #' @param barcodes vector of string, limite fragment on specific barcodes
 #' @param nChunk integer, partition each chrom into nChunk pieces
+#' @param tsseWindow integer
+#' @param tsseNorm interger
+#' @param tsseFlank integer
+#' @param tsseMinNorm float
+#' @param tsseMaxFragSize integer
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
-#' @export 
-sumFragmentSingleThread <- function(tabixFile, chromSizes, TSS, outdir,
+#' @export
+sumFragmentSingleThread <- function(tabixFile, outdir,
+                                    genome = "mm10",
                                     sampleName = NULL, barcodes = NULL,
-                                    nChunk = 3) {
+                                    nChunk = 3,
+                                    tsseWindow = 101,
+                                    tsseNorm = 100,
+                                    tsseFlank = 2000,
+                                    tsseMinNorm = 0.2,
+                                    tsseMaxFragSize = NULL) {
+  annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
+  annotGene <- getAnnotFromArchRData(tag = "gene", genome = genome)
+  annotGene <- subsetGeneAnnoByGenomeAnno(geneAnnotation = annotGene, genomeAnnotation = annotGenome)
+
   dir.create(outdir, showWarnings = TRUE, recursive = TRUE)
   rawH5File <- file.path(outdir, paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
 
-  tileChromSizes <- tileChrom(chromSizes = chromSizes, nChunk = nChunk)
+  tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
   ## Transform tab.gz to h5 file
   tabixToH5SingleThread(
     tabixFile = tabixFile, tileChromSizes = tileChromSizes,
@@ -31,19 +45,25 @@ sumFragmentSingleThread <- function(tabixFile, chromSizes, TSS, outdir,
   )
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode
-  nFragPerBarcode <- getNfragmentPerBarcode(chrRegions = chunkName, rawH5File = rawH5File,
-                                                  sampleName = sampleName)
-  TSSEnrich <- fastGetTSSEnrichmentSingleThread(TSS = TSS, barcodes = barcodes,
-                                                rawH5File = rawH5File,
-                                                window = 101, norm = 100, flank = 2000,
-                                                minNorm = 0.2, maxFragSize = NULL,
-                                                sampleName = sampleName)
+  nFragPerBarcode <- getNfragmentPerBarcode(
+    chrRegions = chunkName, rawH5File = rawH5File,
+    sampleName = sampleName
+  )
+  TSSEnrich <- fastGetTSSEnrichmentSingleThread(
+    TSS = annotGene$TSS, barcodes = barcodes,
+    rawH5File = rawH5File,
+    window = tsseWindow, norm = tsseNorm, flank = tsseFlank,
+    minNorm = tsseMinNorm, maxFragSize = tsseMaxFragSize,
+    sampleName = sampleName
+  )
   sumFrag <- as.data.frame(merge(x = nFragPerBarcode, y = TSSEnrich, by = "barcode", all = TRUE))
   sumFrag <- sumFrag[order(sumFrag$nUniqFrag, decreasing = TRUE), ]
-  write.table(x = sumFrag,
-              file = file.path(outdir, paste0(sampleName, "sumFragment.csv")),
-              quote = FALSE,
-              sep = ",", row.names = FALSE, col.names = TRUE)
+  write.table(
+    x = sumFrag,
+    file = file.path(outdir, paste0(sampleName, "sumFragment.csv")),
+    quote = FALSE,
+    sep = ",", row.names = FALSE, col.names = TRUE
+  )
   return(sumFrag)
 }
 
@@ -51,7 +71,7 @@ sumFragmentSingleThread <- function(tabixFile, chromSizes, TSS, outdir,
 #' Ref: ArchR
 #'
 #' @param chrRegions array of characters, chrRegion names in rawH5File
-#' @param rawH5File string 
+#' @param rawH5File string
 #' @return tibble shape = [length(barcodes), 2], colnames = c("barcode", "count")
 #' @importFrom dplyr %>% group_by summarise arrange desc
 #' @export
@@ -80,7 +100,10 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
   names(dtList) <- chrRegions
   dt <- Reduce(f = "rbind", dtList)
   colnames(dt) <- c("barcode", "nUniqFrag")
-  dt <- dt %>% group_by(barcode) %>% summarise(count = sum(count)) %>% arrange(desc(count))
+  dt <- dt %>%
+    group_by(barcode) %>%
+    summarise(count = sum(count)) %>%
+    arrange(desc(count))
   return(dt)
 }
 
@@ -89,7 +112,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
 #' Ref: ArchR
 #' @return List two element: TSSE, TSSReads
 #' @importFrom S4Vectors mcols mcols<- split DataFrame queryHits subjectHits
-#' @importFrom BiocGenerics strand<- match start end pmax 
+#' @importFrom BiocGenerics strand<- match start end pmax
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges width ranges resize
 #' @importFrom GenomeInfoDb seqnames
@@ -97,7 +120,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
 #' @return dataframe with cols: barcode,TSSE,TSSRead
 #' @export
 fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
-                                             rawH5File, 
+                                             rawH5File,
                                              window = 101, norm = 100,
                                              flank = 2000, minNorm = 0.2, maxFragSize = NULL,
                                              sampleName = NULL) {
@@ -128,10 +151,12 @@ fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
   groups <- h5ls(file = rawH5File)
   groups <- groups[groups$group == "/Fragments" & groups$otype == "H5I_GROUP", "name"]
 
-  chrs <- unique(gsub(pattern = "#chunk\\d+",
-                      replacement = "",
-                      x = groups))
-  
+  chrs <- unique(gsub(
+    pattern = "#chunk\\d+",
+    replacement = "",
+    x = groups
+  ))
+
   tssFlank$type <- "flank"
   tssFeatures <- c(tssWindow, tssFlank)
   tssFeatureList <- split(x = tssFeatures, f = seqnames(tssFeatures))
@@ -162,8 +187,8 @@ fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
       feature <- tssFeatureList[[i]]
       mcols(feature)$typeIdx <- match(mcols(feature)$type, c("window", "flank"))
       ## count each insertion
-      for(y in seq_len(2)) {
-        if(y == 1) {
+      for (y in seq_len(2)) {
+        if (y == 1) {
           temp <- IRanges(start(fragments), width = 1)
         } else {
           temp <- IRanges(end(fragments), width = 1)
@@ -188,12 +213,12 @@ fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
     return(DataFrame(nWindow = nWindow, nFlank = nFlank))
   })
   cumDF <- countDF[[1]]
-  for(i in 2:length(countDF)) {
+  for (i in 2:length(countDF)) {
     cumDF$nWindow <- cumDF$nWindow + countDF[[i]]$nWindow
     cumDF$nFlank <- cumDF$nFlank + countDF[[i]]$nFlank
   }
-  cWn <- cumDF[,1] / window
-  cFn <- cumDF[,2] / norm
+  cWn <- cumDF[, 1] / window
+  cFn <- cumDF[, 2] / norm
   ## pmax: like Relu(vec - scalar) + scalar
   tssScores <- round(2 * cWn / pmax(cFn, minNorm), 3)
   names(tssScores) <- barcodes
