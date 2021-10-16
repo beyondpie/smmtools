@@ -7,6 +7,7 @@
 sumFragmentSingleThread(
   tabixFile,
   outdir,
+  coverH5File = TRUE,
   genome = "mm10",
   sampleName = NULL,
   barcodes = NULL,
@@ -22,6 +23,8 @@ sumFragmentSingleThread(
 \item{tabixFile}{string, 10x cell ranger result tab/tab.gz file name}
 
 \item{outdir}{string, where to store rawH5File}
+
+\item{coverH5File}{bool, whether to cover the rawH5File if exists}
 
 \item{genome}{string, namely mm9, mm10, hg19 or hg38}
 

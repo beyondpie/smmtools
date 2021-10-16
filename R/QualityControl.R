@@ -8,8 +8,9 @@
 #'   - output sumFragment File (descreasingly ordered by nUniqFrag)
 #'
 #' @param tabixFile string, 10x cell ranger result tab/tab.gz file name
-#' @param genome string, namely mm9, mm10, hg19 or hg38
 #' @param outdir string, where to store rawH5File
+#' @param coverH5File bool, whether to cover the rawH5File if exists
+#' @param genome string, namely mm9, mm10, hg19 or hg38
 #' @param sampleName string, name for the tabix file
 #' @param barcodes vector of string, limite fragment on specific barcodes
 #' @param nChunk integer, partition each chrom into nChunk pieces
@@ -21,7 +22,7 @@
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
 sumFragmentSingleThread <- function(tabixFile, outdir,
-                                    coverH5File = FALSE,
+                                    coverH5File = TRUE,
                                     genome = "mm10",
                                     sampleName = NULL, barcodes = NULL,
                                     nChunk = 3,
@@ -32,10 +33,13 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
                                     tsseMaxFragSize = NULL) {
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
   annotGene <- getAnnotFromArchRData(tag = "gene", genome = genome)
-  annotGene <- subsetGeneAnnoByGenomeAnno(geneAnnotation = annotGene, genomeAnnotation = annotGenome)
+  annotGene <- subsetGeneAnnoByGenomeAnno(geneAnnotation = annotGene,
+                                          genomeAnnotation = annotGenome)
 
   dir.create(outdir, showWarnings = TRUE, recursive = TRUE)
-  rawH5File <- file.path(outdir, paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
+  rawH5File <- file.path(outdir,
+                         paste0(paste(sampleName,
+                                      "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
   if (!(file.exists(rawH5File) & coverH5File)) {
     ## Transform tab.gz to h5 file
@@ -105,8 +109,8 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
   colnames(dt) <- c("barcode", "nUniqFrag")
   dt <- dt %>%
     group_by(barcode) %>%
-    summarise(count = sum(count)) %>%
-    arrange(desc(count))
+    summarise(nUniqFrag = sum(nUniqFrag)) %>%
+    arrange(desc(nUniqFrag))
   return(dt)
 }
 
