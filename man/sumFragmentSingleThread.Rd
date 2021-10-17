@@ -7,7 +7,7 @@
 sumFragmentSingleThread(
   tabixFile,
   outdir,
-  coverH5File = TRUE,
+  coverH5File = FALSE,
   genome = "mm10",
   sampleName = NULL,
   barcodes = NULL,

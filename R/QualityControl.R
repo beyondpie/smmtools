@@ -22,7 +22,7 @@
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
 sumFragmentSingleThread <- function(tabixFile, outdir,
-                                    coverH5File = TRUE,
+                                    coverH5File = FALSE,
                                     genome = "mm10",
                                     sampleName = NULL, barcodes = NULL,
                                     nChunk = 3,
@@ -41,13 +41,16 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
                          paste0(paste(sampleName,
                                       "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
-  if (!(file.exists(rawH5File) & coverH5File)) {
+  if (!(file.exists(rawH5File) & (!coverH5File) )) {
+    message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
     ## Transform tab.gz to h5 file
     tabixToH5SingleThread(
       tabixFile = tabixFile, tileChromSizes = tileChromSizes,
       sampleName = sampleName, outH5File = rawH5File,
       barcode = barcodes
     )
+  } else {
+    message(paste(rawH5File, "is founded, and coverH5File is",coverH5File))
   }
 
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
@@ -57,7 +60,7 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
     sampleName = sampleName
   )
   TSSEnrich <- fastGetTSSEnrichmentSingleThread(
-    TSS = annotGene$TSS, barcodes = barcodes,
+    TSS = annotGene$TSS, barcodes = nFragPerBarcode$barcode,
     rawH5File = rawH5File,
     window = tsseWindow, norm = tsseNorm, flank = tsseFlank,
     minNorm = tsseMinNorm, maxFragSize = tsseMaxFragSize,
