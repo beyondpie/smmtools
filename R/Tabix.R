@@ -19,6 +19,9 @@ tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
   tstart <- Sys.time()
   message(paste("Tabix to h5 with single thread starts at", tstart), "...")
   o <- rhdf5::h5closeAll()
+  if(file.exists(outH5File)) {
+    unlink(outH5File)
+  }
   o <- rhdf5::h5createFile(file = outH5File)
   o <- rhdf5::h5createGroup(file = outH5File, group = "Fragments")
   o <- rhdf5::h5createGroup(file = outH5File, group = "Metadata")
