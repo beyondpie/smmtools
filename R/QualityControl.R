@@ -41,7 +41,7 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
     outdir,
     paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
-  if (coverH5File ) {
+  if (coverH5File | (!file.exists(rawH5File))) {
     message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
     ## Transform tab.gz to h5 file
     tabixToH5SingleThread(
