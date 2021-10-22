@@ -9,6 +9,7 @@
 #'
 #' @param tabixFile string, 10x cell ranger result tab/tab.gz file name
 #' @param outdir string, where to store rawH5File
+#' @param outfilenm string, output file name, if NULL, a default one will be genereated.
 #' @param coverH5File bool, whether to cover the rawH5File if exists
 #' @param genome string, namely mm9, mm10, hg19 or hg38
 #' @param sampleName string, name for the tabix file
@@ -22,6 +23,7 @@
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
 sumFragmentSingleThread <- function(tabixFile, outdir,
+                                    outfilenm = NULL,
                                     coverH5File = FALSE,
                                     genome = "mm10",
                                     sampleName = NULL, barcodes = NULL,
@@ -35,11 +37,16 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
   annotGene <- getAnnotFromArchRData(tag = "gene", genome = genome)
   annotGene <- subsetGeneAnnoByGenomeAnno(geneAnnotation = annotGene,
                                           genomeAnnotation = annotGenome)
-
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
-  rawH5File <- file.path(
-    outdir,
-    paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5"))
+  if (is.null(outfilenm)) {
+    rawH5File <- file.path(
+      outdir,
+      paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5")
+    )
+  } else{
+    rawH5File <- file.path(outdir, outfilenm)
+  }
+  
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
   if (coverH5File | (!file.exists(rawH5File))) {
     message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
