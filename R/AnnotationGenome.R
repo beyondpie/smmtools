@@ -88,7 +88,7 @@ getBlacklist <- function(genome) {
   lowergenome <- tolower(genome)
   if (lowergenoem %in% smmenv$genomeInfo$genome) {
     bl <- tryCatch({
-      blacklist <- rtracklayer::import.bed(smmenv$genoemInfo[lowergenome, "blacklist"])
+      blacklist <- rtracklayer::import.bed(smmenv$genomeInfo[lowergenome, "blacklist"])
     }, error = function(x) {
       message("Find the blacklist, but failed at download. Return Empty GRanges.")
       GenomicRanges::GRanges()
