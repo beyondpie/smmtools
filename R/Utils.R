@@ -98,9 +98,10 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' Get fragments from a given chromsome in rawH5File.
 #' Ref: ArchR .getFragsFromArrow
 #' @return fragments IRanges
-#' @importFrom rhdf5 h5ls h5read
+#' @importFrom rhdf5 h5ls h5read h5closeAll
+#' @importFrom S4Vectors mcols mcols<- match
 #' @export
-getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL) {
+getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, barcodes = NULL) {
   o <- rhdf5::h5closeAll()
   nFrags <- 0
   fragList <- list()
@@ -113,20 +114,20 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL) 
     g <- groups[i]
     barcodeValueList[[i]]  <- h5read(file = rawH5File,
                              name = paste0("Fragments/", g, "/BarcodeLength"))
-    rhdf5::h5closeAll()
+    h5closeAll()
     nFrags <- sum(barcodeValueList[[i]]) + nFrags
     fragList[[i]] <- h5read(file = rawH5File,
                             name = paste0("Fragments/", g, "/Ranges"))
-    rhdf5::h5closeAll()
+    h5closeAll()
 
     barcodeList[[i]] <- h5read(file = rawH5File,
                                name = paste0("Fragments/", g, "/BarcodeValue"))
-    rhdf5::h5closeAll()
+    h5closeAll()
 
   }
   if(nFrags == 0) {
     output <- IRanges::IRanges(start = 1, end = 1)
-    S4Vectors::mcols(output)$RG <- c("tmp")
+    mcols(output)$RG <- c("tmp")
     output <- output[-1, ]
     return(output)
   }
@@ -134,9 +135,12 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL) 
   output <- IRanges::IRanges(start = frags[,1], width = frags[,2])
   barcodes <- do.call("c", barcodeList)
   barcodeValue <- do.call("c", barcodeValueList)
-  S4Vectors::mcols(output)$RG <- S4Vectors::Rle(values = paste0(sampleName, "#", barcodes),
+  :mcols(output)$RG <- S4Vectors::Rle(values = paste0(sampleName, "#", barcodes),
                                                 lengths = barcodeValue)
-  rhdf5::h5closeAll()
+  if(!is.null(barcodes)) {
+    output <- output[BiocGenerics::which( match(mcols(output)$RG, barcodes, nomatch = 0) > 0 )]
+  }
+  h5closeAll()
   return(output)
 }
 
