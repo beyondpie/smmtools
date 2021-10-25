@@ -77,7 +77,7 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
   sumFrag <- sumFrag[order(sumFrag$nUniqFrag, decreasing = TRUE), ]
   write.table(
     x = sumFrag,
-    file = file.path(outdir, paste0(sampleName, "sumFragment.csv")),
+    file = file.path(outdir, paste0(sampleName, "_sumFragment.csv")),
     quote = FALSE,
     sep = ",", row.names = FALSE, col.names = TRUE
   )
