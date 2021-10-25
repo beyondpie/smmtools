@@ -134,7 +134,7 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
 #' @importFrom IRanges IRanges width ranges resize
 #' @importFrom GenomeInfoDb seqnames
 #' @importFrom rhdf5 h5ls
-#' @return dataframe with cols: barcode,TSSE,TSSRead
+#' @return dataframe with cols, barcode,TSSE,TSSRead
 #' @export
 fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
                                              rawH5File,
