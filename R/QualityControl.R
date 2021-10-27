@@ -195,7 +195,7 @@ fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
     names(nFlank) <- barcodes
     fragments <- getFragsOfAChrFromRawH5File(
       rawH5File = rawH5File, chr = names(tssFeatureList)[i],
-      sampleName = sampleName
+      sampleName = sampleName, barcodes = NULL
     )
     if (length(fragments) == 0) {
       names(nWindow) <- NULL
