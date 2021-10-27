@@ -116,7 +116,8 @@ getNfragmentPerBarcode <- function(chrRegions, rawH5File, sampleName = NULL) {
     dt <- NULL
     if ((length(barcodeValue) > 0) & (length(barcodeLength) > 0)) {
       dt <- data.table::data.table(
-        values = paste(sampleName, barcodeValue, sep = "#"),
+        ## values = paste(sampleName, barcodeValue, sep = "#"),
+        values = barcodeValue,
         lengths = barcodeLength
       )
     }

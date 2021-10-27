@@ -139,7 +139,7 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
                                                 lengths = barcodeValue)
   if(!is.null(barcodes)) {
     ## barcodes_with_sampleName <- paste0(sampleName, "#", barcodes)
-    outputFiltered <- output[BiocGenerics::which( match(mcols(output)$RG, barcodes_with_sampleName, nomatch = 0) > 0 )]
+    outputFiltered <- output[BiocGenerics::which( match(mcols(output)$RG, barcodes, nomatch = 0) > 0 )]
   }
   h5closeAll()
   return(outputFiltered)
