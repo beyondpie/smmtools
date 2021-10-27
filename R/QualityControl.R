@@ -51,7 +51,17 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
   }
 
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
-  if (coverH5File | (!file.exists(rawH5File))) {
+  if (coverH5File) {
+    message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
+    ## Transform tab.gz to h5 file
+    tabixToH5SingleThread(
+      tabixFile = tabixFile, tileChromSizes = tileChromSizes,
+      sampleName = sampleName, outH5File = rawH5File,
+      barcode = barcodes
+    )
+  }
+  else if (!file.exists(rawH5File)) {
+    message(paste("Regenerate", rawH5File, "since it does not exist."))
     message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
     ## Transform tab.gz to h5 file
     tabixToH5SingleThread(
@@ -60,7 +70,7 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
       barcode = barcodes
     )
   } else {
-    message(paste(rawH5File, "is kept without update."))
+    message(paste(rawH5File, "exists, and is kept without update."))
   }
 
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
