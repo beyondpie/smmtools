@@ -50,7 +50,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     o <- h5closeAll()
     chr <- names(chromLengths)[z]
     chrl <- chromLengths[z]
-    message(paste(chr, "with length ", chrl, "."))
+    message(paste(chr, "with length ", chrl))
     fragments <- getFragsOfAChrFromRawH5File(rawH5File = rawH5File, chr = chr,
                                              sampleName = sampleName,
                                              barcodes = barcodes)
@@ -83,12 +83,12 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
                     dims = c(lengthI,1), level = 0)
     h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i"))
     
-    rhdf5::h5createDateset(file = outfile, dataset = paste0(chr, "/j"), storage.mode = "integer",
+    h5createDataset(file = outfile, dataset = paste0(chr, "/j"), storage.mode = "integer",
                     dims = c(lengthI,1), level = 0)
     ## since sparseMatrix row starts from zero, we add one
     h5write(obj = mat@j, file = outfile, name = paste0(chr, "/j"))
     
-    rhdf5::h5createDataset(file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
+    h5createDataset(file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
                     dims = c(lengthI,1), level = 0)
     h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x"))
     
@@ -97,11 +97,11 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## effective ncols
     lengthRle <- length(j@lengths)
     
-    rhdf5::h5createDataset(file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
+    h5createDataset(file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
                     dims = c(lengthRle,1), level = 0)
     h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths"))
     
-    rhdf5::h5createDataset(file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
+    h5createDataset(file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
                     dims = c(lengthRle, 1), level = 0)
     ## corresoinds to cols with elements
     h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues"))
