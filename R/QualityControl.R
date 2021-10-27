@@ -24,6 +24,7 @@
 #' @export
 sumFragmentSingleThread <- function(tabixFile, outdir,
                                     outfilenm = NULL,
+                                    outsumFragFilenm = NULL,
                                     coverH5File = FALSE,
                                     genome = "mm10",
                                     sampleName = NULL, barcodes = NULL,
@@ -35,18 +36,20 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
                                     tsseMaxFragSize = NULL) {
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
   annotGene <- getAnnotFromArchRData(tag = "gene", genome = genome)
-  annotGene <- subsetGeneAnnoByGenomeAnno(geneAnnotation = annotGene,
-                                          genomeAnnotation = annotGenome)
+  annotGene <- subsetGeneAnnoByGenomeAnno(
+    geneAnnotation = annotGene,
+    genomeAnnotation = annotGenome
+  )
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   if (is.null(outfilenm)) {
     rawH5File <- file.path(
       outdir,
       paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5")
     )
-  } else{
+  } else {
     rawH5File <- file.path(outdir, outfilenm)
   }
-  
+
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
   if (coverH5File | (!file.exists(rawH5File))) {
     message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
@@ -75,9 +78,14 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
   )
   sumFrag <- as.data.frame(merge(x = nFragPerBarcode, y = TSSEnrich, by = "barcode", all = TRUE))
   sumFrag <- sumFrag[order(sumFrag$nUniqFrag, decreasing = TRUE), ]
+  if (is.null(outsumFragFilenm)) {
+    sumFragFile <- file.path(outdir, paste0(sampleName, "_sumFragment.csv"))
+  } else {
+    sumFragFile <- file.path(outdir, paste0(sampleName, "_sumFragment.csv"))
+  }
   write.table(
     x = sumFrag,
-    file = file.path(outdir, paste0(sampleName, "_sumFragment.csv")),
+    file = sumFragFile,
     quote = FALSE,
     sep = ",", row.names = FALSE, col.names = TRUE
   )
