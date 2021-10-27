@@ -8,7 +8,6 @@
 #'   - output sumFragment File (descreasingly ordered by nUniqFrag)
 #'
 #' @param tabixFile string, 10x cell ranger result tab/tab.gz file name
-#' @param outdir string, where to store rawH5File
 #' @param outfilenm string, output file name, if NULL, a default one will be genereated.
 #' @param coverH5File bool, whether to cover the rawH5File if exists
 #' @param genome string, namely mm9, mm10, hg19 or hg38
@@ -22,11 +21,11 @@
 #' @param tsseMaxFragSize integer
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
-sumFragmentSingleThread <- function(tabixFile, outdir,
-                                    outfilenm = NULL,
-                                    outsumFragFilenm = NULL,
-                                    coverH5File = FALSE,
-                                    genome = "mm10",
+sumFragmentSingleThread <- function(tabixFile,
+                                    rawH5File,
+                                    sumFragFile,
+                                    coverH5File,
+                                    genome,
                                     sampleName = NULL, barcodes = NULL,
                                     nChunk = 3,
                                     tsseWindow = 101,
@@ -41,14 +40,6 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
     genomeAnnotation = annotGenome
   )
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
-  if (is.null(outfilenm)) {
-    rawH5File <- file.path(
-      outdir,
-      paste0(paste(sampleName, "tabix2H5", "nChunk", nChunk, sep = "_"), ".h5")
-    )
-  } else {
-    rawH5File <- file.path(outdir, outfilenm)
-  }
 
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
   if (coverH5File) {
@@ -88,11 +79,6 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
   )
   sumFrag <- as.data.frame(merge(x = nFragPerBarcode, y = TSSEnrich, by = "barcode", all = TRUE))
   sumFrag <- sumFrag[order(sumFrag$nUniqFrag, decreasing = TRUE), ]
-  if (is.null(outsumFragFilenm)) {
-    sumFragFile <- file.path(outdir, paste0(sampleName, "_sumFragment.csv"))
-  } else {
-    sumFragFile <- file.path(outdir, paste0(sampleName, "_sumFragment.csv"))
-  }
   invisible(write.table(
     x = sumFrag,
     file = sumFragFile,
