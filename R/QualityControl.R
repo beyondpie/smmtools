@@ -83,12 +83,12 @@ sumFragmentSingleThread <- function(tabixFile, outdir,
   } else {
     sumFragFile <- file.path(outdir, paste0(sampleName, "_sumFragment.csv"))
   }
-  write.table(
+  invisible(write.table(
     x = sumFrag,
     file = sumFragFile,
     quote = FALSE,
     sep = ",", row.names = FALSE, col.names = TRUE
-  )
+  ))
   return(sumFrag)
 }
 
