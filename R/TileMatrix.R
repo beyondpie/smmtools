@@ -36,10 +36,10 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     binarize = FALSE,
     stringsAsFactors=FALSE)
 
-  barcodes_with_sampleName <- barcodes
-  if (!grepl(pattern = "#", barcodes[1], fixed = TRUE)) {
-    barcodes_with_sampleName <- paste0(sampleName, "#", barcodes)
-  }
+  ## barcodes_with_sampleName <- barcodes
+  ## if (!grepl(pattern = "#", barcodes[1], fixed = TRUE)) {
+  ##   barcodes_with_sampleName <- paste0(sampleName, "#", barcodes)
+  ## }
   
   featureDF <- lapply(seq_along(chromLengths), function(x){
     DataFrame(seqnames = names(chromLengths)[x], idx = seq_len(trunc(chromLengths[x])/tileSize + 1))
@@ -53,15 +53,15 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     message(paste(chr, "with length ", chrl, "."))
     fragments <- getFragsOfAChrFromRawH5File(rawH5File = rawH5File, chr = chr,
                                              sampleName = sampleName,
-                                             barcodes = barcodes_with_sampleName)
+                                             barcodes = barcodes)
     nTiles <- trunc(chrl / tileSize) + 1
-    matchBarcodes <- match(mcols(fragments)$RG, barcodes_with_sampleName)
+    matchBarcodes <- match(mcols(fragments)$RG, barcodes)
     mat <- Matrix::sparseMatrix(
       i = as.integer(c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1),
       j = as.integer(as.vector(c(matchBarcodes, matchBarcodes))),
       x = rep(1, 2 * length(fragments))
     )
-    colnames(mat) <- barcodes_with_sampleName
+    colnames(mat) <- barcodes
     ## remove blacklisted tiles
     if (!is.null(blacklist) & (length(blacklist) > 0)) {
       blacklistz <- blacklist[[chr]]
