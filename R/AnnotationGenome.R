@@ -86,7 +86,7 @@ installGenomeRelatedDatabase <- function(genome, dbnm) {
 #' @export
 getBlacklist <- function(genome) {
   lowergenome <- tolower(genome)
-  if (lowergenoem %in% smmenv$genomeInfo$genome) {
+  if (lowergenome %in% smmenv$genomeInfo$genome) {
     bl <- tryCatch({
       blacklist <- rtracklayer::import.bed(smmenv$genomeInfo[lowergenome, "blacklist"])
     }, error = function(x) {
