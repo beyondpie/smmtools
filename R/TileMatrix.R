@@ -4,7 +4,7 @@
 #'
 #' @param outfilenm string, end with .h5
 #' @param barcodes vector of string, no need to append sampleName, will do that in this code block
-#' @importFrom rhdf5 h5createFile h5createGroup h5createDataset h5closeAll
+#' @importFrom rhdf5 h5createFile h5createGroup h5createDataset h5closeAll h5write
 #' @importFrom S4Vectors start end match DataFrame mcols Rle
 #' @export
 getTileMatrix <- function(rawH5File, outdir, outfilenm,
