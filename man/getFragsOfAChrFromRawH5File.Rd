@@ -5,7 +5,12 @@
 \title{Get fragments from a given chromsome in rawH5File.
 Ref: ArchR .getFragsFromArrow}
 \usage{
-getFragsOfAChrFromRawH5File(rawH5File, chr = "chr1", sampleName = NULL)
+getFragsOfAChrFromRawH5File(
+  rawH5File,
+  chr = "chr1",
+  sampleName = NULL,
+  barcodes = NULL
+)
 }
 \value{
 fragments IRanges

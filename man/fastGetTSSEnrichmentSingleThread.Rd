@@ -19,7 +19,7 @@ fastGetTSSEnrichmentSingleThread(
 \value{
 List two element: TSSE, TSSReads
 
-dataframe with cols: barcode,TSSE,TSSRead
+dataframe with cols, barcode,TSSE,TSSRead
 }
 \description{
 Ref: ArchR
