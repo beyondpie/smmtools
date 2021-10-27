@@ -54,8 +54,8 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     nTiles <- trunc(chrl / tileSize) + 1
     matchBarcodes <- match(mcols(fragments)$RG, barcodes_with_sampleName)
     mat <- Matrix::sparseMatrix(
-      i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
-      j = as.vector(c(matchBarcodes, matchBarcodes)),
+      i = as.integer(c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1),
+      j = as.integer(as.vector(c(matchBarcodes, matchBarcodes))),
       x = rep(1, 2 * length(fragments))
     )
     colnames(mat) <- barcodes_with_sampleName
