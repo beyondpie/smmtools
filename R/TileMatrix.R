@@ -3,6 +3,7 @@
 #' Ref: ArchR
 #'
 #' @param outfilenm string, end with .h5
+#' @param barcodes vector of string, no need to append sampleName, will do that in this code block
 #' @importFrom rhdf5 h5createFile h5createGroup h5createDataset h5closeAll
 #' @importFrom S4Vectors start end match DataFrame mcols Rle
 #' @export
@@ -26,6 +27,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   
   chromSizes <- annotGenome$chromSizes
   chromLengths <- end(chromSizes)
+  names(chromLengths) <- chromSizes@seqinfo@seqnames
 
   dfParams <- data.frame(
     seqnames = names(chromLengths), 
@@ -34,6 +36,8 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     binarize = FALSE,
     stringsAsFactors=FALSE)
 
+  barcodes_with_sampleName <- paste0(sampleName, "#", barcodes)
+  
   featureDF <- lapply(seq_along(chromLengths), function(x){
     DataFrame(seqnames = names(chromLengths)[x], idx = seq_len(trunc(chromLengths[x])/tileSize + 1))
   }) %>% Reduce("rbind", .)
@@ -43,18 +47,18 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     o <- h5closeAll()
     chr <- names(chromLengths)[z]
     chrl <- chromLengths[z]
-    message(paste(chr, "with length ", chrl, "..."))
+    message(paste(chr, "with length ", chrl, "."))
     fragments <- getFragsOfAChrFromRawH5File(rawH5File = rawH5File, chr = chr,
                                              sampleName = sampleName,
-                                             barcodes = barcodes)
+                                             barcodes = barcodes_with_sampleName)
     nTiles <- trunc(chrl / tileSize) + 1
-    matchBarcodes <- match(mcols(fragments)$RG, barcodes)
+    matchBarcodes <- match(mcols(fragments)$RG, barcodes_with_sampleName)
     mat <- Matrix::sparseMatrix(
       i = c(trunc(start(fragments) / tileSize), trunc(end(fragments) / tileSize)) + 1,
       j = as.vector(c(matchBarcodes, matchBarcodes)),
       x = rep(1, 2 * length(fragments))
     )
-    colnames(mat) <- barcodes
+    colnames(mat) <- barcodes_with_sampleName
     ## remove blacklisted tiles
     if (!is.null(blacklist) & (length(blacklist) > 0)) {
       blacklistz <- blacklist[[chr]]

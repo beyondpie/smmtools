@@ -17,6 +17,8 @@ getTileMatrix(
 }
 \arguments{
 \item{outfilenm}{string, end with .h5}
+
+\item{barcodes}{vector of string, no need to append sampleName, will do that in this code block}
 }
 \description{
 Ref: ArchR
