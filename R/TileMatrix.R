@@ -31,7 +31,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     seqnames = names(chromLengths), 
     length = as.vector(chromLengths), 
     tileSize = tileSize, 
-    binarize = binarize,
+    binarize = FALSE,
     stringsAsFactors=FALSE)
 
   featureDF <- lapply(seq_along(chromLengths), function(x){
