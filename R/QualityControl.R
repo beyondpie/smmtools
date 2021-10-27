@@ -39,7 +39,8 @@ sumFragmentSingleThread <- function(tabixFile,
     geneAnnotation = annotGene,
     genomeAnnotation = annotGenome
   )
-  dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
+  dir.create(path = dirname(rawH5File), showWarnings = FALSE, recursive = TRUE)
+  dir.create(path = dirname(sumFragFile), showWarnings = FALSE, recursive = TRUE)
 
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
   if (coverH5File) {
