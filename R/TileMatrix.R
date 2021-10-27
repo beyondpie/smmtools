@@ -36,7 +36,10 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     binarize = FALSE,
     stringsAsFactors=FALSE)
 
-  barcodes_with_sampleName <- paste0(sampleName, "#", barcodes)
+  barcodes_with_sampleName <- barcodes
+  if (!grepl(pattern = "#", barcodes[1], fixed = TRUE)) {
+    barcodes_with_sampleName <- paste0(sampleName, "#", barcodes)
+  }
   
   featureDF <- lapply(seq_along(chromLengths), function(x){
     DataFrame(seqnames = names(chromLengths)[x], idx = seq_len(trunc(chromLengths[x])/tileSize + 1))
