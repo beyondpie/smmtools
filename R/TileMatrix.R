@@ -28,6 +28,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   chromSizes <- annotGenome$chromSizes
   chromLengths <- end(chromSizes)
   names(chromLengths) <- chromSizes@seqinfo@seqnames
+  chromLengths <- chromLengths[!(match(names(chromLengths), excludeChr, nomatch = 0) > 0)]
 
   dfParams <- data.frame(
     seqnames = names(chromLengths), 
