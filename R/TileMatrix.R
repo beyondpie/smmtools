@@ -79,7 +79,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## save to file
     h5createGroup(file = outfile, group = chr)
     lengthI <- length(mat@i)
-    rhdf5::h5createDateset(file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
+    h5createDataset(file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
                     dims = c(lengthI,1), level = 0)
     h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i"))
     
