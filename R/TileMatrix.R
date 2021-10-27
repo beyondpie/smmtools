@@ -79,16 +79,16 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## save to file
     h5createGroup(file = outfile, group = chr)
     lengthI <- length(mat@i)
-    h5createDateset(file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
+    rhdf5::h5createDateset(file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
                     dims = c(lengthI,1), level = 0)
     h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i"))
     
-    h5createDateset(file = outfile, dataset = paste0(chr, "/j"), storage.mode = "integer",
+    rhdf5::h5createDateset(file = outfile, dataset = paste0(chr, "/j"), storage.mode = "integer",
                     dims = c(lengthI,1), level = 0)
     ## since sparseMatrix row starts from zero, we add one
     h5write(obj = mat@j, file = outfile, name = paste0(chr, "/j"))
     
-    h5createDataset(file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
+    rhdf5::h5createDataset(file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
                     dims = c(lengthI,1), level = 0)
     h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x"))
     
@@ -97,11 +97,11 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## effective ncols
     lengthRle <- length(j@lengths)
     
-    h5createDataset(file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
+    rhdf5::h5createDataset(file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
                     dims = c(lengthRle,1), level = 0)
     h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths"))
     
-    h5createDataset(file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
+    rhdf5::h5createDataset(file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
                     dims = c(lengthRle, 1), level = 0)
     ## corresoinds to cols with elements
     h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues"))

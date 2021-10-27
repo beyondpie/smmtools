@@ -21,4 +21,10 @@ Imports:
     pheatmap,
     matrixStats,
     IRanges,
-    Rcpp (>= 0.12.16)
+    Rcpp (>= 0.12.16),
+    dplyr,
+    rhdf5,
+    BiocGenerics,
+    GenomeInfoDb,
+    S4Vectors
+    
