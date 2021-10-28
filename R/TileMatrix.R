@@ -18,9 +18,9 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   outfile <- file.path(outdir, outfilenm)
   rhdf5::h5createFile(file = outfile)
-  h5createGroup(file = outfile, group = "TileMatrix")
-  h5createGroup(file = outfile, group = "colnames")
-  h5createGroup(file = outfile, group = "rownames")
+  ## h5createGroup(file = outfile, group = "TileMatrix")
+  ## h5createGroup(file = outfile, group = "colnames")
+  ## h5createGroup(file = outfile, group = "rownames")
   
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
   blacklist <- getBlacklist(genome = genome)
