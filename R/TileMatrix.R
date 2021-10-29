@@ -57,7 +57,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   featureDF$start <- (featureDF$idx - 1) * tileSize
 
   df <- data.frame(featureDF, stringsAsFactors = FALSE)
-  h5write(obj = df, file = outfilenm, name = "/FeatureDF")
+  h5write(obj = df, file = outfile, name = "/FeatureDF")
 
   for (z in seq_along(chromLengths)) {
     o <- h5closeAll()
