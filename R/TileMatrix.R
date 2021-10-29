@@ -25,14 +25,15 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
 
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
 
-  blacklist <- annotGenome$blackList
+  blacklist <- annotGenome$blacklist
   if (!is.null(blacklist)) {
     if (length(blacklist) > 0) {
       message(paste("Find blacklist for genome", genome))
       blacklist <- split(blacklist, seqnames(blacklist))
     }
+  }else {
+    message(paste("No blacklist for genome", genome))
   }
-  message(paste("No blacklist for genome", genome))
   
   chromSizes <- annotGenome$chromSizes
   chromLengths <- end(chromSizes)
@@ -98,16 +99,16 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## save to file
     h5createGroup(file = outfile, group = chr)
     lengthI <- length(mat@i)
-    h5createDataset(
+    suppressALL(h5createDataset(
       file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
       dims = c(lengthI, 1), level = 0
-    )
+    ))
     suppressALL(h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i")))
 
-    h5createDataset(
+    suppressALL(h5createDataset(
       file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
       dims = c(lengthI, 1), level = 0
-    )
+    ))
     suppressALL(h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x")))
 
     ## #Convert Columns to Rle
@@ -115,16 +116,16 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## effective ncols
     lengthRle <- length(j@lengths)
 
-    h5createDataset(
+    suppressALL(h5createDataset(
       file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
       dims = c(lengthRle, 1), level = 0
-    )
+    ))
     suppressALL(h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths")))
 
-    h5createDataset(
+    suppressALL(h5createDataset(
       file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
       dims = c(lengthRle, 1), level = 0
-    )
+    ))
     ## corresoinds to cols with elements
     suppressALL(h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues")))
 
