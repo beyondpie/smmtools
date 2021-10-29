@@ -173,3 +173,10 @@ fastH5Read <- function(
   o <- h5closeAll()
   return(res)
 }
+
+#' Suppress the warnings when eval the expressions.
+#' From ArchR
+#' @export
+suppressALL <- function(expr = NULL){
+  suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
+}

@@ -28,10 +28,12 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   blacklist <- annotGenome$blackList
   if (!is.null(blacklist)) {
     if (length(blacklist) > 0) {
+      message(paste("Find blacklist for genome", genome))
       blacklist <- split(blacklist, seqnames(blacklist))
     }
   }
-
+  message(paste("No blacklist for genome", genome))
+  
   chromSizes <- annotGenome$chromSizes
   chromLengths <- end(chromSizes)
   names(chromLengths) <- chromSizes@seqinfo@seqnames
@@ -57,7 +59,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   featureDF$start <- (featureDF$idx - 1) * tileSize
 
   df <- data.frame(featureDF, stringsAsFactors = FALSE)
-  h5write(obj = df, file = outfile, name = "/FeatureDF")
+  suppressALL(h5write(obj = df, file = outfile, name = "/FeatureDF"))
 
   for (z in seq_along(chromLengths)) {
     o <- h5closeAll()
@@ -100,13 +102,13 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
       file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
       dims = c(lengthI, 1), level = 0
     )
-    h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i"))
+    suppressALL(h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i")))
 
     h5createDataset(
       file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
       dims = c(lengthI, 1), level = 0
     )
-    h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x"))
+    suppressALL(h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x")))
 
     ## #Convert Columns to Rle
     j <- Rle(findInterval(seq_along(mat@x) - 1, mat@p[-1]) + 1)
@@ -117,14 +119,14 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
       file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
       dims = c(lengthRle, 1), level = 0
     )
-    h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths"))
+    suppressALL(h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths")))
 
     h5createDataset(
       file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
       dims = c(lengthRle, 1), level = 0
     )
     ## corresoinds to cols with elements
-    h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues"))
+    suppressALL(h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues")))
 
     h5closeAll()
   } ## end of for loop of chrs
