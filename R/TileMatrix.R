@@ -9,8 +9,7 @@
 #' @importFrom GenomicRanges seqnames split
 #' @export
 getTileMatrix <- function(rawH5File, outdir, outfilenm,
-                          genome = "
-mm10",
+                          genome = "mm10",
                           sampleName = NULL, barcodes = NULL,
                           tileSize = 5000,
                           excludeChr = c("chrM", "chrY")) {
@@ -57,6 +56,9 @@ mm10",
   }) %>% Reduce("rbind", .)
   featureDF$start <- (featureDF$idx - 1) * tileSize
 
+  df <- data.frame(featureDF, stringsAsFactors = FALSE)
+  h5write(obj = df, file = outfilenm, name = "/FeatureDF")
+
   for (z in seq_along(chromLengths)) {
     o <- h5closeAll()
     chr <- names(chromLengths)[z]
@@ -99,11 +101,6 @@ mm10",
       dims = c(lengthI, 1), level = 0
     )
     h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i"))
-
-    ## h5createDataset(file = outfile, dataset = paste0(chr, "/j"), storage.mode = "integer",
-    ##                 dims = c(lengthI,1), level = 0)
-    ## ## since sparseMatrix row starts from zero, we add one
-    ## h5write(obj = mat@j, file = outfile, name = paste0(chr, "/j"))
 
     h5createDataset(
       file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
