@@ -141,9 +141,9 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
 #' Ref: ArchR
 #'
 #' @param barcodes vector of string, choose the columns of tilematrix, useful after doublet removement
-#' @param binarize bool, default is True
+#' @param binarize bool, default is FALSE
 #' @export
-loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = TRUE) {
+loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
   h5closeAll()
   colNames <- removeSampleName(barcodes = h5read(file = tileMatrixFile, name = "/Barcodes"))
   if(!is.null(barcodes)) {
