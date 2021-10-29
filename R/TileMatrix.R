@@ -89,9 +89,9 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## ## since sparseMatrix row starts from zero, we add one
     ## h5write(obj = mat@j, file = outfile, name = paste0(chr, "/j"))
     
-    ## h5createDataset(file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
-    ##                 dims = c(lengthI,1), level = 0)
-    ## h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x"))
+    h5createDataset(file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
+                    dims = c(lengthI,1), level = 0)
+    h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x"))
     
     ## #Convert Columns to Rle
     j <- Rle(findInterval(seq_along(mat@x)-1,mat@p[-1]) + 1)
