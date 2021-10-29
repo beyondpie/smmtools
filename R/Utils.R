@@ -180,3 +180,17 @@ fastH5Read <- function(
 suppressALL <- function(expr = NULL){
   suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
 }
+
+
+#' Remove sampleName in barcodes if they have
+#' @param barcodes vector of strings
+#' @param sep string, symbol used to separate sampleName and barcode, default is '#'
+#' @export
+removeSampleName <- function(barcodes, sep = "#") {
+  if(grepl(sep, barcodes[1], fixed = TRUE)) {
+    barcodes <- gsub(pattern = paste0(".+",sep), "", barcodes)
+    return(barcodes)
+  } else {
+    return(barcodes)
+  }
+}

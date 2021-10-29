@@ -62,6 +62,9 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   df <- data.frame(featureDF, stringsAsFactors = FALSE)
   suppressALL(h5write(obj = df, file = outfile, name = "/FeatureDF"))
 
+  ## record colnames for the matrix
+  suppressALL(h5write(obj = barcodes, file = outfile, name = "/Barcodes"))
+
   for (z in seq_along(chromLengths)) {
     o <- h5closeAll()
     chr <- names(chromLengths)[z]
@@ -133,3 +136,64 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   } ## end of for loop of chrs
   return(outfile)
 }
+
+#' load TileMatrix into a sparseMatrix
+#' Ref: ArchR
+#'
+#' @param barcodes vector of string, choose the columns of tilematrix, useful after doublet removement
+#' @param binarize bool, default is True
+#' @importFrom S4Vectors Rle
+#' @export
+loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = TRUE) {
+  colNames <- removeSampleName(barcodes = h5read(file = tileMatrixFile, name = "/Barcodes"))
+  barcodes <- removeSampleName(barcodes = barcodes)
+  if(!is.null(barcodese)) {
+    idxCols <- which(colNames %in% barcodes)
+  } else {
+    idxCols <- seq_along(colNames)
+  }
+  featureDF <- h5read(file = tileMatrixFile, name = "/FeatureDF")
+  chrs <- unique(featureDF$seqnames)
+  matList <- lapply(seq_along(chrs), function(x) {
+    chr <- chrs[x]
+    idxRows <- featureDF[featureDF$seqnames == chr, "idx"]
+
+    RleJ <- Rle(values = h5read(file = tileMatrixFile, name = paste0("/", chr, "/jValues")),
+                lengths = h5read(file = tileMatrixFile, name = paste0("/", chr, "/jLengths")))
+    matchJ <- S4Vectors::match(RleJ, idxCols, nomatch = 0)
+    idxJ <- BiocGenerics::which(matchJ > 0)
+    j <- matchJ[idxJ]
+    i <- h5read(file = tileMatrixFile, name = paste0("/", chr, "/i"))[idxJ]
+    x <- h5read(file = tileMatrixFile, name = paste0("/"), chr, "/x")
+
+    matchI <- match(i, idxRows, nomatch = 0)
+    idxI <- which(matchI > 0)
+    ## i <- i[idxI]
+    j <- j[idxI]
+    i <- matchI[idxI]
+    
+    if(binarize) {
+      x <- rep(1, length(j))
+    } else {
+      x <- h5read(file = tileMatrixFile, name = paste0("/"), chr, "/x")[idxJ][idxI]
+    }
+    mat <- Matrix::sparseMatrix(
+      i = as.integer(i),
+      j = j,
+      x = x,
+      dims = c(length(idxRows), length(idxCols))
+    )
+    rownames(mat) <- paste0(chr, featureDF[featureDF$seqnames == chr, "idx"])
+  })
+  mat <- Reduce("rbind", matList)
+  colnames(mat) <- colNames[idxCols]
+
+  ## double check order
+  rowNames <- paste0(featureDF$seqnames, featureDF$idx)
+  mat <- mat[rowNames, , drop = FALSE]
+  if(!is.null(barcodes)) {
+    mat <- mat[, barcodes, drop = FALSE]
+  }
+  return(mat)
+}
+  
