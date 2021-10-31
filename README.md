@@ -6,18 +6,21 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of smmtools is to …
+The goal of **smmtools** is to analyze 10x multi-omic ATAC sequencing
+data with SnapATAC pipelines.
 
-## Installation
+# Installation
 
-You can install the released version of smmtools from
-[CRAN](https://CRAN.R-project.org) with:
+## Install locally the python package smmuty under repo’s inst directory.
 
-``` r
-install.packages("smmtools")
+``` shell
+## install the local package smmuty with utilities like scrublet, lenden algorithm support.
+git clone https://github.com/beyondpie/smmtools
+cd smmtools/inst
+pip install -e smmuty
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+## Install R package of smmtools
 
 ``` r
 # install.packages("devtools")
