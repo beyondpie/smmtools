@@ -14,6 +14,16 @@ runScrublet(
   n_pc = 30L
 )
 }
+\value{
+list, five fields
+\enumerate{
+\item threshold based on GMM for simulation scores \link{5}
+\item threshold estimated from Scrublets
+\item probs of real data based on GMM
+\item doublet scores of real data based on Scrublets
+\item doublet scores of simulation data based on Scrublets
+}
+}
 \description{
-Doublet removement using Scrublet
+Need smmutil
 }
