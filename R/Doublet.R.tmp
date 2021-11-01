@@ -4,7 +4,6 @@
 #' 
 #' @param bmat sparse matrix, feature by cell, transpose will be used when as input in scrublet 
 #' @importFrom reticulate r_to_py py_ro_r import
-#' @importFrom base nrow ncol
 #' @return list, five fields
 #'   1. threshold based on GMM for simulation scores [5]
 #'   2. threshold estimated from Scrublets
@@ -17,13 +16,13 @@ runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
                         min_cells = 5L,
                         min_conv_pctl = 85,
                         n_pc = 30L) {
-  cat("Epoch: loading python environments and packages ... \n", file = stderr())
+  message("Epoch: loading python environments and packages ... \n")
   # load library and python env
-  reticulate::use_python(path.to.python)
-  cat("use the Python located in:", path.to.python, "\n")
+  reticulate::use_python(path_to_python)
+  message("use the Python located in:", path_to_python, "\n")
   setSessionTimeLimit(cpu = Inf, elapsed = Inf)
 
-  cat("Epoch: identify potential doublets ... \n")
+  message("Epoch: identify potential doublets ... \n")
   scr <- import(module = "smmuty", covert = FALSE)
   out <- src$detectDoublet(
     ## transpose since scrublet needs cell-by-feature matrix
@@ -35,7 +34,7 @@ runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
     n_prin_comps = min(n_pc, nrow(bmat), ncol(bmat)))
   out <- py_to_r(out)
   ## summary
-  cat("Epoch: summary doublets detection results ... \n")
+  message("Epoch: summary doublets detection results ... \n")
   message(paste("Threshold from GMM:", round(out[[1]], 3)))
   message(paste("Threshold from Raw Scrublets", round(out[[2]], 3)))
   message(paste("Number of cells used:"), length(out[[3]]))
