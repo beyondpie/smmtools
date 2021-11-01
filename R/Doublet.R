@@ -24,7 +24,7 @@ runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
 
   message("Epoch: identify potential doublets ... \n")
   scr <- import(module = "smmuty", convert = FALSE)
-  out <- src$detectDoublet(
+  out <- scr$detectDoublet(
     ## transpose since scrublet needs cell-by-feature matrix
     counts_matrix = r_to_py(t(bmat)),
     expected_doublet_rate = expected_doublet_rate,
