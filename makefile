@@ -13,6 +13,7 @@ README.md: README.Rmd
 	# Rscript -e "devtools::document()"
 
 doc: $(RCODES)
+	-rm src/*.o
 	Rscript -e "devtools::document()"
 
 smmuty: $(SMMUTYCODES)
@@ -20,5 +21,5 @@ smmuty: $(SMMUTYCODES)
   pip install -e smmuty
 
 install: all
-	git push origin main
+	-rm src/*.o
 	Rscript -e 'devtools::install_github("beyondpie/smmtools")'

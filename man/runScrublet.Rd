@@ -7,12 +7,15 @@
 runScrublet(
   bmat,
   path_to_python,
-  expected_doublet_rate = 0.6,
+  expected_doublet_rate = 0.06,
   min_counts = 3,
   min_cells = 5L,
   min_conv_pctl = 85,
   n_pc = 30L
 )
+}
+\arguments{
+\item{bmat}{sparse matrix, feature by cell, transpose will be used when as input in scrublet}
 }
 \value{
 list, five fields

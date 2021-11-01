@@ -3,7 +3,7 @@
 #' Need smmutil
 #' 
 #' @param bmat sparse matrix, feature by cell, transpose will be used when as input in scrublet 
-#' @importFrom reticulate r_to_py py_ro_r import
+#' @importFrom reticulate r_to_py py_to_r import
 #' @return list, five fields
 #'   1. threshold based on GMM for simulation scores [5]
 #'   2. threshold estimated from Scrublets
