@@ -207,12 +207,12 @@ sampleBasedOnDepth <- function(bmat, n) {
 
 #' @return matrix
 #' @export
-getNormOVE <- function(avgDepths) {
-  pp <- Matrix::tcrossprod(x = avgDepths, y = avgDepths)
-  s <- matrix(rep(avgDepths, each = length(avgDepths)), ncol = length(avgDepths), byrow = TRUE)
-  ss <- s + Matrix::t(s)
-  normOVE <- pp / (ss - pp)
-  return(normOVE)
+getNormOVE <- function(p1, p2){
+  pp = tcrossprod(p1, p2);
+	ss = matrix(rep(p1,each=length(p2)), ncol=length(p2), byrow=TRUE) +
+    matrix(rep(p2, each=length(p1)), ncol=length(p2), byrow=FALSE)
+	ee = pp/(ss - pp)
+	return(ee)	
 }
 
 #' @export
