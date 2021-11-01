@@ -1,6 +1,7 @@
 .PHONY: doc smmuty install
 MANDOC := man/*.Rd
 RCODES := R/*.R
+CPPCODES := src/*.cpp
 SMMUTYCODES := inst/smmuty/smmuty/*.py inst/smmuty/bin/*.py
 
 all: README.md doc smmuty
