@@ -22,7 +22,7 @@ Imports:
     pheatmap,
     matrixStats,
     IRanges,
-    Rcpp (>= 0.12.16),
+    Rcpp (>= 1.0.0),
     dplyr,
     rhdf5,
     BiocGenerics,

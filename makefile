@@ -14,6 +14,7 @@ README.md: README.Rmd
 
 doc: $(RCODES)
 	-rm src/*.o
+	-rm src/*.so
 	Rscript -e "devtools::document()"
 
 smmuty: $(SMMUTYCODES)
