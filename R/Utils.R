@@ -194,3 +194,44 @@ removeSampleName <- function(barcodes, sep = "#") {
     return(barcodes)
   }
 }
+
+#' @param bmat Matrix, cell by feature
+#' @export
+sampleBasedOnDepth <- function(bmat, n) {
+  depths <- log(Matrix::rowSums(bmat) + 1, 10)
+  dens <- stats::density(x = depths, bw = "nrd", adjust = 1)
+  samplingProb <- 1 / (stats::approx(x = denss$x, y = dens$y, xout = depths)$y + .Machine$double.eps)
+  idx <- sort(sample(x = seq_along(depths), size = min(n, nrow(bmat)), prob = samplingProb))
+  return(idx)
+}
+
+#' @return matrix
+#' @export
+getNormOVE <- function(avgDepths) {
+  pp <- Matrix::tcrossprod(x = avgDepths, y = avgDepths)
+  s <- matrix(rep(avgDepths, each = length(avgDepths)), ncol = length(avgDepths), byrow = TRUE)
+  ss <- s + Matrix::t(s)
+  normOVE <- pp / (ss - pp)
+  return(normOVE)
+}
+
+#' @export
+eig_decomp <- function(M, n_eigs) {
+  sym <- Matrix::isSymmetric(M)
+	n <- nrow(M)
+	f <- function(x, A = NULL) {
+    as.matrix(A %*% x)
+  }
+	wh <- if (sym) 'LA' else 'LM'
+	#constraints: n >= ncv > nev
+	ar <- igraph::arpack(f, extra = M, sym = sym, options = list(
+		which = wh, n = n, ncv = min(n, 4*n_eigs), nev = n_eigs + 1))
+	if (!sym) {
+		ar$vectors <- Re(ar$vectors)
+		ar$values  <- Re(ar$values)
+	}
+	if (length(dim(ar$vectors)) == 0L) {
+		ar$vectors <- matrix(ar$vectors, ncol = 1L)
+  }
+	return(ar)
+}
