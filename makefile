@@ -23,4 +23,5 @@ smmuty: $(SMMUTYCODES)
 
 install:
 	-rm src/*.o
+	-rm src/*.so
 	Rscript -e 'devtools::install_github("beyondpie/smmtools")'
