@@ -12,7 +12,7 @@ SnapATAC_runHarmony <- function(mapSnapATAC, nPC, meta_data, vars_use = NULL, we
   nDim <- ncol(dmat)
   mat <- dmat[, 1:min(nPC, nDim)]
   if(weightDimReduct) {
-    mat <- mat %*% sdev[1:min(nPC, nDim)]
+    mat <- mat %*% diag(sdev[1:min(nPC, nDim)])
   }
   harmonyEmbed <- harmony::HarmonyMatrix(data_mat = mat, meta_data = meta_data,
                                          vars_use = vars_use, do_pca = FALSE, ...)

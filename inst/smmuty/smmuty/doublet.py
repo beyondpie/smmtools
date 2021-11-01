@@ -2,16 +2,10 @@
 
 Ref: yang Li and Kai Zhang's codes
 """
-from typing import List
 import numpy as np
 import scrublet as scr
 import numpy as np
 from sklearn.mixture import BayesianGaussianMixture
-from sklearn.metrics import adjusted_rand_score
-from time import perf_counter as pc
-import leidenalg as la
-import igraph as ig
-import multiprocessing as mp
 
 
 def detectDoublet(

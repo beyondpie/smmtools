@@ -19,7 +19,7 @@ runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
   message("Epoch: loading python environments and packages ... \n")
   # load library and python env
   reticulate::use_python(path_to_python)
-  message("use the Python located in:", path_to_python, "\n")
+  message("Use the Python located in:", path_to_python, "\n")
   setSessionTimeLimit(cpu = Inf, elapsed = Inf)
 
   message("Epoch: identify potential doublets ... \n")
