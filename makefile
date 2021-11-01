@@ -20,6 +20,6 @@ smmuty: $(SMMUTYCODES)
 	cd inst; \
   pip install -e smmuty
 
-install: all
+install:
 	-rm src/*.o
 	Rscript -e 'devtools::install_github("beyondpie/smmtools")'
