@@ -1,6 +1,8 @@
 #' Doublet removement using Scrublet
 #'
-#' Need smmutil 
+#' Need smmutil
+#' 
+#' @param bmat sparse matrix, feature by cell, transpose will be used when as input in scrublet 
 #' @importFrom reticulate r_to_py py_ro_r import
 #' @importFrom base nrow ncol
 #' @return list, five fields
@@ -10,7 +12,7 @@
 #'   4. doublet scores of real data based on Scrublets
 #'   5. doublet scores of simulation data based on Scrublets
 #' @export
-runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.6,
+runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
                         min_counts = 3,
                         min_cells = 5L,
                         min_conv_pctl = 85,
@@ -24,7 +26,8 @@ runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.6,
   cat("Epoch: identify potential doublets ... \n")
   scr <- import(module = "smmuty", covert = FALSE)
   out <- src$detectDoublet(
-    counts_matrix = r_to_py(bmat),
+    ## transpose since scrublet needs cell-by-feature matrix
+    counts_matrix = r_to_py(t(bmat)),
     expected_doublet_rate = expected_doublet_rate,
     min_counts = min_counts,
     min_cells = as.integer(min_cells),

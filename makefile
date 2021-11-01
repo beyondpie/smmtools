@@ -1,4 +1,4 @@
-.PHONY: doc smmuty
+.PHONY: doc smmuty install
 MANDOC := man/*.Rd
 RCODES := R/*.R
 SMMUTYCODES := inst/smmuty/smmuty/*.py inst/smmuty/bin/*.py
@@ -18,3 +18,7 @@ doc: $(RCODES)
 smmuty: $(SMMUTYCODES)
 	cd inst; \
   pip install -e smmuty
+
+install: all
+	git push origin main
+	Rscript -e 'devtools::install_github("beyondpie/smmtools")'
