@@ -187,6 +187,10 @@ suppressALL <- function(expr = NULL){
 #' @param sep string, symbol used to separate sampleName and barcode, default is '#'
 #' @export
 removeSampleName <- function(barcodes, sep = "#") {
+  if(is.data.frame(barcodes)) {
+    message("Input Barcodes is data.frame, will treat the first column as barcodes.")
+    barcodes <- barcodes[,1]
+  }
   if(grepl(sep, barcodes[1], fixed = TRUE)) {
     barcodes <- gsub(pattern = paste0(".+",sep), "", barcodes)
     return(barcodes)
