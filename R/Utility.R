@@ -204,7 +204,7 @@ removeSampleName <- function(barcodes, sep = "#") {
 sampleBasedOnDepth <- function(bmat, n) {
   depths <- log(Matrix::rowSums(bmat) + 1, 10)
   dens <- stats::density(x = depths, bw = "nrd", adjust = 1)
-  samplingProb <- 1 / (stats::approx(x = denss$x, y = dens$y, xout = depths)$y + .Machine$double.eps)
+  samplingProb <- 1 / (stats::approx(x = dens$x, y = dens$y, xout = depths)$y + .Machine$double.eps)
   idx <- sort(sample(x = seq_along(depths), size = min(n, nrow(bmat)), prob = samplingProb))
   return(idx)
 }
