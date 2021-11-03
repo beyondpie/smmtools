@@ -4,7 +4,8 @@
 #' - Too high values will be set as zeros.
 #'  
 #' 
-#' @param bmat sparse matrix, feature by cells, NOTE: in SnapATAC, bmat is cell by feature
+#' @param bmat sparse matrix, feature by cells.
+#' NOTE: in SnapATAC, bmat is cell by feature
 #' @param nFragms data.frame, cols: barcode, nFragment
 #' @return list, bmat: updated bmat; rows: kept rows in original bmat
 #' @export
