@@ -7,7 +7,9 @@
 #' @param bmat sparse matrix, feature by cells.
 #' NOTE: in SnapATAC, bmat is cell by feature
 #' @param nFragms data.frame, cols: barcode, nFragment
-#' @return list, bmat: updated bmat; rows: kept rows in original bmat
+#' @return list of two elements
+#' bmat sparse matrix, cell by feature (consistent with SnapATAC)
+#' featureIndexKept:  feature index kept after filtering
 #' @export
 SnapATAC_BinarizeBmat <- function(bmat, 
                                   z_threshold = 1.65,
@@ -25,6 +27,7 @@ SnapATAC_BinarizeBmat <- function(bmat,
   cutoff <- max(1, quantile(count, 1 - outlier))
   upd_bmat@x[upd_bmat@x > cutoff] <- 0
   upd_bmat@x[upd_bmat@x > 0] <- 1
-  final_bmat <- Matrix::drop0(upd_bmat)
-  return(invisible(list(bmat = final_bmat, rows = idx)))
+  ## consistent with SnapATAC
+  final_bmat <- Matrix::t(Matrix::drop0(upd_bmat))
+  return(invisible(list(bmat = final_bmat, featureIndexKept = idx)))
 }

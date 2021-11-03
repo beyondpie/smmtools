@@ -1,10 +1,10 @@
-#' @param bmat sparse matrix, feature by cell
-#' @return dense matrix, cell by principle components, keep the same order of cells
+#' @param bmatSnap sparse matrix, cell by feature
+#' @return list of two element
+#' dmat dense matrix, cell by principle components, keep the same order of cells
+#' sdev vector, length of principle components
 #' @export dimension reduction in SnapATAC
-SnapATAC_DiffusionMaps <- function(bmat, nLandmark = 10000, nPC = 30, seed = 1) {
+SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000, nPC = 30, seed = 1) {
   set.seed(1)
-  ## change to cell by feature bmat used in SnapATAC
-  bmatSnap <- Matrix::t(bmat)
   nCell <- nrow(bmatSnap)
 
   idxLandmark <- sampleBasedOnDepth(bmat = bmatSnap, n = nLandmark)
