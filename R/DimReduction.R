@@ -81,17 +81,17 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
 
 #' @export
 SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandmark) {
-  if(ncol(bmatLamdmark) != ncol(bmatQuery)) {
+  if(ncol(bmatLandmark) != ncol(bmatQuery)) {
     stop("Features have different dims between Landmark and Query.")
   }
   message("Step1: calculate Jaccard similarity matrix.")
   A <- Matrix::tcrossprod(x = bmatQuery, y = bmatLandmark)
   rsumQuery <- Matrix::rowSums(bmatQuery)
   rsumLandmark <- Matrix::rowSums(bmatLandmark)
-  J <- as.matrix(A / (replicate(ncol(A), rumQuery) + replicate(nrow(A), rsumLandmark)-A))
+  J <- as.matrix(A / (replicate(ncol(A), rsumQuery) + t(replicate(nrow(A), rsumLandmark))-A))
   message("Step2: normalze Jaccard similarity matrix.")
   rmeanQuery <- Matrix::rowMeans(bmatQuery)
-  rmeanLandmark <- Matrix:rowMeans(bmatLandmark)
+  rmeanLandmark <- Matrix::rowMeans(bmatLandmark)
   normOVE <- getNormOVE(p1 = rmeanQuery, p2 = rmean)
   betas <- mapLandmark$betas
   pred <- betas[1] + betas[2] * normOVE + betas[3] * (normOVE ** 2)
@@ -105,7 +105,7 @@ SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandm
   transition <-  diagFactorQuery %*% normJ %*% diagFactorLandmark
   dmatLandmark <- mapLandmark$dmat
   sdevLandmark <- mapLandmark$sdev
-  dmatQuery <- as.matrix(t( t(transition %*% dmatLandmark) / sdevLandmark ))
+  dmatQuery <- as.matrix(t( t(as.matrix(transition) %*% dmatLandmark) / sdevLandmark ))
   sdevQuery <- sdevLandmark
   return(invisible(list(dmat = dmatQuery, sdev = sdevQuery)))
 }
