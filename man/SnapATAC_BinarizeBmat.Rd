@@ -7,12 +7,15 @@
 SnapATAC_BinarizeBmat(bmat, z_threshold = 1.65, outlier = 0.001)
 }
 \arguments{
-\item{bmat}{sparse matrix, feature by cells, NOTE: in SnapATAC, bmat is cell by feature}
+\item{bmat}{sparse matrix, feature by cells.
+NOTE: in SnapATAC, bmat is cell by feature}
 
 \item{nFragms}{data.frame, cols: barcode, nFragment}
 }
 \value{
-list, bmat: updated bmat; rows: kept rows in original bmat
+list of two elements
+bmat sparse matrix, cell by feature (consistent with SnapATAC)
+featureIndexKept:  feature index kept after filtering
 }
 \description{
 \itemize{
