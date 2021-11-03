@@ -69,7 +69,7 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
   diagFactor <- Matrix::Diagonal(x = 1 / sqrt(rsum))
   transition <- as.matrix(diagFactor %*% normJ %*% diagFactor)
   diag(transition) <- 0
-	eig_transitions <- eig_decomp(transitions, n_eigs = nPC)
+	eig_transitions <- eig_decomp(transition, n_eigs = nPC)
 
   message(paste("Return the diffusion map result: dim from 2 to", nPC + 1))
   dmat <- eig_transitions$vectors[, 2:(nPC+1)]
