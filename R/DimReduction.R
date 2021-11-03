@@ -2,7 +2,7 @@
 #' @return list of two element
 #' dmat dense matrix, cell by principle components, keep the same order of cells
 #' sdev vector, length of principle components
-#' @export dimension reduction in SnapATAC
+#' @export
 SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000, nPC = 30, seed = 1) {
   set.seed(1)
   nCell <- nrow(bmatSnap)
