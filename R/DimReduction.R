@@ -93,7 +93,7 @@ SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandm
   message("Step2: normalze Jaccard similarity matrix.")
   rmeanQuery <- Matrix::rowMeans(bmatQuery)
   rmeanLandmark <- Matrix::rowMeans(bmatLandmark)
-  normOVE <- getNormOVE(p1 = rmeanQuery, p2 = rmean)
+  normOVE <- getNormOVE(p1 = rmeanQuery, p2 = rmeanLandmark)
   betas <- mapLandmark$betas
   pred <- betas[1] + betas[2] * normOVE + betas[3] * (normOVE ** 2)
   normJ <- J / pred
