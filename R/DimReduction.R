@@ -31,7 +31,7 @@ SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000, nPC = 30, seed =
 }
 
 #' @param bmat sparse Matrix, cell by feature
-#' @importFrom Matrix %*% diag diag<-
+#' @importFrom Matrix diag diag<-
 #' @export
 SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999) {
   message("Running SnapATAC Diffusion Maps...")
