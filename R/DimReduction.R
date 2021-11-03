@@ -51,6 +51,7 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
   fitData <- data.frame(x = subNormOVE[upper.tri(subNormOVE)], y = jmat[upper.tri(jmat)])
   model <- stats::lm(formula = y ~ x + I(x^2), data = fitData)
   betas <- as.numeric(model$coefficients)
+  message("Regression coefficients: ", paste(round(betas, 5), collapse = ", "))
 
   message("Step3: normalize Jaccard similarity matrix by reducing the fitted random depth.")
   rmean <- Matrix::rowMeans(bmat)
