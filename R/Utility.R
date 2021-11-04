@@ -194,11 +194,11 @@ removeSampleName <- function(barcodes, sep = "#") {
     barcodes <- barcodes[,1]
   }
   if(grepl(sep, barcodes[1], fixed = TRUE)) {
-    barcodes <- gsub(pattern = paste0(".+",sep), "", barcodes)
-    return(barcodes)
+    r <- gsub(pattern = paste0(".+",sep), "", barcodes)
   } else {
-    return(barcodes)
+    r <- barcodes
   }
+  return(r)
 }
 
 #' @param bmat Matrix, cell by feature
