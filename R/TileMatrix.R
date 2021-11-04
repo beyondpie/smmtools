@@ -18,6 +18,10 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
 
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   outfile <- file.path(outdir, outfilenm)
+  if(file.exists(outfile)) {
+    message(paste(outfile, "exist, and remove it."))
+    file.remove(outfile)
+  }
   rhdf5::h5createFile(file = outfile)
   ## h5createGroup(file = outfile, group = "TileMatrix")
   ## h5createGroup(file = outfile, group = "colnames")
