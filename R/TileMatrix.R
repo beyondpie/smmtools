@@ -79,6 +79,12 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
       sampleName = sampleName,
       barcodes = barcodes
     )
+    if(length(fragments) < 1) {
+      message(paste(chr, "has no fragments left after filtering the barcodes."))
+      next
+    } else {
+      message(paste(chr, "has", length(fragments), "left after filtering the barcodes."))
+    }
     nTiles <- trunc(chrl / tileSize) + 1
     matchBarcodes <- match(mcols(fragments)$RG, barcodes)
     mat <- Matrix::sparseMatrix(
