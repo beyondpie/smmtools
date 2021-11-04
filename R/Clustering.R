@@ -11,7 +11,7 @@ runKNN <- function(smat, k = 20, nn_eps = 0.0){
     message("Set k as Ncell - 1.")
   }
   
-  nnRanked <- RANN::nn2(data = smat, k = k, searchtype = "stardard",
+  nnRanked <- RANN::nn2(data = smat, k = k, searchtype = "standard",
                         eps = nn_eps)$nn.idx
   j <- as.numeric(t(nnRanked))
   i <- (seq_along(j)-1) %/% k + 1
