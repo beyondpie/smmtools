@@ -26,7 +26,7 @@ SnapATAC_runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0
   scr <- import(module = "smmuty", convert = FALSE)
   out <- scr$detectDoublet(
     ## scrublet needs cell-by-feature matrix
-    counts_matrix = r_to_py((bmat),
+    counts_matrix = r_to_py(bmat),
     expected_doublet_rate = expected_doublet_rate,
     min_counts = min_counts,
     min_cells = as.integer(min_cells),
