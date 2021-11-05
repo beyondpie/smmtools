@@ -9,16 +9,13 @@ SnapATAC_runHarmony(
   nPC,
   meta_data,
   vars_use = NULL,
-  weightDimReduct = FALSE,
-  ...
+  weightDimReduct = FALSE
 )
 }
 \arguments{
 \item{meta_data}{Either (1) Dataframe with variables to integrate or (2) vector with labels.}
 
 \item{vars_use}{If meta_data is dataframe, this defined which variable(s) to remove (character vector).}
-
-\item{...}{Paramters passed to Harmony}
 }
 \value{
 Matrix, cell by updated principle components

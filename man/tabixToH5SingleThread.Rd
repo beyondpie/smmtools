@@ -7,9 +7,9 @@
 tabixToH5SingleThread(
   tabixFile,
   tileChromSizes,
+  outH5File,
   sampleName = NULL,
-  barcodes = NULL,
-  outH5File = tempfile(pattern = paste0("tmp-", sampleName, ".h5"), tmpdir = tempdir())
+  barcodes = NULL
 )
 }
 \arguments{
@@ -17,11 +17,11 @@ tabixToH5SingleThread(
 
 \item{tileChromSizes}{GenomeRanges, tiled ChromSizes}
 
+\item{outH5File}{string, filename of the output h5file}
+
 \item{sampleName}{string the sample corresponding to the fragment file}
 
 \item{barcodes}{vector of string, optional, barcodes we want}
-
-\item{outH5File}{string filename of the output h5file}
 
 \item{nChunk}{integer partition each chrom into nChunk pieces}
 }

@@ -5,10 +5,8 @@
 \title{Transform original tabix File to H5File, then get barcodes-related fragments stats.}
 \usage{
 sumFragmentSingleThread(
-  tabixFile,
   rawH5File,
   sumFragFile,
-  coverH5File,
   genome,
   sampleName = NULL,
   barcodes = NULL,
@@ -21,10 +19,6 @@ sumFragmentSingleThread(
 )
 }
 \arguments{
-\item{tabixFile}{string, 10x cell ranger result tab/tab.gz file name}
-
-\item{coverH5File}{bool, whether to cover the rawH5File if exists}
-
 \item{genome}{string, namely mm9, mm10, hg19 or hg38}
 
 \item{sampleName}{string, name for the tabix file}
@@ -43,7 +37,11 @@ sumFragmentSingleThread(
 
 \item{tsseMaxFragSize}{integer}
 
+\item{tabixFile}{string, 10x cell ranger result tab/tab.gz file name}
+
 \item{outfilenm}{string, output file name, if NULL, a default one will be genereated.}
+
+\item{coverH5File}{bool, whether to cover the rawH5File if exists}
 }
 \value{
 data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
