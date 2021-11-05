@@ -126,6 +126,7 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
 
   }
   if(nFrags == 0) {
+    message(paste("No fragments for", chr, "of sample", sampleName))
     output <- IRanges::IRanges(start = 1, end = 1)
     mcols(output)$RG <- c("tmp")
     output <- output[-1, ]
@@ -133,13 +134,17 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
   }
   frags <- do.call(what = rbind, args = fragList)
   output <- IRanges::IRanges(start = frags[,1], width = frags[,2])
+  message(paste("Get", length(output), " fragments for", chr, "of sample", sampleName))
   barcodesFromH5 <- do.call("c", barcodeList)
   barcodeValue <- do.call("c", barcodeValueList)
   ## mcols(output)$RG <- S4Vectors::Rle(values = paste0(sampleName, "#", barcodesFromH5),
                                                 ## lengths = barcodeValue)
   mcols(output)$RG <- S4Vectors::Rle(values = barcodesFromH5, lengths = barcodeValue)
   if(!is.null(barcodes)) {
+    message(paste("Barcodes is not empty, and will select the fragments for these barcodes."))
     r <- output[BiocGenerics::which( match(mcols(output)$RG, barcodes, nomatch = 0) > 0 )]
+    message(paste("After selection/filtering, we have", length(r),
+                  "fragments left for", chr, "of sample", sampleName))
   } else {
     r <- output
   }
