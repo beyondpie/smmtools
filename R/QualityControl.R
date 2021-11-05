@@ -21,12 +21,12 @@
 #' @param tsseMaxFragSize integer
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
-sumFragmentSingleThread <- function(tabixFile,
+sumFragmentSingleThread <- function(
                                     rawH5File,
                                     sumFragFile,
-                                    coverH5File,
                                     genome,
-                                    sampleName = NULL, barcodes = NULL,
+                                    sampleName = NULL,
+                                    barcodes = NULL,
                                     nChunk = 3,
                                     tsseWindow = 101,
                                     tsseNorm = 100,
@@ -39,32 +39,7 @@ sumFragmentSingleThread <- function(tabixFile,
     geneAnnotation = annotGene,
     genomeAnnotation = annotGenome
   )
-  dir.create(path = dirname(rawH5File), showWarnings = FALSE, recursive = TRUE)
-  dir.create(path = dirname(sumFragFile), showWarnings = FALSE, recursive = TRUE)
-
   tileChromSizes <- tileChrom(chromSizes = annotGenome$chromSizes, nChunk = nChunk)
-  if (coverH5File) {
-    message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
-    ## Transform tab.gz to h5 file
-    tabixToH5SingleThread(
-      tabixFile = tabixFile, tileChromSizes = tileChromSizes,
-      sampleName = sampleName, outH5File = rawH5File,
-      barcode = barcodes
-    )
-  }
-  else if (!file.exists(rawH5File)) {
-    message(paste("Regenerate", rawH5File, "since it does not exist."))
-    message(paste("Start to tranform tabix to H5File, and save as", rawH5File))
-    ## Transform tab.gz to h5 file
-    tabixToH5SingleThread(
-      tabixFile = tabixFile, tileChromSizes = tileChromSizes,
-      sampleName = sampleName, outH5File = rawH5File,
-      barcode = barcodes
-    )
-  } else {
-    message(paste(rawH5File, "exists, and is kept without update."))
-  }
-
   chunkName <- S4Vectors::mcols(x = tileChromSizes)$chunkName
   ## get nfrag per barcode
   nFragPerBarcode <- getNfragmentPerBarcode(

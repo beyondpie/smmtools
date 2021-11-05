@@ -6,16 +6,12 @@
 #' @param tileChromSizes GenomeRanges, tiled ChromSizes
 #' @param sampleName string the sample corresponding to the fragment file
 #' @param barcodes vector of string, optional, barcodes we want
-#' @param outH5File string filename of the output h5file
+#' @param outH5File string, filename of the output h5file
 #' @param nChunk integer partition each chrom into nChunk pieces
 #' @return outputH5File string name of the output file
 #' @export
-tabixToH5SingleThread <- function(tabixFile, tileChromSizes,
-                                  sampleName = NULL, barcodes = NULL,
-                                  outH5File = tempfile(
-                                    pattern = paste0("tmp-", sampleName, ".h5"),
-                                    tmpdir = tempdir()
-                                  )) {
+tabixToH5SingleThread <- function(tabixFile, tileChromSizes, outH5File,
+                                  sampleName = NULL, barcodes = NULL) {
   tstart <- Sys.time()
   message(paste("Tabix to h5 with single thread starts at", tstart), "...")
   o <- rhdf5::h5closeAll()
