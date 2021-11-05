@@ -17,7 +17,8 @@ def detectDoublet(
     n_prin_comps: int = 30,
 ):
     """
-    counts_matrix: could be sparse matrix
+    counts_matrix: cell by feature
+    - could be sparse matrix
     """
     scrub = scr.Scrublet(
         counts_matrix,

@@ -2,7 +2,7 @@
 #'
 #' Need smmutil
 #' 
-#' @param bmat sparse matrix, feature by cell, transpose will be used when as input in scrublet 
+#' @param bmat sparse matrix, cell by feature
 #' @importFrom reticulate r_to_py py_to_r import
 #' @return list, five fields
 #'   1. threshold based on GMM for simulation scores [5]
@@ -11,7 +11,7 @@
 #'   4. doublet scores of real data based on Scrublets
 #'   5. doublet scores of simulation data based on Scrublets
 #' @export
-runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
+SnapATAC_runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
                         min_counts = 3,
                         min_cells = 5L,
                         min_conv_pctl = 85,
@@ -25,8 +25,8 @@ runScrublet <- function(bmat, path_to_python, expected_doublet_rate = 0.06,
   message("Epoch: identify potential doublets ... \n")
   scr <- import(module = "smmuty", convert = FALSE)
   out <- scr$detectDoublet(
-    ## transpose since scrublet needs cell-by-feature matrix
-    counts_matrix = r_to_py(Matrix::t(bmat)),
+    ## scrublet needs cell-by-feature matrix
+    counts_matrix = r_to_py((bmat),
     expected_doublet_rate = expected_doublet_rate,
     min_counts = min_counts,
     min_cells = as.integer(min_cells),
