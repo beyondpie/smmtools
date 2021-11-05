@@ -202,7 +202,7 @@ loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
   rowNames <- paste0(featureDF$seqnames, "_",featureDF$idx)
   mat <- mat[rowNames, , drop = FALSE]
   if(!is.null(barcodes)) {
-    mat <- mat[, barcodes, drop = FALSE]
+    mat <- mat[, colnames(mat) %in% barcodes, drop = FALSE]
   }
   return(mat)
 }
