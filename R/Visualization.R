@@ -59,6 +59,16 @@ colVector <- function(num.color = 60, type = c("qual", "div", "seq")) {
 }
 
 #' Ref: From SnapATAC
+findCentrod <- function(x, y){
+	x.ls = split(data.frame(x),y);
+	centroid.ls = lapply(split(data.frame(x),y), function(xx) apply(xx, 2, median))
+	centroid.df = data.frame(do.call(rbind, centroid.ls))
+	centroid.df$Y = names(centroid.ls);
+	
+	return(centroid.df);		
+}
+
+#' Ref: From SnapATAC
 #' @export
 plot2DEmbed <- function(dmat,
                         point.size = 1,
