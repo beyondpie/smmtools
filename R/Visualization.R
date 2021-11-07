@@ -68,6 +68,31 @@ findCentrod <- function(x, y){
 	return(centroid.df);		
 }
 
+#' @importFrom grDevices xy.coords 
+#' @importFrom graphics strwidth strheight 
+textHalo <- function(
+	x, y=NULL, 
+	labels, 
+	col='white', 
+	bg='black', 
+	r=0.1,
+	... 
+){
+
+	theta= seq(0, 2*pi, length.out=50);
+    xy <- xy.coords(x,y)
+    xo <- r*strwidth('A')
+    yo <- r*strheight('A')
+
+    # draw background text with small shift in x and y in background colour
+    for (i in theta) {
+        text( xy$x + cos(i)*xo, xy$y + sin(i)*yo, labels, col=bg, ... )
+    }
+    # draw actual text in exact xy position in foreground colour
+    text(xy$x, xy$y, labels, col=col, ... )
+}
+
+
 #' Ref: From SnapATAC
 #' @export
 plot2DEmbed <- function(dmat,
