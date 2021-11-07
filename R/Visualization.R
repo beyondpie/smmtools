@@ -84,7 +84,6 @@ plot2DEmbed <- function(dmat,
                         ...) {
   ncell <- nrow(dmat)
   down.sample <- as.integer(down.sample)
-  method <- match.arg(method)
   data.use <- as.data.frame(dmat)
   if (is.null(myxlims)) {
     xlims <- c(-max(abs(data.use[, 1])) * 1.05, max(abs(data.use[, 1])) * 1.2)
