@@ -11,26 +11,18 @@ class QC(object):
 
     Attributes:
         total: total number of sequenced fragments.
-
         mapped: number of mappable fragments.
-
         chrM: number of fragments mapped to chrM.
-
         paired: number of fragments are paired.
-
         single: number of fragments are from single read.
-
         proper_paired: number of paired reads are properly paired.
-
         usable: number of usable fragments.
-
         uniq: number of unique fragments.
-
         isize: average insert size distribution.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         """Return a qc object"""
-        self.id = 0
+        self.barcode = 0
         self.total = 0
         self.mapped = 0
         self.single = 0
@@ -41,7 +33,12 @@ class QC(object):
         self.usable = 0
         self.uniq = 0
         self.chrM = 0
-        self.final = 0
+    def to_str(self, sep = "\t") -> str:
+        return sep.join([self.barcode, self.total, self.mapped, self.single, self.secondary,
+                         self.paired,self.proper_paired, self.proper_flen, self.usable,
+                         self.uniq, self.chrM])
+        
+        
 
 class Fragment(object):
     """A fragment object that has the following attributes:
@@ -232,12 +229,7 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
     for read_group in group_reads_by_barcode_bam(input_bam=bam_file):
         ##  reads from read_group come from the same barcode
         frag_list: List[Tuple[str, int, int]] = []
-        qc_total: int = 0
-        qc_single: int = 0
-        qc_secondary: int = 0
-        qc_paired: int = 0
-        qc_proper_paired :int = 0
-        qc_proper_flen :int = 0
+        qc = QC()
         for (read1, read2, is_paired, is_secondary) in pairReadsByName(read_list=read_group):
             if is_paired:
                 frag = readPairToFragment(read1, read2, is_secondary)
@@ -246,6 +238,7 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
                 frag = readToFragment(read1, is_secondary);            
             # extract the barcode
             barcode = frag.qname.split(":")[0].upper()
+            qc.barcode = barcode
             # filter by min_cov
             if not barcode in barcodes:
                 break
@@ -255,27 +248,27 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
                 print(f"{check_point} tags, {time.time() - start_time} seconds.")
             # total number of sequencing fragments (exclude supplementary alignments)
             if frag.is_secondary == False:
-                qc_total += 1
+                qc.total += 1
             ## 1. Filter non-unique mapped fragments
             if frag.mapq < min_mapq:
                 continue
             if frag.is_single:
                 if frag.is_secondary:
-                    qc_secondary += 1
+                    qc.secondary += 1
                 else:
-                    qc_single += 1
+                    qc.single += 1
                     ## not keep the single reads
                     continue
             else:
                 ## pared-end reads
-                qc_paired += 1
+                qc.paired += 1
                 if frag.is_proper_pair:
-                    qc_proper_paired += 1
+                    qc.proper_paired += 1
                 else:
                     continue
             # 2. check fragment size
             if frag.flen > min_flen and frag.flen < max_flen:
-                qc_proper_flen += 1
+                qc.proper_flen += 1
             else:
                 continue
             # 3. combine single and paired as fragments
@@ -283,18 +276,16 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
         if(len(frag_list) < 1):
             continue
         frag_counter = collections.Counter(frag_list)
-        n_usable = len(frag_list)
-        n_total_uniq = len(frag_counter)
-        nchrM = sum([ e[0] == "chrM" for e in frag_list])
+        qc.usable = len(frag_list)
+        qc.uniq = len(frag_counter)
+        qc.chrM = sum([ e[0] == "chrM" for e in frag_list])
         n_uniq_chrM = sum([ e[0] == "chrM" for e in frag_counter.keys()])
         if (n_uniq_chrM == n_total_uniq):
             continue
         ## output the fragments
         frag_content: List[str] = [f"{k[0]}\t{k[1]}\t{k[2]}\t{v}}" for k, v in frag_counter.items()]
         output_bed.write("\n".join(frag_content))
-        output_qc.write("\n".join(str([qc_total, qc_single, qc_secondary, qc_proper_paired,
-                                       qc_proper_paired,qc_proper_flen,
-                                       n_usable, n_total_uniq, nchrM])))
+        output_qc.write(f"{qc.to_str()}\n")
     input_bam.close() 
     subprocess.check_call(["rm", ftmp.name])
     output_bed.close()
