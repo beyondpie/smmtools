@@ -23,6 +23,7 @@ setuptools.setup(
         "scrublet",
         "sklearn",
         "igraph",
+        "pysam"
     ],
     python_requires=">=3.6",
 )
