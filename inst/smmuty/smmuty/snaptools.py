@@ -1,3 +1,4 @@
+import sys
 import os
 import tempfile
 import time
@@ -10,6 +11,7 @@ class QC(object):
     """A quality control object that has the following attributes:
 
     Attributes:
+        barcode: name of barcodes
         total: total number of sequenced fragments.
         mapped: number of mappable fragments.
         chrM: number of fragments mapped to chrM.
@@ -20,9 +22,12 @@ class QC(object):
         uniq: number of unique fragments.
         isize: average insert size distribution.
     """
+    fields = ["barcode", "total", "mapped", "single", "secondary","paired",
+                       "proper_paired","proper_flen", "usable", "uniq", "chrM"]
+
     def __init__(self) -> None:
         """Return a qc object"""
-        self.barcode = 0
+        self.barcode:str = ""
         self.total = 0
         self.mapped = 0
         self.single = 0
@@ -34,9 +39,8 @@ class QC(object):
         self.uniq = 0
         self.chrM = 0
     def to_str(self, sep = "\t") -> str:
-        return sep.join([self.barcode, self.total, self.mapped, self.single, self.secondary,
-                         self.paired,self.proper_paired, self.proper_flen, self.usable,
-                         self.uniq, self.chrM])
+        return sep.join([str(getattr(self, i)) for i in self.fields])
+        
         
         
 
@@ -55,14 +59,14 @@ class Fragment(object):
     """
     def __init__(self, qname, chrom, pos, flen, mapq, is_single, is_secondary, is_proper_pair):
         """Return a qc object"""
-        self.qname = qname
-        self.chrom = chrom
-        self.pos = pos
-        self.flen = flen
-        self.mapq = mapq
-        self.is_single = is_single
-        self.is_secondary = is_secondary
-        self.is_proper_pair = is_proper_pair
+        self.qname:str = qname
+        self.chrom:str = chrom
+        self.pos:int = pos
+        self.flen:int = flen
+        self.mapq:float = mapq
+        self.is_single: bool = is_single
+        self.is_secondary: bool = is_secondary
+        self.is_proper_pair:bool = is_proper_pair
 
 
 def getBarcodesFromBam(input_bam: str) -> Dict[str, float]:
@@ -75,7 +79,7 @@ def getBarcodesFromBam(input_bam: str) -> Dict[str, float]:
         A dictionary contains all barcodes, their coverages.
     """
     
-    barcode_dict = collections.defaultdict(lambda :0)
+    barcode_dict = collections.defaultdict(lambda :0.0)
     samfile = pysam.AlignmentFile(input_bam, "rb")
     for _read in samfile:
         barcode = _read.qname.split(":")[0].upper()
@@ -190,14 +194,50 @@ def readToFragment(read1, is_secondary):
     except ValueError as e:
         return Fragment(read1.qname, None, None, None, mapq, True, is_secondary, False);
 
+def readPairToFragment(read1, read2, is_secondary):
+    """ convert read pairs to fragments
+    
+    Args:
+        read1: R1 read
+
+        read2: R2 read
+    Returns:
+        Generator that contains a fragment object
+    """
+    try:
+        read1.qname;
+        read2.qname;
+        if read1.qname != read2.qname:
+            sys.exit('read_pair_to_fragment: read1 and read2 name does not match!');  
+    except ValueError as e:
+        sys.exit('read_pair_to_fragment: can not get read1 or read2 name!');   
+    barcode = read1.qname.split(":")[0];
+    mapq = min(read1.mapq, read2.mapq);
+    try:
+        chrom1 = read1.reference_name;
+        start1 = read1.reference_start;
+        strand1 = "-" if read1.is_reverse else "+";    
+        chrom2 = read2.reference_name;
+        start2 = read2.reference_start;
+        strand2 = "-" if read1.is_reverse else "+";    
+        # it is possible that flen1 is None  
+        flen1 = read1.reference_length if read1.reference_length != None else 0
+        flen2 = read2.reference_length if read2.reference_length != None else 0
+        end1   = start1 + flen1;
+        end2   = start2 + flen2;
+        start = min(start1, end1, start2, end2);
+        end = max(start1, end1, start2, end2);
+        return Fragment(read1.qname, chrom1, start, abs(start - end), mapq, False, is_secondary, read1.is_proper_pair);
+    except ValueError:
+        return Fragment(read1.qname, None, None, None, mapq, False, is_secondary, False);
+
 
 def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
                                  qc_file: str,
-                                 mim_mapq: int = 30,
+                                 min_mapq: int = 30,
                                  min_flen: int = 0,
                                  max_flen: int = 1000,
                                  min_cov: int = 100,
-                                 keep_single: bool = False,
                                  num_threads: int = 1,
                                  verbose: bool = True) -> None:
     """Get 10x Fragment bed file format from bam file.
@@ -217,15 +257,14 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
 
     check_point:int = 0
     start_time = time.time()
-    qc_dict = collections.defaultdict(QuanlyControl)
 
     barcode_cov = getBarcodesFromBam(input_bam=bam_file)
     barcodes = {k: v for k, v in barcode_cov.items() if v >= min_cov}
 
-    
     input_bam = pysam.AlignmentFile(ftmp.name, "rb")
     output_bed = open(outf, "wa")
     output_qc = open(qc_file, "wa")
+    output_qc.write(f"{'\t'.join(QC.fields)}\n")
     for read_group in group_reads_by_barcode_bam(input_bam=bam_file):
         ##  reads from read_group come from the same barcode
         frag_list: List[Tuple[str, int, int]] = []
@@ -280,10 +319,10 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
         qc.uniq = len(frag_counter)
         qc.chrM = sum([ e[0] == "chrM" for e in frag_list])
         n_uniq_chrM = sum([ e[0] == "chrM" for e in frag_counter.keys()])
-        if (n_uniq_chrM == n_total_uniq):
+        if (n_uniq_chrM == qc.uniq):
             continue
         ## output the fragments
-        frag_content: List[str] = [f"{k[0]}\t{k[1]}\t{k[2]}\t{v}}" for k, v in frag_counter.items()]
+        frag_content: List[str] = [f"{k[0]}\t{k[1]}\t{k[2]}\t{v}" for k, v in frag_counter.items()]
         output_bed.write("\n".join(frag_content))
         output_qc.write(f"{qc.to_str()}\n")
     input_bam.close() 
@@ -291,5 +330,3 @@ def SnapToolsBamTo10xFragmentBed(bam_file: str, outf:str,
     output_bed.close()
     output_qc.close()
     return None
-        
-    
