@@ -388,6 +388,7 @@ def SnapToolsBamTo10xFragmentBed(
                 for k, v in frag_counter.items()
             ]
             fbed.write("\n".join(frag_content))
+            fbed.write("\n")
             fqc.write(f"{qc.to_str(sep = sep)}\n")
     input_bam.close()
     return None
