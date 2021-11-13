@@ -82,7 +82,7 @@ class Fragment(object):
         self.is_proper_pair: bool = is_proper_pair
 
 
-def getBarcodesFromBam(input_bam: str) -> Dict[str, float]:
+def getBarcodesFromBam(input_bam: str, output: str) -> None:
     """Identify unique barcodes from the bam file
 
     Args:
@@ -91,7 +91,7 @@ def getBarcodesFromBam(input_bam: str) -> Dict[str, float]:
     Returns:
         A dictionary contains all barcodes, their coverages.
     """
-
+    print("Get barcodes and their coverages from bam file ...")
     barcode_dict = collections.defaultdict(lambda: 0.0)
     samfile = pysam.AlignmentFile(input_bam, "rb")
     for _read in samfile:
@@ -102,7 +102,11 @@ def getBarcodesFromBam(input_bam: str) -> Dict[str, float]:
         else:
             barcode_dict[barcode] += 0.5
     samfile.close()
-    return barcode_dict
+    with open(output, "w") as f:
+        lines = [f"{k}\t{v}" for k, v in barcode_dict.items()]
+        f.write("\n".join(lines))
+        print(f"{len(barcode_dict)} barcodes from the bam file.")
+    return None
 
 
 def group_reads_by_barcode_bam(input_bam):
@@ -329,11 +333,11 @@ def SnapToolsBamTo10xFragmentBed(
     bam_file: str,
     outf: str,
     qc_file: str,
+    barcodef: str,
     min_mapq: int = 30,
     min_flen: int = 0,
     max_flen: int = 1000,
     min_cov: int = 100,
-    barcode_with_cov: Dict[str, float] = {},
     verbose: bool = True,
     sep: str = ",",
     step: int = 100,
@@ -352,11 +356,13 @@ def SnapToolsBamTo10xFragmentBed(
         os.makedirs(os.path.dirname(qc_file))
     check_point: int = 0
     start_time = time.time()
-    if len(barcode_with_cov) < 1:
-        print("Get barcodes and their coverages from bam file ...")
-        barcode_cov = getBarcodesFromBam(input_bam=bam_file)
-    else:
-        barcode_cov = barcode_with_cov
+
+    with open(barcodef, "r") as f:
+        lines = [l.strip() for l in f.readlines()]
+        barcode_cov: Dict[str, float] = {
+            l.split("\t")[0]: float(l.split("\t")[1]) for l in lines
+        }
+
     barcodes = {k: v for k, v in barcode_cov.items() if v >= min_cov}
     print(f"{len(barcodes)} barcodes pass the coverage filters {min_cov}.")
     input_bam = pysam.AlignmentFile(bam_file, "rb")

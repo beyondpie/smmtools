@@ -15,6 +15,9 @@ rule bamTo10x:
         snapQCFile = expand("{root}/out/{{sample}}_QC.tsv", root = root)
         fragmentFile = expand("{root}/out/{{sample}}_fragment.tsv", root = root)
     container:
+        config["docker"]
+    script:
+        
         
         
 

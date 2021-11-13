@@ -1,4 +1,4 @@
 root: /Users/szu/git-recipes/smmtools/eval
 samples: [QY_1287, QY_1288]
-docker: docker://sc
+docker: docker://sc:latest
 
