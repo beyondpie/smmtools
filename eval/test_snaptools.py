@@ -20,4 +20,5 @@ SnapToolsBamTo10xFragmentBed(bam_file = QY_1287_bam_file,
                              outf = "./out/QY_1287_fragment.tsv",
                              qc_file = "./out/QY_1287_QC.csv",
                              barcode_with_cov= barcodes,
-                             sep = ",")
+                             sep = ",",
+                             step = 1000)
