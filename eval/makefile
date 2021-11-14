@@ -1,10 +1,14 @@
 ## make sure to run the file under conda base environment.
 
 .ONESHELL:
-.PHONY: smmuty all clean
+.PHONY: smmuty smmtools all clean
 
 smmuty:
 	cd ../inst; pip install -e $@ ; cd -
+smmtools:
+	-rm src/*.o
+	-rm src/*.so
+	Rscript -e 'devtools::install_github("beyondpie/smmtools")'
 
 conda_env := $(HOME)/miniconda
 R := /usr/local/bin/R
@@ -13,7 +17,7 @@ python := $(conda_env)/bin/python
 
 script_dir := $(HOME)/git-recipes/10xmm/script
 samples :=QY_1287 QY_1288
-genome := mm10
+genome := hg38
 
 raw_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcode)
 fragment_fnms := $(foreach s, $(samples), out/$(s)_fragment.tsv.gz)
