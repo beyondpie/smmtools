@@ -42,3 +42,5 @@ vignettes/*.pdf
 .DS_Store
 *.pyc
 /inst/smmuty/smmuty.egg-info/
+/eval/bam
+/eval/out/
