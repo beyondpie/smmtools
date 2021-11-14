@@ -30,7 +30,7 @@ filtered_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcodes_filtered.txt
 bmat_fnms := $(foreach s, $(samples), out/$(s)_bmat.h5)
 scrublet_fnms := $(foreach s, $(samples), out/$(s)_scrublet.csv)
 barcodes_after_doublet := $(foreach s, $(samples), out/$(s)_barcodes_after_doublet.csv)
-harmony_matrix_fnm := out/harmony_matrix.h5
+harmony_matrix_fnm := out/harmony_matrix.rds
 RB_cluster_fnm := out/RB_cluster.csv
 
 all : $(RB_cluster_fnm)
@@ -52,7 +52,7 @@ $(raw_barcode_fnms) : out/%_barcode : bam/%.bam
 $(fragment_fnms) : out/%_fragment.tsv.gz : bam/%.bam out/%_barcode
 	${python} << EOF
 	from smmuty.snaptools import SnapToolsBamTo10xFragmentBed as f
-	f("bam/$*.bam", "out/$*_fragment.tsv", "out/$*_QC.tsv", "out/$*_barcode")
+	f("bam/$*.bam", "out/$*_fragment.tsv", "out/$*_QC.csv", "out/$*_barcode")
 	EOF
 	bedtools sort -i out/$*_fragment.tsv | bgzip  > $@
 	tabix --preset=bed $@
