@@ -18,6 +18,8 @@ python := $(conda_env)/bin/python
 script_dir := $(HOME)/git-recipes/10xmm/script
 samples :=QY_1287 QY_1288
 genome := hg38
+tsse_cutoff := 7
+ufrag_cutoff := 1000
 
 raw_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcode)
 fragment_fnms := $(foreach s, $(samples), out/$(s)_fragment.tsv.gz)
@@ -65,7 +67,7 @@ $(sumfragment_file) : out/%_sumFragment.csv : out/%_raw.h5
 
 $(filtered_barcode_fnms) : out/%_barcodes_filtered.txt : out/%_sumFragment.csv
 	$(Rscript) $(script_dir)/filterBarcodesFromQC.R --qcf $< --outf $@ \
-      --TSSE 10 --nFrag 1000 --sampleName $*
+      --TSSE $(tsse_cutoff) --nFrag $(ufrag_cutoff) --sampleName $*
 
 $(bmat_fnms) : out/%_bmat.h5 : out/%_barcodes_filtered.txt out/%_raw.h5
 	$(Rscript) $(script_dir)/getTileMatrix.R --rawH5File out/$*_raw.h5 \
@@ -76,8 +78,8 @@ $(bmat_fnms) : out/%_bmat.h5 : out/%_barcodes_filtered.txt out/%_raw.h5
 $(scrublet_fnms) : out/%_scrublet.csv : out/%_bmat.h5
 	$(Rscript) $(script_dir)/getDoubletScore.R --tileMatrixFile $< \
              --outScrubletFile $@ --path_to_python $(python) \
-             --zthres 1.65 --expDoubletRate 0.06 --minCount 3 --minCells 5 \
-             --minConvPctl 85 --nPC 30
+             --zthres 1.65 --expDoubletRate 0.06 --minCount 3 --minCells 3 \
+             --minConvPctl 85 --nPC 25
 
 $(barcodes_after_doublet) : out/%_barcodes_after_doublet.csv : out/%_scrublet.csv
 	$(Rscript) $(script_dir)/filterBarcodesFromDoublet.R --doubletScoreFile $< --outBarcodeFile $@ 
@@ -87,7 +89,7 @@ $(harmony_matrix_fnm) : $(bmat_fnms) $(barcodes_after_doublet)
              --tileMatrixDir out --barcodeDir out \
              --tileMatrixFNames $(bmatfnms_str) --barcodeFNames $(barcodefnms_str)\
              --nLandmark 10000 --nSampleRegrn 2000 --nPCDiffusionMaps 50 \
-             --nPCHarmony 30 --saveHarmonyFile $@
+             --nPCHarmony 22 --saveHarmonyFile $@
 
 $(RB_cluster_fnm) : $(harmony_matrix_fnm)
 	$(Rscript) $(script_dir)/getclustering.R --dimReductMatrixFile $< \
@@ -96,3 +98,9 @@ $(RB_cluster_fnm) : $(harmony_matrix_fnm)
 
 clean:
 	-rm $(foreach s, $(samples), out/$(s)_fragment.tsv)
+	-rm $(filtered_barcode_fnms)
+	-rm $(bmat_fnms)
+	-rm $(scrublet_fnms)
+	-rm $(barcodes_after_doublet)
+	-rm $(harmony_matrix_fnm)
+	-rm $(RB_cluster_fnm)
