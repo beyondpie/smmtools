@@ -70,7 +70,7 @@ $(filtered_barcode_fnms) : out/%_barcodes_filtered.txt : out/%_sumFragment.csv
 $(bmat_fnms) : out/%_bmat.h5 : out/%_barcodes_filtered.txt out/%_raw.h5
 	$(Rscript) $(script_dir)/getTileMatrix.R --rawH5File out/$*_raw.h5 \
              --outdir out --genome $(genome) --sampleName $* \
-             --barcodesFile out/$*_filtered.txt --tileSize 5000 \
+             --barcodesFile out/$*_barcodes_filtered.txt --tileSize 5000 \
              --outfnm $*_bmat.h5
 
 $(scrublet_fnms) : out/%_scrublet.csv : out/%_bmat.h5
@@ -81,9 +81,9 @@ $(scrublet_fnms) : out/%_scrublet.csv : out/%_bmat.h5
 
 $(barcodes_after_doublet) : out/%_barcodes_after_doublet.csv : out/%_scrublet.csv
 	$(R) --vanilla -q <<EOF
-	doubletScores <- read.table(file = $<, header = TRUE, sep = ",", comment.char = "")
-	out <- doubletScores$barcode[doubleScores$scrubletScore <= doubletScores$thresGMM]
-	write.table(x = out, file = $@, quote = FALSE, row.names = F, col.names = F, sep = ",")
+	d <- read.table(file = "$<", header = TRUE, sep = ",", comment.char = "")
+	out <- d$$barcode[d$$scrubletScore <= d$$thresGMM]
+	write.table(x = out, file = "$@", quote = FALSE, row.names = F, col.names = F, sep = ",")
 	EOF
 
 $(harmony_matrix_fnm) : $(bmat_fnms) $(barcodes_after_doublet)
