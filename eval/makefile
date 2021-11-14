@@ -7,13 +7,13 @@ smmuty:
 	cd ../inst; pip install -e $@ ; cd -
 
 conda_env := $(HOME)/miniconda
-R := $(conda_env)/bin/R
-Rscript := $(conda_env)/bin/R
+R := /usr/local/bin/R
+Rscript := /usr/local/bin/Rscript
 python := $(conda_env)/bin/python
 
 script_dir := $(HOME)/git-recipes/10xmm/script
-samples := QY_1287 QY_1288
-genome := 10mm
+samples :=QY_1287 QY_1288
+genome := mm10
 
 raw_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcode)
 fragment_fnms := $(foreach s, $(samples), out/$(s)_fragment.tsv.gz)
@@ -27,12 +27,14 @@ barcodes_after_doublet := $(foreach s, $(samples), out/$(s)_barcodes_after_doubl
 harmony_matrix_fnm := harmony_matrix.h5
 RB_cluster_fnm := RB_cluster.csv
 
+all : $(RB_cluster_fnm)
+
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
-COMMA := ,
-bmatfnms_str := $(subst $(SPACE), $(COMMA), $(foreach s, $(bmat_fnms), $(notdir $s)))
-barcodefnms_str := $(subst $(SPACE), $(COMMA), $(foreach s, $(barcodes_after_doublet), $(notdir $s)))
-samples_str := $(subst $(SPACE), $(COMMA), $(samples))
+COMMA :=,
+bmatfnms_str := $(subst $(SPACE),$(COMMA),$(foreach s, $(bmat_fnms),$(notdir $s)))
+barcodefnms_str := $(subst $(SPACE),$(COMMA),$(foreach s, $(barcodes_after_doublet),$(notdir $s)))
+samples_str := $(subst $(SPACE),$(COMMA),$(samples))
 
 
 $(raw_barcode_fnms) : out/%_barcode : bam/%.bam
@@ -81,7 +83,7 @@ $(barcodes_after_doublet) : out/%_barcodes_after_doublet.csv : out/%_scrublet.cs
 	EOF
 
 $(harmony_matrix_fnm) : $(bmat_fnms) $(barcodes_after_doublet)
-	$(Rscript) $(script_dir)/getHarmonyMatrix.R --sampleNames samples_str \
+	$(Rscript) $(script_dir)/getHarmonyMatrix.R --sampleNames $(samples_str) \
              --tileMatrixDir out --barcodeDir out \
              --tileMatrixFNames $(bmatfnms_str) --barcodeFNames $(barcodefnms_str)\
              --nLandmark 10000 --nSampleRegrn 2000 --nPCDiffusionMaps 50 \
@@ -91,7 +93,6 @@ $(RB_cluster_fnm) : $(harmony_matrix_fnm)
 	$(Rscript) $(script_dir)/getclustering.R --dimReductMatrixFile $< \
              --Knn 50 --path_to_python $(python) --reso 1.0 --partitionType RB \
              --outClusterFile $@
-
 
 clean:
 	-rm $(foreach s, $(samples), out/$(s)_fragment.tsv)
