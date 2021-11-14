@@ -18,6 +18,7 @@ python := $(conda_env)/bin/python
 script_dir := $(HOME)/git-recipes/10xmm/script
 samples :=QY_1287 QY_1288
 genome := hg38
+backquote :=`
 
 raw_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcode)
 fragment_fnms := $(foreach s, $(samples), out/$(s)_fragment.tsv.gz)
@@ -28,8 +29,8 @@ filtered_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcodes_filtered.txt
 bmat_fnms := $(foreach s, $(samples), out/$(s)_bmat.h5)
 scrublet_fnms := $(foreach s, $(samples), out/$(s)_scrublet.csv)
 barcodes_after_doublet := $(foreach s, $(samples), out/$(s)_barcodes_after_doublet.csv)
-harmony_matrix_fnm := harmony_matrix.h5
-RB_cluster_fnm := RB_cluster.csv
+harmony_matrix_fnm := out/harmony_matrix.h5
+RB_cluster_fnm := out/RB_cluster.csv
 
 all : $(RB_cluster_fnm)
 
@@ -80,11 +81,7 @@ $(scrublet_fnms) : out/%_scrublet.csv : out/%_bmat.h5
              --minConvPctl 85 --nPC 30
 
 $(barcodes_after_doublet) : out/%_barcodes_after_doublet.csv : out/%_scrublet.csv
-	$(R) --vanilla -q <<EOF
-	d <- read.table(file = "$<", header = TRUE, sep = ",", comment.char = "")
-	out <- d$$barcode[d$$scrubletScore <= d$$thresGMM]
-	write.table(x = out, file = "$@", quote = FALSE, row.names = F, col.names = F, sep = ",")
-	EOF
+	$(Rscript) $(script_dir)/filterBarcodesFromDoublet.R --doubletScoreFile $< --outBarcodeFile $@ 
 
 $(harmony_matrix_fnm) : $(bmat_fnms) $(barcodes_after_doublet)
 	$(Rscript) $(script_dir)/getHarmonyMatrix.R --sampleNames $(samples_str) \
