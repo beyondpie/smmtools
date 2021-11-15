@@ -1,7 +1,7 @@
 ## make sure to run the file under conda base environment.
 
 .ONESHELL:
-.PHONY: smmuty smmtools all clean
+.PHONY: smmuty smmtools all clean test
 
 smmuty:
 	cd ../inst; pip install -e $@ ; cd -
@@ -20,6 +20,7 @@ samples :=QY_1287 QY_1288
 genome := hg38
 tsse_cutoff := 7
 ufrag_cutoff := 1000
+nlandmark := 30000
 
 raw_barcode_fnms := $(foreach s, $(samples), out/$(s)_barcode)
 fragment_fnms := $(foreach s, $(samples), out/$(s)_fragment.tsv.gz)
@@ -34,6 +35,10 @@ harmony_matrix_fnm := out/harmony_matrix.rds
 RB_cluster_fnm := out/RB_cluster.csv
 
 all : $(RB_cluster_fnm)
+
+test:
+	$(Rscript) $(script_dir)/getSumFragment.R --rawH5File out/QY_1287_raw.h5 --sumFragFile out/QY_1287_sumFragment.csv  \
+      --genome $(genome) --sampleName QY_1287_test
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
@@ -88,7 +93,7 @@ $(harmony_matrix_fnm) : $(bmat_fnms) $(barcodes_after_doublet)
 	$(Rscript) $(script_dir)/getHarmonyMatrix.R --sampleNames $(samples_str) \
              --tileMatrixDir out --barcodeDir out \
              --tileMatrixFNames $(bmatfnms_str) --barcodeFNames $(barcodefnms_str)\
-             --nLandmark 10000 --nSampleRegrn 2000 --nPCDiffusionMaps 50 \
+             --nLandmark $(nlandmark) --nSampleRegrn 2000 --nPCDiffusionMaps 50 \
              --nPCHarmony 22 --saveHarmonyFile $@
 
 $(RB_cluster_fnm) : $(harmony_matrix_fnm)
