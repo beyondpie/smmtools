@@ -44,3 +44,5 @@ vignettes/*.pdf
 /inst/smmuty/smmuty.egg-info/
 /eval/bam
 /eval/out/
+/eval/Rplots.pdf
+/eval/cancer_tissue_qc.tsv
