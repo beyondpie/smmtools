@@ -213,7 +213,6 @@ ggPoint <- function(x = NULL,
         raster.width = min(par("fin")),
         raster.height = (ratioYX * min(par("fin")))
       )
-
     } else {
       p <- p + geom_point(size = size, alpha = alpha)
     }
@@ -264,11 +263,15 @@ ggPoint <- function(x = NULL,
         }
 
         if (is.null(fgColor)) {
-          p <- p + geom_text(data = dfMean, aes(x = x, y = y, color = color, label = label),
-                             size = labelSize, show.legend = FALSE)
+          p <- p + geom_text(
+            data = dfMean, aes(x = x, y = y, color = color, label = label),
+            size = labelSize, show.legend = FALSE
+          )
         } else {
-          p <- p + geom_text(data = dfMean, aes(x = x, y = y, label = label), color = fgColor,
-                             size = labelSize, show.legend = FALSE)
+          p <- p + geom_text(
+            data = dfMean, aes(x = x, y = y, label = label), color = fgColor,
+            size = labelSize, show.legend = FALSE
+          )
         }
       }
     } else {
@@ -280,19 +283,25 @@ ggPoint <- function(x = NULL,
         }
       } else {
         if (!is.null(colorLimits)) {
-          p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet),
-                                          limits = colorLimits, na.value = "lightgrey")
+          p <- p + scale_colour_gradientn(
+            colors = paletteContinuous(set = continuousSet),
+            limits = colorLimits, na.value = "lightgrey"
+          )
         } else {
-          p <- p + scale_colour_gradientn(colors = paletteContinuous(set = continuousSet),
-                                          na.value = "lightgrey")
+          p <- p + scale_colour_gradientn(
+            colors = paletteContinuous(set = continuousSet),
+            na.value = "lightgrey"
+          )
         }
       }
     }
   }
   if (!is.null(addFit)) {
     p <- p + geom_smooth(data = df, aes(color = NULL), method = addFit, color = "black") +
-      ggtitle(paste0(title, "\nPearson = ", round(cor(df$x, df$y), 3),
-                     "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)))
+      ggtitle(paste0(
+        title, "\nPearson = ", round(cor(df$x, df$y), 3),
+        "\nSpearman = ", round(cor(df$x, df$y, method = "spearman"), 3)
+      ))
   }
   p <- p + theme(legend.position = "bottom", legend.key = element_rect(size = 2))
   if (!is.null(ratioYX)) {
@@ -303,141 +312,130 @@ ggPoint <- function(x = NULL,
 }
 
 
-## Adapted from 
+## Adapted from
 ## https://github.com/tidyverse/ggplot2/blob/660aad2db2b3495ae0d8040915a40d247133ffc0/R/geom-point.r
 ## from https://github.com/VPetukhov/ggrastr/blob/master/R/geom-point-rast.R
 ## This funciton now handles issues with Cairo installation that can lead to plot errors
-.geom_point_rast2 <- function(
-  mapping = NULL,
-  data = NULL,
-  stat = "identity",
-  position = "identity",
-  ...,
-  na.rm = FALSE,
-  show.legend = NA,
-  inherit.aes = TRUE,
-  raster.width = min(par('fin')), 
-  raster.height = min(par('fin')), 
-  raster.dpi = 300
-  ){
-
-  GeomPointRast <- tryCatch({
-
-    if(!.checkCairo()){
-      stop()
-    }
-
-    #Try to create a geom rast for points if not then just use normal geom_point
-    ggplot2::ggproto(
-      "GeomPointRast",
-      ggplot2::GeomPoint,
-      required_aes = c("x", "y"),
-      non_missing_aes = c("size", "shape", "colour"),
-      default_aes = aes(
-        shape = 19, colour = "black", size = 1.5, fill = NA,
-        alpha = NA, stroke = 0.5
-      ),
-      
-      draw_panel = function(data, panel_params, coord, na.rm = FALSE, 
-        raster.width=min(par('fin')), raster.height=min(par('fin')), raster.dpi=300){
-      
-      #From ggrastr  
-      prevDevID <- dev.cur()
-
-      p <- ggplot2::GeomPoint$draw_panel(data, panel_params, coord)
-      
-      devID <- Cairo::Cairo(
-        type='raster', 
-        width=raster.width*raster.dpi, 
-        height=raster.height*raster.dpi, 
-        dpi=raster.dpi, 
-        units='px', 
-        bg="transparent"
-      )[1]
-
-      grid::pushViewport(grid::viewport(width=1, height=1))
-      
-      grid::grid.points(
-        x=p$x, 
-        y=p$y, 
-        pch = p$pch, 
-        size = p$size,
-        name = p$name, 
-        gp = p$gp, 
-        vp = p$vp, 
-        draw = TRUE
-      )
-
-      grid::popViewport()
-      gridCapture <- grid::grid.cap()
-      
-      dev.off(devID)
-      
-      dev.set(prevDevID)
-
-      grid::rasterGrob(
-        gridCapture, 
-        x=0, 
-        y=0, 
-        width = 1,
-        height = 1,
-        default.units = "native",
-        just = c("left","bottom")
-      )
-
+.geom_point_rast2 <- function(mapping = NULL,
+                              data = NULL,
+                              stat = "identity",
+                              position = "identity",
+                              ...,
+                              na.rm = FALSE,
+                              show.legend = NA,
+                              inherit.aes = TRUE,
+                              raster.width = min(par("fin")),
+                              raster.height = min(par("fin")),
+                              raster.dpi = 300) {
+  GeomPointRast <- tryCatch(
+    {
+      if (!.checkCairo()) {
+        stop()
       }
 
-    )
+      # Try to create a geom rast for points if not then just use normal geom_point
+      ggplot2::ggproto(
+        "GeomPointRast",
+        ggplot2::GeomPoint,
+        required_aes = c("x", "y"),
+        non_missing_aes = c("size", "shape", "colour"),
+        default_aes = aes(
+          shape = 19, colour = "black", size = 1.5, fill = NA,
+          alpha = NA, stroke = 0.5
+        ),
+        draw_panel = function(data, panel_params, coord, na.rm = FALSE,
+                              raster.width = min(par("fin")), raster.height = min(par("fin")), raster.dpi = 300) {
 
-  }, error = function(e){
+          # From ggrastr
+          prevDevID <- dev.cur()
 
-    if(.checkCairo()){
-      message("WARNING: Error found with trying to rasterize geom. Continuing without rasterization.")
-    }else{
-      message("WARNING: Error found with Cairo installation. Continuing without rasterization.")
-    }
+          p <- ggplot2::GeomPoint$draw_panel(data, panel_params, coord)
 
-    #Default geom_point
-    ggplot2::ggproto(
-      "GeomPoint", 
-      ggplot2::GeomPoint,
-      required_aes = c("x", "y"),
-      non_missing_aes = c("size", "shape", "colour"),
-      default_aes = aes(
-        shape = 19, colour = "black", size = 1.5, fill = NA,
-        alpha = NA, stroke = 0.5
-      ),
+          devID <- Cairo::Cairo(
+            type = "raster",
+            width = raster.width * raster.dpi,
+            height = raster.height * raster.dpi,
+            dpi = raster.dpi,
+            units = "px",
+            bg = "transparent"
+          )[1]
 
-      draw_panel = function(data, panel_params, coord, na.rm = FALSE, 
-        raster.width=min(par('fin')), raster.height=min(par('fin')), raster.dpi=300){
-        if (is.character(data$shape)) {
-          data$shape <- ggplot2:::translate_shape_string(data$shape) #Hidden ggplot2
-        }
+          grid::pushViewport(grid::viewport(width = 1, height = 1))
 
-        coords <- coord$transform(data, panel_params)
-
-        pGrob <- grid::pointsGrob(
-          x = coords$x, 
-          y = coords$y,
-          pch = coords$shape,
-          gp = grid::gpar(
-            col = scales::alpha(coords$colour, coords$alpha),
-            fill = scales::alpha(coords$fill, coords$alpha),
-            # Stroke is added around the outside of the point
-            fontsize = coords$size * .pt + coords$stroke * .stroke / 2,
-            lwd = coords$stroke * .stroke / 2
+          grid::grid.points(
+            x = p$x,
+            y = p$y,
+            pch = p$pch,
+            size = p$size,
+            name = p$name,
+            gp = p$gp,
+            vp = p$vp,
+            draw = TRUE
           )
-        )
 
-        pGrob
+          grid::popViewport()
+          gridCapture <- grid::grid.cap()
 
-      },
+          dev.off(devID)
 
-      draw_key = ggplot2::draw_key_point
-    )
+          dev.set(prevDevID)
 
+          grid::rasterGrob(
+            gridCapture,
+            x = 0,
+            y = 0,
+            width = 1,
+            height = 1,
+            default.units = "native",
+            just = c("left", "bottom")
+          )
+        }
+      )
+    },
+    error = function(e) {
+      if (.checkCairo()) {
+        message("WARNING: Error found with trying to rasterize geom. Continuing without rasterization.")
+      } else {
+        message("WARNING: Error found with Cairo installation. Continuing without rasterization.")
+      }
 
-  })
+      # Default geom_point
+      ggplot2::ggproto(
+        "GeomPoint",
+        ggplot2::GeomPoint,
+        required_aes = c("x", "y"),
+        non_missing_aes = c("size", "shape", "colour"),
+        default_aes = aes(
+          shape = 19, colour = "black", size = 1.5, fill = NA,
+          alpha = NA, stroke = 0.5
+        ),
+        draw_panel = function(data, panel_params, coord, na.rm = FALSE,
+                              raster.width = min(par("fin")), raster.height = min(par("fin")), raster.dpi = 300) {
+          if (is.character(data$shape)) {
+            data$shape <- ggplot2:::translate_shape_string(data$shape) # Hidden ggplot2
+          }
+
+          coords <- coord$transform(data, panel_params)
+
+          pGrob <- grid::pointsGrob(
+            x = coords$x,
+            y = coords$y,
+            pch = coords$shape,
+            gp = grid::gpar(
+              col = scales::alpha(coords$colour, coords$alpha),
+              fill = scales::alpha(coords$fill, coords$alpha),
+              # Stroke is added around the outside of the point
+              fontsize = coords$size * .pt + coords$stroke * .stroke / 2,
+              lwd = coords$stroke * .stroke / 2
+            )
+          )
+
+          pGrob
+        },
+        draw_key = ggplot2::draw_key_point
+      )
+    }
+  )
 
   ggplot2::layer(
     data = data,
@@ -449,20 +447,19 @@ ggPoint <- function(x = NULL,
     inherit.aes = inherit.aes,
     params = list(
       na.rm = na.rm,
-      raster.width=raster.width,
-      raster.height=raster.height,
-      raster.dpi=raster.dpi,
+      raster.width = raster.width,
+      raster.height = raster.height,
+      raster.dpi = raster.dpi,
       ...
     )
   )
-
 }
 
 
 #' ggplot2 default theme for ArchR
 #'
 #' This function returns a ggplot2 theme that is black borded with black font.
-#' 
+#'
 #' @param color The color to be used for text, lines, ticks, etc for the plot.
 #' @param textFamily The font default family to be used for the plot.
 #' @param baseSize The base font size (in points) to use in the plot.
@@ -476,64 +473,202 @@ ggPoint <- function(x = NULL,
 #' @param yText90 A boolean value indicating whether the y-axis text should be rotated 90 degrees counterclockwise.
 #' @import ggplot2
 #' @export
-theme_ArchR <- function(
-  color = "black",
-  textFamily = "sans",
-  baseSize = 10, 
-  baseLineSize = 0.5,
-  baseRectSize = 0.5,
-  plotMarginCm = 1,
-  legendPosition = "bottom",
-  legendTextSize = 5,
-  axisTickCm = 0.1,
-  xText90 = FALSE,
-  yText90 = FALSE
-  ){
-
+theme_ArchR <- function(color = "black",
+                        textFamily = "sans",
+                        baseSize = 10,
+                        baseLineSize = 0.5,
+                        baseRectSize = 0.5,
+                        plotMarginCm = 1,
+                        legendPosition = "bottom",
+                        legendTextSize = 5,
+                        axisTickCm = 0.1,
+                        xText90 = FALSE,
+                        yText90 = FALSE) {
   theme <- theme_bw() + theme(
-      text = element_text(family = textFamily),
-      axis.text = element_text(color = color, size = baseSize), 
-      axis.title = element_text(color = color, size = baseSize),
-      title = element_text(color = color, size = baseSize),
-      plot.margin = unit(c(plotMarginCm, plotMarginCm, plotMarginCm, plotMarginCm), "cm"),
-      panel.background = element_rect(fill = "transparent", colour = NA),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      panel.border = element_rect(fill = NA, color = color, size = (4/3) * baseRectSize * as.numeric(grid::convertX(grid::unit(1, "points"), "mm"))),
-      axis.ticks.length = unit(axisTickCm, "cm"), 
-      axis.ticks = element_line(color = color, size = baseLineSize * (4/3) * as.numeric(grid::convertX(grid::unit(1, "points"), "mm"))),
-      legend.key = element_rect(fill = "transparent", colour = NA),
-      legend.text = element_text(color = color, size = legendTextSize),
-      legend.box.background = element_rect(color = NA),
-      #legend.box.background = element_rect(fill = "transparent"),
-      legend.position = legendPosition,
-      strip.text = element_text(size = baseSize, color="black")#,
-      #plot.background = element_rect(fill = "transparent", color = NA)
-    )
-  
-  if(xText90){
+    text = element_text(family = textFamily),
+    axis.text = element_text(color = color, size = baseSize),
+    axis.title = element_text(color = color, size = baseSize),
+    title = element_text(color = color, size = baseSize),
+    plot.margin = unit(c(plotMarginCm, plotMarginCm, plotMarginCm, plotMarginCm), "cm"),
+    panel.background = element_rect(fill = "transparent", colour = NA),
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.border = element_rect(fill = NA, color = color, size = (4 / 3) * baseRectSize * as.numeric(grid::convertX(grid::unit(1, "points"), "mm"))),
+    axis.ticks.length = unit(axisTickCm, "cm"),
+    axis.ticks = element_line(color = color, size = baseLineSize * (4 / 3) * as.numeric(grid::convertX(grid::unit(1, "points"), "mm"))),
+    legend.key = element_rect(fill = "transparent", colour = NA),
+    legend.text = element_text(color = color, size = legendTextSize),
+    legend.box.background = element_rect(color = NA),
+    # legend.box.background = element_rect(fill = "transparent"),
+    legend.position = legendPosition,
+    strip.text = element_text(size = baseSize, color = "black") # ,
+    # plot.background = element_rect(fill = "transparent", color = NA)
+  )
+
+  if (xText90) {
     theme <- theme %+replace% theme(axis.text.x = element_text(angle = 90, hjust = 1))
   }
 
-  if(yText90){
+  if (yText90) {
     theme <- theme %+replace% theme(axis.text.y = element_text(angle = 90, vjust = 1))
   }
 
   return(theme)
-
 }
 
-.getDensity <- function(x = NULL, y = NULL, n = 100, sample = NULL, densityMax = 0.95){
-  #modified from http://slowkow.com/notes/ggplot2-color-by-density/
-  df <- data.frame(x=x,y=y)
+
+.getDensity <- function(x = NULL, y = NULL, n = 100, sample = NULL, densityMax = 0.95) {
+  # modified from http://slowkow.com/notes/ggplot2-color-by-density/
+  df <- data.frame(x = x, y = y)
   dens <- MASS::kde2d(x = x, y = y, n = n)
   ix <- findInterval(x, dens$x)
   iy <- findInterval(y, dens$y)
   ii <- cbind(ix, iy)
   df$density <- dens$z[ii]
-  df$density[df$density > quantile(unique(df$density),densityMax)] <- quantile(unique(df$density),densityMax) #make sure the higher end doesnt bias colors
-  if(!is.null(sample)){
-    df <- df[sample(nrow(df), min(sample,nrow(df))),]
+  df$density[df$density > quantile(unique(df$density), densityMax)] <- quantile(unique(df$density), densityMax) # make sure the higher end doesnt bias colors
+  if (!is.null(sample)) {
+    df <- df[sample(nrow(df), min(sample, nrow(df))), ]
   }
   return(df)
+}
+
+#' @import ggplot2
+#' @import grid
+#' @import gridExtra
+#' @export
+.fixPlotSize <- function(p = NULL,
+                         plotWidth = unit(6, "in"),
+                         plotHeight = unit(6, "in"),
+                         margin = 0.25,
+                         height = 1,
+                         it = 0.05,
+                         newPage = FALSE) {
+  .requirePackage("grid", source = "cran")
+  .requirePackage("gridExtra", source = "cran")
+
+  if (!inherits(plotWidth, "unit")) {
+    plotWidth <- unit(plotWidth, "in")
+  }
+
+  if (!inherits(plotHeight, "unit")) {
+    plotHeight <- unit(plotHeight, "in")
+  }
+
+  # adapted from https://github.com/jwdink/egg/blob/master/R/set_panel_size.r
+  g <- ggplotGrob(p)
+
+  legend <- grep("guide-box", g$layout$name)
+  if (length(legend) != 0) {
+    gl <- g$grobs[[legend]]
+    g <- ggplotGrob(p + theme(legend.position = "none"))
+  } else {
+    gl <- NULL
+    g <- ggplotGrob(p)
+  }
+
+  panels <- grep("panel", g$layout$name)
+  panel_index_w <- unique(g$layout$l[panels])
+  panel_index_h <- unique(g$layout$t[panels])
+
+  nw <- length(panel_index_w)
+  nh <- length(panel_index_h)
+
+  pw <- convertWidth(plotWidth, unitTo = "in", valueOnly = TRUE)
+  ph <- convertWidth(plotHeight, unitTo = "in", valueOnly = TRUE)
+
+  pw <- pw * 0.95
+  ph <- ph * 0.95
+
+  x <- 0
+  width <- 1
+  sm <- FALSE
+
+  while (!sm) {
+    x <- x + it
+
+    w <- unit(x * width, "in")
+    h <- unit(x * height / width, "in")
+    m <- unit(x * margin / width, "in")
+
+    g$widths[panel_index_w] <- rep(w, nw)
+    g$heights[panel_index_h] <- rep(h, nh)
+
+    sw <- convertWidth(
+      x = sum(g$widths) + m,
+      unitTo = "in",
+      valueOnly = TRUE
+    )
+
+    sh <- convertHeight(
+      x = sum(g$heights) + m,
+      unitTo = "in",
+      valueOnly = TRUE
+    )
+
+    sm <- sw > pw | sh > ph
+  }
+
+  if (length(legend) != 0) {
+    sgh <- convertHeight(
+      x = sum(g$heights),
+      unitTo = "in",
+      valueOnly = TRUE
+    )
+    sgw <- convertWidth(
+      x = sum(g$widths),
+      unitTo = "in",
+      valueOnly = TRUE
+    )
+    slh <- convertHeight(
+      x = sum(gl$heights),
+      unitTo = "in",
+      valueOnly = TRUE
+    )
+    slw <- convertWidth(
+      x = sum(gl$widths),
+      unitTo = "in",
+      valueOnly = TRUE
+    )
+    size <- 6
+    wh <- 0.1
+    it <- 0
+
+    while (slh > 0.2 * ph | slw > pw) {
+      it <- it + 1
+
+      if (it > 3) {
+        break
+      }
+      size <- size * 0.8
+      wh <- wh * 0.8
+      gl <- ggplotGrob(
+        p + theme(
+          legend.key.width = unit(wh, "cm"),
+          legend.key.height = unit(wh, "cm"),
+          legend.spacing.x = unit(0, "cm"),
+          legend.spacing.y = unit(0, "cm"),
+          legend.text = element_text(size = max(size, 2))
+        ) + guides(fill = guide_legend(ncol = 4), color = guide_legend(ncol = 4))
+      )$grobs[[legend]]
+
+      slh <- convertHeight(
+        x = sum(gl$heights),
+        unitTo = "in",
+        valueOnly = TRUE
+      )
+      slw <- convertWidth(
+        x = sum(gl$widths),
+        unitTo = "in",
+        valueOnly = TRUE
+      )
+    }
+    p <- grid.arrange(g, gl,
+      ncol = 1, nrow = 2,
+      heights = unit.c(unit(sgh, "in"), unit(min(slh, 0.2 * pw), "in")),
+      newpage = newPage
+    )
+  } else {
+    p <- grid.arrange(g, newpage = newPage)
+  }
+  invisible(p)
 }
