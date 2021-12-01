@@ -243,7 +243,7 @@ getFragSize <- function(rawH5File, pal = NULL, barcodes = NULL,sampleName = NULL
   ))
 
   for( i in seq_along(chr)) {
-    if (i == 1) {
+    if (i == 1) { 
       fsi <-  unlist(getFragsOfAChrFromRawH5File(rawH5File = rawH5File, chr = chr[i],
                                                    sampleName = sampleName, barcodes = barcodes)) %>%
                   width %>% tabulate(nbins = maxSize)
