@@ -143,10 +143,6 @@ paletteContinuous <- function(
   reverse = FALSE
   ){
 
-  .validInput(input = set, name = "set", valid = c("character"))
-  .validInput(input = n, name = "n", valid = c("integer"))
-  .validInput(input = reverse, name = "reverse", valid = c("boolean"))
-  
   pal <- ArchRPalettes[[set]]
   palOut <- colorRampPalette(pal)(n)
   
