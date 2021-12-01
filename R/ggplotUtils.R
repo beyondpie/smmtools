@@ -312,6 +312,18 @@ ggPoint <- function(x = NULL,
 }
 
 
+.checkCairo <- function(){
+  tryCatch({
+    tmp <- dev.cur()
+    Cairo::Cairo(type='raster')
+    dev.off()
+    dev.set(tmp)
+    TRUE
+  }, error = function(e){
+    FALSE
+  })
+}
+
 ## Adapted from
 ## https://github.com/tidyverse/ggplot2/blob/660aad2db2b3495ae0d8040915a40d247133ffc0/R/geom-point.r
 ## from https://github.com/VPetukhov/ggrastr/blob/master/R/geom-point-rast.R
