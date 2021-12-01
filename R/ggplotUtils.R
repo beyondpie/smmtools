@@ -407,9 +407,10 @@ ggPoint <- function(x = NULL,
     error = function(e) {
       if (.checkCairo()) {
         message("WARNING: Error found with trying to rasterize geom. Continuing without rasterization.")
-      } else {
-        message("WARNING: Error found with Cairo installation. Continuing without rasterization.")
       }
+      ## else {
+      ##   message("WARNING: Error found with Cairo installation. Continuing without rasterization.")
+      ## }
 
       # Default geom_point
       ggplot2::ggproto(
