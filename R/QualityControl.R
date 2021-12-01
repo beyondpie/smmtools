@@ -264,6 +264,6 @@ getFragSize <- function(rawH5File, pal = NULL, barcodes = NULL,sampleName = NULL
     ylab("Percentage of Fragments") +
     scale_color_manual(values=pal) +
     scale_y_continuous(limits = c(0, max(df$fragmentPercent)*1.05), expand = c(0,0)) +
-    scale_x_continuous(limits = c(min(df$fragmentSize), max($fragmentSize)), expand = c(0,0))
+    scale_x_continuous(limits = c(min(df$fragmentSize), max(df$fragmentSize)), expand = c(0,0))
   return(list(df = df, p = p))
 }
