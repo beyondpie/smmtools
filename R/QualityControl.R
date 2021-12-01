@@ -21,8 +21,7 @@
 #' @param tsseMaxFragSize integer
 #' @return data.frame with cols: barcode, nUniqFrag, TSSE, TSSReads
 #' @export
-sumFragmentSingleThread <- function(
-                                    rawH5File,
+sumFragmentSingleThread <- function(rawH5File,
                                     sumFragFile,
                                     genome,
                                     sampleName = NULL,
@@ -233,7 +232,7 @@ fastGetTSSEnrichmentSingleThread <- function(TSS, barcodes,
 #' @importFrom rhdf5 h5ls
 #' @importFrom dplyr %>% group_by summarise arrange desc
 #' @export
-getFragSize <- function(rawH5File, pal = NULL, barcodes = NULL,sampleName = NULL, maxSize = 750) {
+getFragSize <- function(rawH5File, pal = NULL, barcodes = NULL, sampleName = NULL, maxSize = 750) {
   groups <- h5ls(file = rawH5File)
   groups <- groups[groups$group == "/Fragments" & groups$otype == "H5I_GROUP", "name"]
   chrs <- unique(gsub(
@@ -242,19 +241,25 @@ getFragSize <- function(rawH5File, pal = NULL, barcodes = NULL,sampleName = NULL
     x = groups
   ))
 
-  for( i in seq_along(chr)) {
-    if (i == 1) { 
-      fsi <-  unlist(getFragsOfAChrFromRawH5File(rawH5File = rawH5File, chr = chr[i],
-                                                   sampleName = sampleName, barcodes = barcodes)) %>%
-                  width %>% tabulate(nbins = maxSize)
+  for (i in seq_along(chrs)) {
+    if (i == 1) {
+      fsi <- getFragsOfAChrFromRawH5File(
+        rawH5File = rawH5File, chr = chrs[i],
+        sampleName = sampleName, barcodes = barcodes
+      ) %>%
+        width() %>%
+        tabulate(nbins = maxSize)
     } else {
-      fsi <- fsi + unlist(getFragsOfAChrFromRawH5File(rawH5File = rawH5File, chr = chr[i],
-                                                      sampleName = sampleName, barcodes = barcodes)) %>%
-        width %>% tabulate(nbins = maxSize)
+      fsi <- fsi + getFragsOfAChrFromRawH5File(
+        rawH5File = rawH5File, chr = chrs[i],
+        sampleName = sampleName, barcodes = barcodes
+      ) %>%
+        width() %>%
+        tabulate(nbins = maxSize)
     }
   }
-  df <- data.frame(fragmentSize = seq_along(fsi), fragmentPercent = round(100*fsi/sum(fsi), 4))
-  if(is.null(pal)) {
+  df <- data.frame(fragmentSize = seq_along(fsi), fragmentPercent = round(100 * fsi / sum(fsi), 4))
+  if (is.null(pal)) {
     pal <- paletteDiscrete(values = c(1))
   }
   p <- ggplot(df, aes(fragmentSize, fragmentPercent)) +
@@ -262,8 +267,8 @@ getFragSize <- function(rawH5File, pal = NULL, barcodes = NULL,sampleName = NULL
     theme_ArchR() +
     xlab("ATAC-seq Fragment Size (bp)") +
     ylab("Percentage of Fragments") +
-    scale_color_manual(values=pal) +
-    scale_y_continuous(limits = c(0, max(df$fragmentPercent)*1.05), expand = c(0,0)) +
-    scale_x_continuous(limits = c(min(df$fragmentSize), max(df$fragmentSize)), expand = c(0,0))
+    scale_color_manual(values = pal) +
+    scale_y_continuous(limits = c(0, max(df$fragmentPercent) * 1.05), expand = c(0, 0)) +
+    scale_x_continuous(limits = c(min(df$fragmentSize), max(df$fragmentSize)), expand = c(0, 0))
   return(list(df = df, p = p))
 }
