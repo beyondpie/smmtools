@@ -27,4 +27,6 @@ Imports:
     rhdf5,
     BiocGenerics,
     GenomeInfoDb,
-    S4Vectors
+    S4Vectors,
+    gridExtra
+    
