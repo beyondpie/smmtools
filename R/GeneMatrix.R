@@ -64,7 +64,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     r <- do.call(rbind, df)
     return(r)
   })
-  chrDFs <- a[!sapply(a, is.null)]
+  chrDFs <- chrDFs[!sapply(chrDFs, is.null)]
   wdf <- do.call(rbind, chrDFs)
   suppressALL(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
