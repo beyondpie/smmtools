@@ -4,7 +4,7 @@ library(rhdf5)
 library(S4Vectors)
 library(GenomicRanges)
 
-setwd("/home/rstudio/git-recipes/smmtools/eval")
+setwd("/mac/git-recipes/smmtools/eval")
 rawH5File <- file.path("rawh5", "4B_rep1_deep_tabix2H5_nChunk_3.h5")
 barcodesFile <- file.path("rawh5", "4B_rep1_deep_barcodes_after_QC.txt")
 barcodes <- read.table(file = barcodesFile, header = FALSE, comment.char = "")

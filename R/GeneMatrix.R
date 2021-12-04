@@ -23,8 +23,8 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   genes <- annotGenes$genes
   genenms <- genes$symbol
   chrnms <- as.character(genes@seqnames@values)
-  chrnms <- gnms[!(match(chrnms, excludeChr, nomatch = 0) > 0)]
-  chrDFs <- lapply(gnms, function(chr) {
+  chrnms <- chrnms[!(match(chrnms, excludeChr, nomatch = 0) > 0)]
+  chrDFs <- lapply(chrnms, function(chr) {
     message(paste("current:", chr))
     g <- genes[genes@seqnames == chr]
     fragments <-
