@@ -97,6 +97,7 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 
 #' Get fragments from a given chromsome in rawH5File.
 #' Ref: ArchR .getFragsFromArrow
+#' @param barcodes vector of strings, make sure it's not a data.frame with one column.
 #' @return fragments IRanges
 #' @importFrom rhdf5 h5ls h5read h5closeAll
 #' @importFrom S4Vectors mcols mcols<- match

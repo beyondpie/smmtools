@@ -67,6 +67,8 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   suppressALL(h5write(obj = df, file = outfile, name = "/FeatureDF"))
 
   ## record colnames for the matrix
+  ## TODO: may have bugs when not all barcodes are in the raw h5.
+  ## Should write this part later, and check if barcodes in the least.
   suppressALL(h5write(obj = barcodes, file = outfile, name = "/Barcodes"))
 
   for (z in seq_along(chromLengths)) {
