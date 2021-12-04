@@ -5,8 +5,10 @@
 #' @import GenomicRanges
 #' @export
 getGeneMatrix <- function(rawH5File, outdir, outfilenm,
+                          genes = NULL, genenms = NULL,
+                          barcodes = NULL,
                           genome = "mm10", sampleName = NULL,
-                          barcodes = NULL, excludeChr = c("chrM", "chrY")) {
+                          excludeChr = c("chrM", "chrY")) {
   tstart <- Sys.time()
   message(paste("Begin to run getGeneMatrix with genome:", genome))
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
@@ -16,12 +18,17 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     file.remove(outfile)
   }
   rhdf5::h5createFile(file = outfile)
-  annotGenes <- getAnnotFromArchRData(tag = "gene", genome = genome)
   ## blacklist here, to be test if we need blacklist
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
   blacklist <- annotGenome$blacklist
-  genes <- annotGenes$genes
-  genenms <- genes$symbol
+  if (is.null(genes)){
+    annotGenes <- getAnnotFromArchRData(tag = "gene", genome = genome)
+    genes <- annotGenes$genes
+  }
+  if (is.null(genenms)) {
+    genenms <- genes$symbol
+  }
+  
   chrnms <- as.character(genes@seqnames@values)
   chrnms <- chrnms[!(match(chrnms, excludeChr, nomatch = 0) > 0)]
   chrDFs <- lapply(chrnms, function(chr) {
