@@ -2,7 +2,7 @@
 #'
 #' @importFrom rhdf5 h5createFile h5createDataset h5closeAll h5write
 #' @importFrom S4Vectors start end match DataFrame mcols Rle
-#' @importFrom GenomicRanges
+#' @import GenomicRanges
 #' @export
 getGeneMatrix <- function(rawH5File, outdir, outfilenm,
                           genome = "mm10", sampleName = NULL,

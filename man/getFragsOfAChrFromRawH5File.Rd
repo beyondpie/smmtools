@@ -12,6 +12,9 @@ getFragsOfAChrFromRawH5File(
   barcodes = NULL
 )
 }
+\arguments{
+\item{barcodes}{vector of strings, make sure it's not a data.frame with one column.}
+}
 \value{
 fragments IRanges
 }
