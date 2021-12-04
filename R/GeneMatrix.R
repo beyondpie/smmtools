@@ -1,7 +1,7 @@
 #' Generate Gene Matrix by directly mapping fragments onto genes.
 #'
 #' @importFrom rhdf5 h5createFile h5createDataset h5closeAll h5write
-#' @importFrom S4Vectors start end match DataFrame mcols Rle
+#' @import S4Vectors
 #' @import GenomicRanges
 #' @export
 getGeneMatrix <- function(rawH5File, outdir, outfilenm,
@@ -27,6 +27,8 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   }
   if (is.null(genenms)) {
     genenms <- genes$symbol
+  } else {
+    elementMetadata(genes)$symbol <- genenms
   }
   
   chrnms <- as.character(genes@seqnames@values)
