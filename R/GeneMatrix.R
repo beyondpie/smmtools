@@ -96,7 +96,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   return(mat)
 }
 
-#' @importFrom rhdf5 h5createFile h5createDataset h5closeAll h5write
+#' @importFrom rhdf5 h5createFile h5closeAll 
 #' @export
 loadGeneMatrix <- function(geneMatrixH5File) {
   h5_barcode <- h5read(file = outfile, name = "barcode")
@@ -110,5 +110,6 @@ loadGeneMatrix <- function(geneMatrixH5File) {
                                  dims = c(length(h5_gene), length(h5_barcode)))
   rownames(h5_mat) <- h5_gene
   colnames(h5_mat) <- h5_barcode
+  h5closeAll()
   return(h5_mat)
 }

@@ -46,3 +46,6 @@ vignettes/*.pdf
 /eval/out/
 /eval/Rplots.pdf
 /eval/cancer_tissue_qc.tsv
+/eval/gm/
+*.h5
+/eval/rawh5/
