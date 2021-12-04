@@ -96,14 +96,16 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   return(mat)
 }
 
+#' Load sparse matrix of gene matrix with both row and col names
+#' @param geneMatrixH5File string, h5 file to read
 #' @importFrom rhdf5 h5createFile h5closeAll 
 #' @export
 loadGeneMatrix <- function(geneMatrixH5File) {
-  h5_barcode <- h5read(file = outfile, name = "barcode")
-  h5_gene <- h5read(file = outfile, name = "gene")
-  h5_i <- as.vector(h5read(file = outfile, name = "i"))
-  h5_j <- as.vector(h5read(file = outfile, name = "j"))
-  h5_val <- as.vector(h5read(file = outfile, name = "val"))
+  h5_barcode <- h5read(file = geneMatrixH5File, name = "barcode")
+  h5_gene <- h5read(file = geneMatrixH5File, name = "gene")
+  h5_i <- as.vector(h5read(file = geneMatrixH5File, name = "i"))
+  h5_j <- as.vector(h5read(file = geneMatrixH5File, name = "j"))
+  h5_val <- as.vector(h5read(file = geneMatrixH5File, name = "val"))
 
   h5_mat <- Matrix::sparseMatrix(i = h5_i, j = h5_j, x = h5_val,
                                  index1 = TRUE,
