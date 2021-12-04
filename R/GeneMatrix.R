@@ -8,7 +8,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
                           genes = NULL, genenms = NULL,
                           barcodes = NULL,
                           genome = "mm10", sampleName = NULL,
-                          excludeChr = c("chrM", "chrY")) {
+                          excludeChr = c("chrM")) {
   tstart <- Sys.time()
   message(paste("Begin to run getGeneMatrix with genome:", genome))
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)

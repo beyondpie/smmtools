@@ -12,7 +12,7 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
                           genome = "mm10",
                           sampleName = NULL, barcodes = NULL,
                           tileSize = 5000,
-                          excludeChr = c("chrM", "chrY")) {
+                          excludeChr = c("chrM")) {
   tstart <- Sys.time()
   message(paste("Begin to run getTileMatrix with tileSize: ", tileSize, "at", tstart))
 
