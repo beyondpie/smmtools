@@ -8,10 +8,12 @@ getGeneMatrix(
   rawH5File,
   outdir,
   outfilenm,
+  genes = NULL,
+  genenms = NULL,
+  barcodes = NULL,
   genome = "mm10",
   sampleName = NULL,
-  barcodes = NULL,
-  excludeChr = c("chrM", "chrY")
+  excludeChr = c("chrM")
 )
 }
 \description{

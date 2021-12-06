@@ -5,9 +5,9 @@
 \title{Doublet removement using Scrublet}
 \usage{
 SnapATAC_runScrublet(
-  bmat,
+  mat,
   path_to_python,
-  expected_doublet_rate = 0.06,
+  expected_doublet_rate = 0.08,
   min_counts = 3,
   min_cells = 5L,
   min_conv_pctl = 85,
@@ -15,7 +15,7 @@ SnapATAC_runScrublet(
 )
 }
 \arguments{
-\item{bmat}{sparse matrix, cell by feature}
+\item{mat}{sparse matrix, cell by feature}
 }
 \value{
 list, five fields
@@ -28,5 +28,5 @@ list, five fields
 }
 }
 \description{
-Need smmutil
+Doublet removement using Scrublet
 }

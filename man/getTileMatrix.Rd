@@ -12,7 +12,7 @@ getTileMatrix(
   sampleName = NULL,
   barcodes = NULL,
   tileSize = 5000,
-  excludeChr = c("chrM", "chrY")
+  excludeChr = c("chrM")
 )
 }
 \arguments{
