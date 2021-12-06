@@ -22,9 +22,7 @@ def detectDoublet(
     """
     scrub = scr.Scrublet(
         counts_matrix,
-        expected_doublet_rate=expected_doublet_rate,
-        sim_doublet_ratio=3,
-        n_neighbors=25,
+        expected_doublet_rate=expected_doublet_rate
     )
     doublet_scores, _ = scrub.scrub_doublets(
         min_counts=min_counts,
