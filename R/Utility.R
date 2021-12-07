@@ -182,14 +182,6 @@ fastH5Read <- function(
   return(res)
 }
 
-#' Suppress the warnings when eval the expressions.
-#' From ArchR
-#' @export
-suppressALL <- function(expr = NULL){
-  suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
-}
-
-
 #' Remove sampleName in barcodes if they have
 #' @param barcodes vector of strings
 #' @param sep string, symbol used to separate sampleName and barcode, default is '#'
