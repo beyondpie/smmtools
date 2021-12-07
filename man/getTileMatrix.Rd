@@ -20,6 +20,9 @@ getTileMatrix(
 
 \item{barcodes}{vector of string, no need to append sampleName, will do that in this code block}
 }
+\value{
+outfile string, where the matrix are saved
+}
 \description{
 Ref: ArchR
 }
