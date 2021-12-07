@@ -76,6 +76,7 @@ subsetSeqnamesGR <- function(gr, names) {
 
 #' Suppress message
 #' Ref: ArchR .suppressAll
+#' @export
 suppressAll <- function(expr = NULL) {
   suppressPackageStartupMessages(suppressMessages(suppressWarnings(expr)))
 }
