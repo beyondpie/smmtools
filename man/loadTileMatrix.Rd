@@ -12,6 +12,9 @@ loadTileMatrix(tileMatrixFile, barcodes = NULL, binarize = FALSE)
 
 \item{binarize}{bool, default is FALSE}
 }
+\value{
+mat sparseMatrix
+}
 \description{
 load TileMatrix into a sparseMatrix
 Ref: ArchR
