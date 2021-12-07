@@ -65,12 +65,12 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
   featureDF$start <- (featureDF$idx - 1) * tileSize
 
   df <- data.frame(featureDF, stringsAsFactors = FALSE)
-  suppressALL(h5write(obj = df, file = outfile, name = "/FeatureDF"))
+  supressAll(h5write(obj = df, file = outfile, name = "/FeatureDF"))
 
   ## record colnames for the matrix
   ## TODO: may have bugs when not all barcodes are in the raw h5.
   ## Should write this part later, and check if barcodes in the least.
-  suppressALL(h5write(obj = barcodes, file = outfile, name = "/Barcodes"))
+  supressAll(h5write(obj = barcodes, file = outfile, name = "/Barcodes"))
 
   for (z in seq_along(chromLengths)) {
     chr <- names(chromLengths)[z]
@@ -114,35 +114,35 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
     ## save to file
     h5createGroup(file = outfile, group = chr)
     lengthI <- length(mat@i)
-    suppressALL(h5createDataset(
+    supressAll(h5createDataset(
       file = outfile, dataset = paste0(chr, "/i"), storage.mode = "integer",
       dims = c(lengthI, 1), level = 0
     ))
-    suppressALL(h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i")))
+    supressAll(h5write(obj = mat@i + 1, file = outfile, name = paste0(chr, "/i")))
 
-    suppressALL(h5createDataset(
+    supressAll(h5createDataset(
       file = outfile, dataset = paste0(chr, "/x"), storage.mode = "double",
       dims = c(lengthI, 1), level = 0
     ))
-    suppressALL(h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x")))
+    supressAll(h5write(obj = mat@x, file = outfile, name = paste0(chr, "/x")))
 
     ## #Convert Columns to Rle
     j <- Rle(findInterval(seq_along(mat@x) - 1, mat@p[-1]) + 1)
     ## effective ncols
     lengthRle <- length(j@lengths)
 
-    suppressALL(h5createDataset(
+    supressAll(h5createDataset(
       file = outfile, dataset = paste0(chr, "/jLengths"), storage.mode = "integer",
       dims = c(lengthRle, 1), level = 0
     ))
-    suppressALL(h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths")))
+    supressAll(h5write(obj = j@lengths, file = outfile, name = paste0(chr, "/jLengths")))
 
-    suppressALL(h5createDataset(
+    supressAll(h5createDataset(
       file = outfile, dataset = paste0(chr, "/jValues"), storage.mode = "integer",
       dims = c(lengthRle, 1), level = 0
     ))
     ## corresoinds to cols with elements
-    suppressALL(h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues")))
+    supressAll(h5write(obj = j@values, file = outfile, name = paste0(chr, "/jValues")))
   } ## end of for loop of chrs
   h5closeAll()
   return(outfile)

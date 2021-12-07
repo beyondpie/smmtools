@@ -75,26 +75,26 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   })
   chrDFs <- chrDFs[!sapply(chrDFs, is.null)]
   wdf <- do.call(rbind, chrDFs)
-  suppressALL(h5createDataset(
+  supressAll(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0
   ))
-  suppressALL(h5write(obj = wdf$i, file = outfile, name = "i"))
+  supressAll(h5write(obj = wdf$i, file = outfile, name = "i"))
 
-  suppressALL(h5createDataset(
+  supressAll(h5createDataset(
     file = outfile, dataset = "j", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0
   ))
-  suppressALL(h5write(obj = wdf$j, file = outfile, name = "j"))
+  supressAll(h5write(obj = wdf$j, file = outfile, name = "j"))
 
-  suppressALL(h5createDataset(
+  supressAll(h5createDataset(
     file = outfile, dataset = "val", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0, fillValue = 0
   ))
-  suppressALL(h5write(obj = wdf$val, file = outfile, name = "val"))
+  supressAll(h5write(obj = wdf$val, file = outfile, name = "val"))
 
-  suppressALL(h5write(obj = genenms, file = outfile, name = "gene"))
-  suppressALL(h5write(obj = barcodes, file = outfile, name = "barcode"))
+  supressAll(h5write(obj = genenms, file = outfile, name = "gene"))
+  supressAll(h5write(obj = barcodes, file = outfile, name = "barcode"))
   h5closeAll()
   mat <- Matrix::sparseMatrix(
     i = wdf$i, j = wdf$j, x = wdf$val,
