@@ -29,14 +29,16 @@ SnapATAC_runScrublet <- function(mat, path_to_python, expected_doublet_rate = 0.
     min_counts = min_counts,
     min_cells = as.integer(min_cells),
     min_gene_variability_pctl = min_conv_pctl,
-    n_prin_comps = min(n_pc, nrow(mat), ncol(mat)))
+    n_prin_comps = as.integer(min(n_pc, nrow(mat), ncol(mat)))
+  )
   out <- py_to_r(out)
+  names(out) <- c("thresGMM", "thresScrublet", "probs", "scrubletScore", "simuScrubletScore")
   ## summary
   message("Epoch: summary doublets detection results ... \n")
   message(paste("Threshold from GMM:", round(out[[1]], 3)))
   message(paste("Threshold from Raw Scrublets", round(out[[2]], 3)))
   message(paste("Number of cells used:"), length(out[[3]]))
-  message(paste("Doublet rate based on GMM:", round(length(which(out[[3]]>0.5)) / length(out[[3]]), 4)))
+  message(paste("Doublet rate based on GMM:", round(length(which(out[[3]]> 0.5)) / length(out[[3]]), 4)))
   return(out)
 }
 
