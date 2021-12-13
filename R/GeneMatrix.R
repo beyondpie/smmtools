@@ -1,6 +1,6 @@
 #' Generate Gene Matrix by directly mapping fragments onto genes.
 #'
-#' @importFrom rhdf5 h5createFile h5createDataset h5closeAll h5write
+#' @importFrom rhdf5 h5createFile h5createDataset h5write
 #' @import S4Vectors
 #' @import GenomicRanges
 #' @export
@@ -13,11 +13,12 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   message(paste("Begin to run getGeneMatrix with genome:", genome))
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   outfile <- file.path(outdir, outfilenm)
+
   if (file.exists(outfile)) {
     message(paste(outfile, "exist, and remove it."))
     file.remove(outfile)
   }
-  rhdf5::h5createFile(file = outfile)
+  
   ## blacklist here, to be test if we need blacklist
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
   blacklist <- annotGenome$blacklist
@@ -75,27 +76,31 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   })
   chrDFs <- chrDFs[!sapply(chrDFs, is.null)]
   wdf <- do.call(rbind, chrDFs)
+  
+  message(paste("Finish getGeneMatrix, and now write it into:", outfile))
+  h5f <- rhdf5::h5createFile(file = outfile)
   supressAll(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0
   ))
-  supressAll(h5write(obj = wdf$i, file = outfile, name = "i"))
+  suppressAll(h5write(obj = wdf$i, file = outfile, name = "i"))
 
-  supressAll(h5createDataset(
+  suppressAll(h5createDataset(
     file = outfile, dataset = "j", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0
   ))
-  supressAll(h5write(obj = wdf$j, file = outfile, name = "j"))
+  suppressAll(h5write(obj = wdf$j, file = outfile, name = "j"))
 
-  supressAll(h5createDataset(
+  suppressAll(h5createDataset(
     file = outfile, dataset = "val", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0, fillValue = 0
   ))
-  supressAll(h5write(obj = wdf$val, file = outfile, name = "val"))
+  suppressAll(h5write(obj = wdf$val, file = outfile, name = "val"))
 
-  supressAll(h5write(obj = genenms, file = outfile, name = "gene"))
-  supressAll(h5write(obj = barcodes, file = outfile, name = "barcode"))
-  h5closeAll()
+  suppressAll(h5write(obj = genenms, file = outfile, name = "gene"))
+  suppressAll(h5write(obj = barcodes, file = outfile, name = "barcode"))
+  rhdf5::H5close(h5f)
+  message(paste("Gmat has been written into:", outfile))
   mat <- Matrix::sparseMatrix(
     i = wdf$i, j = wdf$j, x = wdf$val,
     dims = c(length(genes), length(barcodes))
@@ -107,7 +112,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
 
 #' Load sparse matrix of gene matrix with both row and col names
 #' @param geneMatrixH5File string, h5 file to read
-#' @importFrom rhdf5 h5createFile h5closeAll 
+#' @importFrom rhdf5 h5createFile
 #' @export
 loadGeneMatrix <- function(geneMatrixH5File) {
   h5_barcode <- h5read(file = geneMatrixH5File, name = "barcode")
@@ -121,6 +126,5 @@ loadGeneMatrix <- function(geneMatrixH5File) {
                                  dims = c(length(h5_gene), length(h5_barcode)))
   rownames(h5_mat) <- h5_gene
   colnames(h5_mat) <- h5_barcode
-  h5closeAll()
   return(h5_mat)
 }
