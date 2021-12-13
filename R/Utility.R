@@ -100,11 +100,10 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' Ref: ArchR .getFragsFromArrow
 #' @param barcodes vector of strings, make sure it's not a data.frame with one column.
 #' @return fragments IRanges
-#' @importFrom rhdf5 h5ls h5read h5closeAll
+#' @importFrom rhdf5 h5ls h5read 
 #' @importFrom S4Vectors mcols mcols<- match
 #' @export
 getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, barcodes = NULL) {
-  o <- rhdf5::h5closeAll()
   nFrags <- 0
   fragList <- list()
   barcodeValueList <- list()
@@ -116,16 +115,11 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
     g <- groups[i]
     barcodeValueList[[i]]  <- h5read(file = rawH5File,
                              name = paste0("Fragments/", g, "/BarcodeLength"))
-    h5closeAll()
     nFrags <- sum(barcodeValueList[[i]]) + nFrags
     fragList[[i]] <- h5read(file = rawH5File,
                             name = paste0("Fragments/", g, "/Ranges"))
-    h5closeAll()
-
     barcodeList[[i]] <- h5read(file = rawH5File,
                                name = paste0("Fragments/", g, "/BarcodeValue"))
-    h5closeAll()
-
   }
   if(nFrags == 0) {
     message(paste("No fragments for", chr, "of sample", sampleName))
@@ -150,7 +144,6 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
   } else {
     r <- output
   }
-  h5closeAll()
   return(r)
 }
 
