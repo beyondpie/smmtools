@@ -9,11 +9,14 @@ getFragsOfAChrFromRawH5File(
   rawH5File,
   chr = "chr1",
   sampleName = NULL,
-  barcodes = NULL
+  barcodes = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{barcodes}{vector of strings, make sure it's not a data.frame with one column.}
+
+\item{verbose}{bool, print logs when set is TRUE, default is TRUE.}
 }
 \value{
 fragments IRanges

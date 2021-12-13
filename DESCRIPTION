@@ -29,6 +29,5 @@ Imports:
     GenomeInfoDb,
     S4Vectors,
     gridExtra,
-    gtools,
-    pheatmap
+    gtools
     
