@@ -556,9 +556,6 @@ theme_ArchR <- function(color = "black",
                          height = 1,
                          it = 0.05,
                          newPage = FALSE) {
-  .requirePackage("grid", source = "cran")
-  .requirePackage("gridExtra", source = "cran")
-
   if (!inherits(plotWidth, "unit")) {
     plotWidth <- unit(plotWidth, "in")
   }
