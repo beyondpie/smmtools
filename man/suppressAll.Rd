@@ -2,12 +2,12 @@
 % Please edit documentation in R/Utility.R
 \name{suppressAll}
 \alias{suppressAll}
-\title{Suppress the warnings when eval the expressions.
-From ArchR}
+\title{Suppress message
+Ref: ArchR .suppressAll}
 \usage{
 suppressAll(expr = NULL)
 }
 \description{
-Suppress the warnings when eval the expressions.
-From ArchR
+Suppress message
+Ref: ArchR .suppressAll
 }
