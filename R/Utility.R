@@ -104,7 +104,7 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' @importFrom rhdf5 h5ls h5read 
 #' @importFrom S4Vectors mcols mcols<- match
 #' @export
-getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, barcodes = NULL
+getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, barcodes = NULL,
                                         verbose = TRUE) {
   nFrags <- 0
   fragList <- list()
