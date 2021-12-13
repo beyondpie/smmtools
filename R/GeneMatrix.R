@@ -62,6 +62,10 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
       rownames(frle) <- frle$values
       cols <- S4Vectors::match(frle$values, barcodes, nomatch = 0)
       cols <- cols[!(cols == 0)]
+      if(is.null(cols) | (length(cols) < 1)) {
+        message(paste("No barcodes match for", chr, "from sample", sampleName))
+        message("This might be error, please double check the barcodes. Now continue.")
+      }
       values <- frle[barcodes[cols], "lengths"]
       r <- data.frame(
         i = rep(match(g[i]$symbol, genenms), length(cols)),
@@ -75,6 +79,13 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     return(r)
   })
   chrDFs <- chrDFs[!sapply(chrDFs, is.null)]
+  
+  if (is.null(chrDFs)) {
+    message(paste("WARNINIG: Get empty gmat! Will not write it into:", outfile))
+    message(paste("This might because of no barcodes matched with the one you given."))
+    return(NULL)
+  }
+  
   wdf <- do.call(rbind, chrDFs)
   
   message(paste("Finish getGeneMatrix, and now write it into:", outfile))
