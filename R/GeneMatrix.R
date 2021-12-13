@@ -1,6 +1,6 @@
 #' Generate Gene Matrix by directly mapping fragments onto genes.
 #'
-#' @importFrom rhdf5 h5createFile h5createDataset h5write
+#' @importFrom rhdf5 h5createFile h5createDataset
 #' @import S4Vectors
 #' @import GenomicRanges
 #' @export
@@ -78,7 +78,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   wdf <- do.call(rbind, chrDFs)
   
   message(paste("Finish getGeneMatrix, and now write it into:", outfile))
-  h5f <- rhdf5::h5createFile(file = outfile)
+  rhdf5::h5createFile(file = outfile)
   suppressAll(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0
@@ -99,7 +99,6 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
 
   suppressAll(h5write(obj = genenms, file = outfile, name = "gene"))
   suppressAll(h5write(obj = barcodes, file = outfile, name = "barcode"))
-  rhdf5::H5close(h5f)
   message(paste("Gmat has been written into:", outfile))
   mat <- Matrix::sparseMatrix(
     i = wdf$i, j = wdf$j, x = wdf$val,
