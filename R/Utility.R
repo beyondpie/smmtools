@@ -99,11 +99,13 @@ tileChrom <- function(chromSizes, nChunk = 3) {
 #' Get fragments from a given chromsome in rawH5File.
 #' Ref: ArchR .getFragsFromArrow
 #' @param barcodes vector of strings, make sure it's not a data.frame with one column.
+#' @param verbose bool, print logs when set is TRUE, default is TRUE.
 #' @return fragments IRanges
 #' @importFrom rhdf5 h5ls h5read 
 #' @importFrom S4Vectors mcols mcols<- match
 #' @export
-getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, barcodes = NULL) {
+getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, barcodes = NULL
+                                        verbose = TRUE) {
   nFrags <- 0
   fragList <- list()
   barcodeValueList <- list()
@@ -130,7 +132,9 @@ getFragsOfAChrFromRawH5File <- function(rawH5File, chr="chr1", sampleName=NULL, 
   }
   frags <- do.call(what = rbind, args = fragList)
   output <- IRanges::IRanges(start = frags[,1], width = frags[,2])
-  message(paste("Get", length(output), " fragments for", chr, "of sample", sampleName))
+  if (verbose) {
+    message(paste("Get", length(output), " fragments for", chr, "of sample", sampleName))
+  }
   barcodesFromH5 <- do.call("c", barcodeList)
   barcodeValue <- do.call("c", barcodeValueList)
   ## mcols(output)$RG <- S4Vectors::Rle(values = paste0(sampleName, "#", barcodesFromH5),
