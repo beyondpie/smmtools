@@ -79,7 +79,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   
   message(paste("Finish getGeneMatrix, and now write it into:", outfile))
   h5f <- rhdf5::h5createFile(file = outfile)
-  supressAll(h5createDataset(
+  suppressAll(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
     dims = c(nrow(wdf), 1), level = 0
   ))
