@@ -19,7 +19,7 @@ runUMAP <- function(mapSnapATAC, nPC = 20, seed = 10, weightDimReduct = FALSE) {
 #' Umap based on ArchR default parameters
 #'
 #' @export
-getUmapLikeArchR <- function(mapSnapATAC, nPC = 30, seed = 10, weightDimReduct = FALSE,
+SnapATAC_getArchRUmap <- function(mapSnapATAC, nPC = 30, seed = 10, weightDimReduct = FALSE,
                             umapNeighbors = 40, umapMindist = 0.4,
                             umapMetric = "cosine",
                             umapVerbose = FALSE,
@@ -44,4 +44,4 @@ getUmapLikeArchR <- function(mapSnapATAC, nPC = 30, seed = 10, weightDimReduct =
 #' Umap in SnapATAC.
 #'
 #' @export
-#' 
+SnapATAC_getDefaultUmap <- function(mapSnapATAC, nPC = 30, seed = 10)
