@@ -18,7 +18,8 @@ message("Load gene bed files.")
 genes <- rtracklayer::import(args$geneBedFile, format = "bed")
 genenms <- genes$name
 message("Load barcodes.")
-barcodes <- as.vector(read.table(file = args$barcodeFile, header = FALSE, comment.char = ""))
+barcodes <- read.table(file = args$barcodeFile, header = FALSE, comment.char = "")
+barcodes <- barcodes$V1
 excludeChr <- unlist(strsplit(args$excludeChr, split = ","))
 
 message("Generate Gene Matrix.")
