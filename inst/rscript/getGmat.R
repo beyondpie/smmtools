@@ -29,6 +29,7 @@ invisible(smmtools::getGeneMatrix(rawH5File = args$rawH5File,
                         genes = genes, genenms = genenms,
                         genome = args$genome,
                         excludeChr = excludeChr,
-                        sampleName = args$sampleName
+                        sampleName = args$sampleName,
+                        barcodes = barcodes
                         ))
 
