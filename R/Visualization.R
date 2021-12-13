@@ -44,4 +44,5 @@ SnapATAC_getArchRUmap <- function(mapSnapATAC, nPC = 30, seed = 10, weightDimRed
 #' Umap in SnapATAC.
 #'
 #' @export
-SnapATAC_getDefaultUmap <- function(mapSnapATAC, nPC = 30, seed = 10)
+SnapATAC_getDefaultUmap <- function(mapSnapATAC, nPC = 30, seed = 10){
+}
