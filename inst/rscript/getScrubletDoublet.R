@@ -17,7 +17,7 @@ message(paste0("Load gmat", args$gmatFile))
 gmat <- smmtools::loadGeneMatrix(geneMatrixH5File = args$gmatFile)
 barcode <- colnames(gmat)
 message("Run Scrublet with GMM fitting ...")
-mat <- t(gmat)
+mat <- t(as.matrix(gmat))
 out <- smmtools::SnapATAC_runScrublet(
   mat = mat, path_to_python = args$pathToPython,
   expected_doublet_rate = args$priorRate,
