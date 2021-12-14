@@ -30,7 +30,8 @@ message("Save Scrublet results.")
 invisible(write.table(
   x = data.frame(barcode = barcode,
                  scrubletScore = out[[4]],
-                 thresGMM = rep(out[[1]], length(out[[4]]) )
+                 thresGMM = rep(out[[1]], length(out[[4]]) ),
+                 thresScrublet = rep(out[[2]], length(out[[4]]))
                  ),
   file = args$outScrubletFile,
   quote = FALSE,
