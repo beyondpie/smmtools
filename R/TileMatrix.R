@@ -151,9 +151,12 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
 #' load TileMatrix into a sparseMatrix
 #' Ref: ArchR
 #'
-#' @param barcodes vector of string, choose the columns of tilematrix, useful after doublet removement
-#' @param binarize bool, default is FALSE
-#' @return mat sparseMatrix
+#' @param barcodes vector of string, if not null, filter tilematrix by barcodes, default is NULL.
+#' We assume barcodes are all in the tileMatrixFile. NOTE: No check for this.
+#' @param binarize bool, default is FALSE, this is a simple binarization,
+#' is not the version SnapATAC describes, should not be used.
+#' TODO: remove this binarize param.
+#' @return sparseMatrix, feature by cell, both row and colnames, ordered by barcodes if provides.
 #' @export
 loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
   colNames <- removeSampleName(barcodes = h5read(file = tileMatrixFile, name = "/Barcodes"))
@@ -203,9 +206,10 @@ loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
   rowNames <- paste0(featureDF$seqnames, "_",featureDF$idx)
   mat <- mat[rowNames, , drop = FALSE]
   if(!is.null(barcodes)) {
-    mat <- mat[, colnames(mat) %in% barcodes, drop = FALSE]
+    ## one-dim array is not suitable for sparseMatrix
+    ## use vector instead just in case
+    mat <- mat[, as.vector(barcodes), drop = FALSE]
   }
-  h5closeAll()
   return(mat)
 }
   
