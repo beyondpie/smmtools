@@ -212,4 +212,97 @@ loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
   }
   return(mat)
 }
-  
+
+#' @param chrs vector of string, the chroms we want. Since there might exist chroms like
+#' chrM, chrY_JH584303_random, chrUn_GL456390, so here we use explicitly chrs we want to
+#' filter chroms. The default is specific for mm10.
+#' @param ibarcode vector of string, the barcodes we want to, we assume all of them are in
+#' this snapFile. So use this carefully.
+#' @param blacklistBedFile string, bed file of the blacklist, smmtools save one under data dir for mm10.
+#' @return sparseMatrix, cell by feature, with both row and colname and ordered by ibarcode if provided
+#' @export
+getBmatFromSnap <- function(snapFile, binSize = 5000, 
+                            chrs = c(paste0("chr", 1:19), "chrX", "chrY"),
+                            ibarcode = NULL,
+                            blacklistBedFile = NULL,
+                            outfile = NULL,
+                            compressLevel = 9) {
+  barcode <- rhdf5::h5read(file = snapFile, name = "/BD/name")
+  ## get bins
+  binChrom <- rhdf5::h5read(file = snapFile, name = paste("AM", binSize, "binChrom", sep = "/"))
+  binStart <- rhdf5::h5read(file = snapFile, name = paste("AM", binSize, "binStart", sep = "/"))
+  binEnd <- binStart + binSize -1
+  binNames <- paste(paste(binChrom, binStart, sep=":"), binEnd, sep = "-")
+  ## load sparse matrix
+  idx <- as.integer(rhdf5::h5read(file = snapFile, name = paste("AM", binSize, "idx", sep = "/")))
+  idy <- as.integer(rhdf5::h5read(file = snapFile, name = paste("AM", binSize, "idy", sep = "/")))
+  count <- as.numeric(rhdf5::h5read(file = snapFile, name = paste("AM", binSize, "count", sep = "/")))
+  ## get bmat
+  bmat <- Matrix::sparseMatrix(i = idx, j = idy, x = count, dims = c(length(barcode), length(binStart)))
+  rownames(bmat) <- barcode
+  colnames(bmat) <- binNames
+  ## filter barcode
+  if (!is.null(ibarcode)) {
+    ## we assume that ibarcode is a subset of the barcodes in the bmat.
+    ## 1d array not work, so force it to vector
+    bmat <- bmat[as.vector(ibarcode), ]
+  }
+  ## filter blacklist
+  if(!is.null(blacklistBedFile)) {
+    blacklist <- read.table(file = blacklistBedFile, header = FALSE)
+    blackgr <- GenomicRanges::GRanges(seqnames = blacklist[,1],
+                                      ranges = IRanges::IRanges(start = blacklist[,2], end = blacklist[, 3]))
+    bingr <- GenomicRanges::GRanges(seqnames = binChrom, ranges = IRanges::IRanges(start = binStart, end = binEnd))
+    black_ovs <- as.data.frame(GenomicRanges::findOverlaps(query = bingr, subject = blackgr))
+    if(nrow(black_ovs) >= 1) {
+      bmat <- bmat[,-sort(unique(black_ovs$queryHits))]
+    }
+  }
+  ## keep the desired chrs.
+  chrCol <- unlist(lapply(strsplit(colnames(bmat), ":"), function(x){return(x[1])}))
+  idy_chrs <- chrCol %in% chrs
+  bmat <- bmat[, idy_chrs]
+  ## save bmat
+  if(!is.null(outfile)) {
+    outdir <- dirname(outfile)
+    if (!dir.exists(outdir)) {
+      message(paste(outdir, "not exists and create it."))
+      dir.create(outdir)
+    }
+    if (file.exists(outfile)) {
+      message(paste(outfile, "exists and remove it."))
+      file.remove(outfile)
+    }
+    rhdf5::h5createFile(outfile)
+    suppressAll(rhdf5::h5createDataset(
+      file = outfile, dataset = "i", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
+    suppressAll(rhdf5::h5write(obj = idx, file = outfile, name = "i"))
+    suppressAll(rhdf5::h5createDataset(
+      file = outfile, dataset = "j", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
+    suppressAll(rhdf5::h5write(obj = idy, file = outfile, name = "j"))
+    suppressAll(rhdf5::h5createDataset(
+      file = outfile, dataset = "val", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
+    suppressAll(rhdf5::h5write(obj = count, file = outfile, name = "val"))
+    suppressAll(rhdf5::h5write(obj = as.vector(colnames(bmat)), file = outfile, name = "bins"))
+    suppressAll(rhdf5::h5write(obj = as.vector(rownames(bmat)), file = outfile, name = "barcode"))
+    message(paste(outfile, " has saved the bmat."))
+  }
+  return(bmat)
+}
+
+#' @param bmatFile string, should be h5 file.
+#' @return sparseMatrix, cell by bins with both rownames and colnames
+#' @export
+loadBmatFromFile <- function(bmatFile) {
+  barcode <- rhdf5::h5read(file = bmatFile, name = "barcode")
+  bins <- rhdf5::h5read(file = bmatFile, name = "bins")
+  idx <- as.vector(rhdf5::h5read(file = bmatFile, name = "i"))
+  idy <- as.vector(rhdf5::h5read(file = bmatFile, name = "j"))
+  val <- as.vector(rhdf5::h5read(file = bmatFile, name = "val"))
+  bmat <- Matrix::sparseMatrix(i = idx, j = idy, x = val,
+                               index1 = TRUE,
+                               dims = c(length(barcode), length(bins)))
+  rownames(bmat) <- barcode
+  colnames(bmat) <- bins
+  return(bmat)
+}
