@@ -20,7 +20,7 @@ doc: $(RCODES)
 
 smmuty: $(SMMUTYCODES)
 	cd inst; \
-  pip install -e smmuty
+  python3 -m pip install -e smmuty
 
 install:
 	-rm src/*.o

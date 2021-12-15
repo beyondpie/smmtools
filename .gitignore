@@ -49,3 +49,6 @@ vignettes/*.pdf
 /eval/gm/
 *.h5
 /eval/rawh5/
+/eval/*.R
+*.snap
+/eval/snap/
