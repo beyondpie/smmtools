@@ -8,7 +8,8 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
                           genes = NULL, genenms = NULL,
                           barcodes = NULL,
                           genome = "mm10", sampleName = NULL,
-                          excludeChr = c("chrM")) {
+                          excludeChr = c("chrM"),
+                          compressLevel = 9) {
   tstart <- Sys.time()
   message(paste("Begin to run getGeneMatrix with genome:", genome))
   dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
@@ -46,7 +47,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
       )
     gf <- GRanges(seqnames = chr, ranges = fragments)
     black_ovs <- as.data.frame(GenomicRanges::findOverlaps(query = gf, subject = blacklist))
-    if (nrow(black_ovs) > 1) {
+    if (nrow(black_ovs) >= 1) {
       gf <- gf[-black_ovs$queryHits]
     }
     ovs <- as.data.frame(GenomicRanges::findOverlaps(query = gf, subject = g))
@@ -92,19 +93,19 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   rhdf5::h5createFile(file = outfile)
   suppressAll(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
-    dims = c(nrow(wdf), 1), level = 0
+    dims = c(nrow(wdf), 1), level = compressLevel
   ))
   suppressAll(h5write(obj = wdf$i, file = outfile, name = "i"))
 
   suppressAll(h5createDataset(
     file = outfile, dataset = "j", storage.mode = "integer",
-    dims = c(nrow(wdf), 1), level = 0
+    dims = c(nrow(wdf), 1), level = compressLevel
   ))
   suppressAll(h5write(obj = wdf$j, file = outfile, name = "j"))
 
   suppressAll(h5createDataset(
     file = outfile, dataset = "val", storage.mode = "integer",
-    dims = c(nrow(wdf), 1), level = 0, fillValue = 0
+    dims = c(nrow(wdf), 1), level = compressLevel, fillValue = 0
   ))
   suppressAll(h5write(obj = wdf$val, file = outfile, name = "val"))
 
