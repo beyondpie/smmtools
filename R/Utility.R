@@ -237,3 +237,24 @@ eig_decomp <- function(M, n_eigs) {
   }
 	return(ar)
 }
+
+#' Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
+#' @import Matrix
+getiFromSparseMatrix <- function(sm) {
+  t <- as(sm, "TsparseMatrix")
+  return(t@i)
+}
+
+#' Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
+#' @import Matrix
+getjFromSparseMatrix <- function(sm) {
+  t <- as(sm, "TsparseMatrix")
+  return(t@j)
+}
+
+#' Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
+#' @import Matrix
+getvalFromSparseMatrix <- function(sm) {
+  t <- as(sm, "TsparseMatrix")
+  return(t@x)
+}

@@ -220,6 +220,7 @@ loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
 #' this snapFile. So use this carefully.
 #' @param blacklistBedFile string, bed file of the blacklist, smmtools save one under data dir for mm10.
 #' @return sparseMatrix, cell by feature, with both row and colname and ordered by ibarcode if provided
+#' @import Matrix
 #' @export
 getBmatFromSnap <- function(snapFile, binSize = 5000, 
                             chrs = c(paste0("chr", 1:19), "chrX", "chrY"),
@@ -239,7 +240,8 @@ getBmatFromSnap <- function(snapFile, binSize = 5000,
   count <- as.numeric(rhdf5::h5read(file = snapFile, name = paste("AM", binSize, "count", sep = "/")))
   ## get bmat
   bmat <- Matrix::sparseMatrix(i = idx, j = idy, x = count, dims = c(length(barcode), length(binStart)))
-  rownames(bmat) <- barcode
+  ## transfer 1d array to vector
+  rownames(bmat) <- as.vector(barcode)
   colnames(bmat) <- binNames
   ## filter barcode
   if (!is.null(ibarcode)) {
@@ -273,16 +275,17 @@ getBmatFromSnap <- function(snapFile, binSize = 5000,
       message(paste(outfile, "exists and remove it."))
       file.remove(outfile)
     }
+    t <- as(bmat, "TsparseMatrix")
     rhdf5::h5createFile(outfile)
     suppressAll(rhdf5::h5createDataset(
       file = outfile, dataset = "i", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
-    suppressAll(rhdf5::h5write(obj = idx, file = outfile, name = "i"))
+    suppressAll(rhdf5::h5write(obj = t@i. file = outfile, name = "i"))
     suppressAll(rhdf5::h5createDataset(
       file = outfile, dataset = "j", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
-    suppressAll(rhdf5::h5write(obj = idy, file = outfile, name = "j"))
+    suppressAll(rhdf5::h5write(obj = t@j, file = outfile, name = "j"))
     suppressAll(rhdf5::h5createDataset(
       file = outfile, dataset = "val", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
-    suppressAll(rhdf5::h5write(obj = count, file = outfile, name = "val"))
+    suppressAll(rhdf5::h5write(obj = t@x, file = outfile, name = "val"))
     suppressAll(rhdf5::h5write(obj = as.vector(colnames(bmat)), file = outfile, name = "bins"))
     suppressAll(rhdf5::h5write(obj = as.vector(rownames(bmat)), file = outfile, name = "barcode"))
     message(paste(outfile, " has saved the bmat."))
@@ -302,7 +305,7 @@ loadBmatFromFile <- function(bmatFile) {
   bmat <- Matrix::sparseMatrix(i = idx, j = idy, x = val,
                                index1 = TRUE,
                                dims = c(length(barcode), length(bins)))
-  rownames(bmat) <- barcode
-  colnames(bmat) <- bins
+  rownames(bmat) <- as.vector(barcode)
+  colnames(bmat) <- as.vector(bins)
   return(bmat)
 }
