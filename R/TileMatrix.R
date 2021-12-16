@@ -279,7 +279,7 @@ getBmatFromSnap <- function(snapFile, binSize = 5000,
     rhdf5::h5createFile(outfile)
     suppressAll(rhdf5::h5createDataset(
       file = outfile, dataset = "i", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
-    suppressAll(rhdf5::h5write(obj = t@i. file = outfile, name = "i"))
+    suppressAll(rhdf5::h5write(obj = t@i, file = outfile, name = "i"))
     suppressAll(rhdf5::h5createDataset(
       file = outfile, dataset = "j", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
     suppressAll(rhdf5::h5write(obj = t@j, file = outfile, name = "j"))
