@@ -278,13 +278,13 @@ getBmatFromSnap <- function(snapFile, binSize = 5000,
     t <- as(bmat, "TsparseMatrix")
     rhdf5::h5createFile(outfile)
     suppressAll(rhdf5::h5createDataset(
-      file = outfile, dataset = "i", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
+      file = outfile, dataset = "i", storage.mode = "integer", dims = c(length(t@i),1), level = compressLevel))
     suppressAll(rhdf5::h5write(obj = t@i, file = outfile, name = "i"))
     suppressAll(rhdf5::h5createDataset(
-      file = outfile, dataset = "j", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
+      file = outfile, dataset = "j", storage.mode = "integer", dims = c(length(t@i),1), level = compressLevel))
     suppressAll(rhdf5::h5write(obj = t@j, file = outfile, name = "j"))
     suppressAll(rhdf5::h5createDataset(
-      file = outfile, dataset = "val", storage.mode = "integer", dims = c(length(idx),1), level = compressLevel))
+      file = outfile, dataset = "val", storage.mode = "integer", dims = c(length(t@i),1), level = compressLevel))
     suppressAll(rhdf5::h5write(obj = t@x, file = outfile, name = "val"))
     suppressAll(rhdf5::h5write(obj = as.vector(colnames(bmat)), file = outfile, name = "bins"))
     suppressAll(rhdf5::h5write(obj = as.vector(rownames(bmat)), file = outfile, name = "barcode"))
