@@ -13,7 +13,8 @@ getGeneMatrix(
   barcodes = NULL,
   genome = "mm10",
   sampleName = NULL,
-  excludeChr = c("chrM")
+  excludeChr = c("chrM"),
+  compressLevel = 9
 )
 }
 \description{
