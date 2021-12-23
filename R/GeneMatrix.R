@@ -3,6 +3,8 @@
 #' @importFrom rhdf5 h5createFile h5createDataset
 #' @import S4Vectors
 #' @import GenomicRanges
+#' FIXME: this function should be wrong at somewhere
+#' since it's not consistante with SnapATAC
 #' @export
 getGeneMatrix <- function(rawH5File, outdir, outfilenm,
                           genes = NULL, genenms = NULL,
