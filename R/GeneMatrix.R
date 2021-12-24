@@ -7,8 +7,8 @@
 #' since it's not consistante with SnapATAC
 #' @export
 getGeneMatrix <- function(rawH5File, outdir, outfilenm,
+                          barcodes,
                           genes = NULL, genenms = NULL,
-                          barcodes = NULL,
                           genome = "mm10", sampleName = NULL,
                           excludeChr = c("chrM"),
                           compressLevel = 9) {
@@ -56,6 +56,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     if (nrow(ovs) < 1) {
       return(NULL)
     }
+
     df <- lapply(unique(ovs$subjectHits), function(i) {
       fid <- ovs$queryHits[ovs$subjectHits == i]
       f <- fragments[fid]
@@ -81,6 +82,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     r <- do.call(rbind, df)
     return(r)
   })
+  
   chrDFs <- chrDFs[!sapply(chrDFs, is.null)]
   
   if (is.null(chrDFs)) {
@@ -140,4 +142,94 @@ loadGeneMatrix <- function(geneMatrixH5File) {
   rownames(h5_mat) <- as.vector(h5_gene)
   colnames(h5_mat) <- as.vector(h5_barcode)
   return(h5_mat)
+}
+
+#' Get Gmat from Snap object
+#' @param snapFile string
+#' @param geneBedFile string, default is NULL. Only used for mapping with blacklist
+#' @param ibarcode vector of string, the barcodes we want to, we assume all of them are in
+#' this snapFile. So use this carefully.
+#' @param blacklistBedFile string, bed file of the blacklist, smmtools save one under data dir for mm10.
+#' @param outfile string, default is NULL, otherwise please end of .h5, and the function will save gmat.
+#' if the file already exists, the function will delete it.
+#' @param compressLevel integer, default is 9, used for rhdf5.
+#' @return sparseMatrix, cell by feature, with both row and colname and ordered by ibarcode if provided
+#' @import Matrix
+#' @export
+getGmatFromSnap <- function(snapFile, geneBedFile = NULL,ibarcode = NULL, blacklistBedFile = NULL,
+                            outfile = NULL, compressLevel = 9) {
+  barcode <- rhdf5::h5read(file = snapFile, name = "/BD/name")
+  ## /GM/name is saved as python binary string in SnapTools, but when loading into R, it's fine.
+  ## i.e. there is b'' around a gene name.
+  geneName <- as.character(rhdf5::h5read(file = snapFile, name = "/GM/name"))
+  idx <- as.integer(rhdf5::h5read(file = snapFile, name = "/GM/idx"))
+  idy <- as.integer(rhdf5::h5read(file = snapFile, name = "/GM/idy"))
+  ## original count is saved as raw in R, use as.integer to convert it to number.
+  count <- as.integer(rhdf5::h5read(file = snapFile, name = "/GM/count"))
+  gmat <- Matrix::sparseMatrix(i = idx, j = idy, x = count, dims = c(length(barcode), length(geneName)))
+  rownames(gmat) <- as.vector(barcode)
+  colnames(gmat) <- as.vector(geneName)
+  ## filter barcode
+  if(is.null(ibarcode)) {
+    gmat <- gmat[as.vector(ibarcode), ]
+  }
+  ## filter blacklist
+  if( (!is.null(blacklistBedFile)) & (!is.null(geneBedFile)) ) {
+    blacklist <- read.table(file = blacklistBedFile, header = FALSE)
+    blackgr <- GenomicRanges::GRanges(seqnames = blacklist[,1],
+                                      ranges = IRanges::IRanges(start = blacklist[,2], end = blacklist[, 3]))
+    genelist <- read.table(file = geneBedFile, header = FALSE)
+    ggr <- GenomicRanges::GRanges(seqnames = genelist[,1],
+                                  ranges = IRanges::IRanges(start = genelist[,2], end = genelist[,3]))
+    black_ovs <- as.data.frame(GenomicRanges::findOverlaps(query = ggr, subject = blackgr))
+    if(nrow(black_ovs) >= 1) {
+      gmat <- gmat[,-sort(unique(black_ovs$queryHits))]
+    }
+  }
+  ## save gmat
+  if(!is.null(outfile)) {
+    outdir <- dirname(outfile)
+    if (!dir.exists(outdir)) {
+      message(paste(outdir, "not exists and create it."))
+      dir.create(outdir)
+    }
+    if (file.exists(outfile)) {
+      message(paste(outfile, "exists and remove it."))
+      file.remove(outfile)
+    }
+    t <- as(gmat, "TsparseMatrix")
+    rhdf5::h5createFile(outfile)
+    suppressAll(rhdf5::h5createDataset(
+      file = outfile, dataset = "i", storage.mode = "integer", dims = c(length(t@i),1), level = compressLevel))
+    suppressAll(rhdf5::h5write(obj = t@i + 1, file = outfile, name = "i"))
+    suppressAll(rhdf5::h5createDataset(
+      file = outfile, dataset = "j", storage.mode = "integer", dims = c(length(t@i),1), level = compressLevel))
+    suppressAll(rhdf5::h5write(obj = t@j + 1, file = outfile, name = "j"))
+    suppressAll(rhdf5::h5createDataset(
+      file = outfile, dataset = "val", storage.mode = "integer", dims = c(length(t@i),1), level = compressLevel))
+    suppressAll(rhdf5::h5write(obj = t@x, file = outfile, name = "val"))
+    suppressAll(rhdf5::h5write(obj = as.vector(colnames(gmat)), file = outfile, name = "gene"))
+    suppressAll(rhdf5::h5write(obj = as.vector(rownames(gmat)), file = outfile, name = "barcode"))
+    message(paste(outfile, " has saved the gmat."))
+  }
+  return(gmat)
+}
+
+
+#' Load SnapATAC Gmat from the h5 file.
+#' 
+#' @param gmatFile string
+#' @return sparseMatrix, cell by gene with names
+#' @export
+loadSnapATACGmatFromFile <- function(gmatFile) {
+  barcode <- rhdf5::h5read(file = gmatFile, name = "barcode")
+  gene <- rhdf5::h5read(file = gmatFile, name = "gene")
+  idx <- as.vector(rhdf5::h5read(file = gmatFile, name = "i"))
+  idy <- as.vector(rhdf5::h5read(file = gmatFile, name = "j"))
+  val <- as.vector(rhdf5::h5read(file = gmatFile, name = "val"))
+  gmat <- Matrix::sparseMatrix(i = idx, j = idy, x = val, index1 = TRUE,
+                               dims = c(length(barcode), length(gene)))
+  rownames(gmat) <- as.vector(barcode)
+  colnames(gmat) <- as.vector(gene)
+  return(gmat)
 }
