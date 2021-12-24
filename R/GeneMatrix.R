@@ -137,7 +137,7 @@ loadGeneMatrix <- function(geneMatrixH5File) {
   h5_mat <- Matrix::sparseMatrix(i = h5_i, j = h5_j, x = h5_val,
                                  index1 = TRUE,
                                  dims = c(length(h5_gene), length(h5_barcode)))
-  rownames(h5_mat) <- h5_gene
-  colnames(h5_mat) <- h5_barcode
+  rownames(h5_mat) <- as.vector(h5_gene)
+  colnames(h5_mat) <- as.vector(h5_barcode)
   return(h5_mat)
 }
