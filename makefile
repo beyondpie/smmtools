@@ -26,3 +26,7 @@ install:
 	-rm src/*.o
 	-rm src/*.so
 	Rscript -e 'devtools::install_github("beyondpie/smmtools")'
+
+install_local:
+	Rscript -e 'install.packages(".", repos = NULL, type = "source")'
+
