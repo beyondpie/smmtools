@@ -6,17 +6,43 @@
 \usage{
 getGeneMatrix(
   rawH5File,
-  outdir,
-  outfilenm,
+  outfile,
+  barcodes,
   genes = NULL,
   genenms = NULL,
-  barcodes = NULL,
   genome = "mm10",
   sampleName = NULL,
   excludeChr = c("chrM"),
   compressLevel = 9
 )
 }
+\arguments{
+\item{rawH5File}{string}
+
+\item{outfile}{string}
+
+\item{barcodes}{vector of string, neccesary}
+
+\item{genes}{GenomicRanges, default is NULL, will load automatically using data under the package
+Otherwise supported by the user.}
+
+\item{genenms}{vector of string, names of genes, default is NULL
+If we used the genes by ourselves, and genenms is NULL, we use genes$symbol to get the genenms.
+This might be error: for example, if we use rtracklayer::import to generate the genes, then
+they use genes$name to store gene names. So we need to check this mannually.}
+
+\item{genome}{string, dfeault is "mm10"}
+
+\item{sampleName}{string, default is NULL}
+
+\item{excludeChr}{vector of string, default is c("chrM")}
+
+\item{compressLevel}{integer, used for rhdf5, default is 9.}
+}
+\value{
+sparseMatrix, gene by cell
+}
 \description{
-Generate Gene Matrix by directly mapping fragments onto genes.
+FIXME: this function should be wrong at somewhere
+since it's not consistante with SnapATAC
 }
