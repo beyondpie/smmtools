@@ -18,8 +18,6 @@
 #' @param compressLevel integer, used for rhdf5, default is 9.
 #' @return sparseMatrix, gene by cell
 #' @importFrom rhdf5 h5createFile h5createDataset
-#' @import S4Vectors
-#' @import GenomicRanges
 #' @export
 getGeneMatrix <- function(rawH5File, outfile,
                           barcodes,
@@ -170,7 +168,6 @@ loadGeneMatrix <- function(geneMatrixH5File) {
 #' if the file already exists, the function will delete it.
 #' @param compressLevel integer, default is 9, used for rhdf5.
 #' @return sparseMatrix, cell by feature, with both row and colname and ordered by ibarcode if provided
-#' @import Matrix
 #' @export
 getGmatFromSnap <- function(snapFile, geneBedFile = NULL,ibarcode = NULL, blacklistBedFile = NULL,
                             outfile = NULL, compressLevel = 9) {
