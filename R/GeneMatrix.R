@@ -124,7 +124,7 @@ getGeneMatrix <- function(rawH5File, outfile,
 
   suppressAll(h5createDataset(
     file = outfile, dataset = "val", storage.mode = "integer",
-    dims = c(nrow(wdf), 1), level = compressLevel, fillValue = 0
+    dims = c(nrow(wdf), 1), level = compressLevel
   ))
   suppressAll(h5write(obj = wdf$val, file = outfile, name = "val"))
 
