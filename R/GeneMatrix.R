@@ -1,12 +1,27 @@
 #' Generate Gene Matrix by directly mapping fragments onto genes.
 #'
+#' FIXME: this function should be wrong at somewhere
+#' since it's not consistante with SnapATAC
+#'
+#' @param rawH5File string
+#' @param outfile string
+#' @param barcodes vector of string, neccesary
+#' @param genome string, dfeault is "mm10"
+#' @param genes GenomicRanges, default is NULL, will load automatically using data under the package
+#' Otherwise supported by the user.
+#' @param genenms vector of string, names of genes, default is NULL
+#' If we used the genes by ourselves, and genenms is NULL, we use genes$symbol to get the genenms.
+#' This might be error: for example, if we use rtracklayer::import to generate the genes, then
+#' they use genes$name to store gene names. So we need to check this mannually.
+#' @param sampleName string, default is NULL
+#' @param excludeChr vector of string, default is c("chrM")
+#' @param compressLevel integer, used for rhdf5, default is 9.
+#' @return sparseMatrix, gene by cell
 #' @importFrom rhdf5 h5createFile h5createDataset
 #' @import S4Vectors
 #' @import GenomicRanges
-#' FIXME: this function should be wrong at somewhere
-#' since it's not consistante with SnapATAC
 #' @export
-getGeneMatrix <- function(rawH5File, outdir, outfilenm,
+getGeneMatrix <- function(rawH5File, outfile,
                           barcodes,
                           genes = NULL, genenms = NULL,
                           genome = "mm10", sampleName = NULL,
@@ -14,14 +29,6 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
                           compressLevel = 9) {
   tstart <- Sys.time()
   message(paste("Begin to run getGeneMatrix with genome:", genome))
-  dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
-  outfile <- file.path(outdir, outfilenm)
-
-  if (file.exists(outfile)) {
-    message(paste(outfile, "exist, and remove it."))
-    file.remove(outfile)
-  }
-  
   ## blacklist here, to be test if we need blacklist
   annotGenome <- getAnnotFromArchRData(tag = "genome", genome = genome)
   blacklist <- annotGenome$blacklist
@@ -39,7 +46,6 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   chrnms <- chrnms[!(match(chrnms, excludeChr, nomatch = 0) > 0)]
   chrDFs <- lapply(chrnms, function(chr) {
     message(paste("current:", chr))
-    g <- genes[genes@seqnames == chr]
     fragments <-
       getFragsOfAChrFromRawH5File(
         rawH5File = rawH5File,
@@ -52,6 +58,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     if (nrow(black_ovs) >= 1) {
       gf <- gf[-black_ovs$queryHits]
     }
+    g <- genes[genes@seqnames == chr]
     ovs <- as.data.frame(GenomicRanges::findOverlaps(query = gf, subject = g))
     if (nrow(ovs) < 1) {
       return(NULL)
@@ -94,6 +101,14 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
   wdf <- do.call(rbind, chrDFs)
   
   message(paste("Finish getGeneMatrix, and now write it into:", outfile))
+  outdir <- dirname(outfile)
+  dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
+
+  if (file.exists(outfile)) {
+    message(paste(outfile, "exist, and remove it."))
+    file.remove(outfile)
+  }
+  
   rhdf5::h5createFile(file = outfile)
   suppressAll(h5createDataset(
     file = outfile, dataset = "i", storage.mode = "integer",
@@ -120,6 +135,7 @@ getGeneMatrix <- function(rawH5File, outdir, outfilenm,
     i = wdf$i, j = wdf$j, x = wdf$val,
     dims = c(length(genes), length(barcodes))
   )
+  ## matrix allows the repeat rownames (data.frame not)
   rownames(mat) <- genenms
   colnames(mat) <- barcodes
   return(mat)
@@ -164,28 +180,32 @@ getGmatFromSnap <- function(snapFile, geneBedFile = NULL,ibarcode = NULL, blackl
   geneName <- as.character(rhdf5::h5read(file = snapFile, name = "/GM/name"))
   idx <- as.integer(rhdf5::h5read(file = snapFile, name = "/GM/idx"))
   idy <- as.integer(rhdf5::h5read(file = snapFile, name = "/GM/idy"))
-  ## original count is saved as raw in R, use as.integer to convert it to number.
+  ## original count is saved as raw in R, use as.integer/as.numeric to convert it to number.
   count <- as.integer(rhdf5::h5read(file = snapFile, name = "/GM/count"))
   gmat <- Matrix::sparseMatrix(i = idx, j = idy, x = count, dims = c(length(barcode), length(geneName)))
-  rownames(gmat) <- as.vector(barcode)
-  colnames(gmat) <- as.vector(geneName)
+  rownames(gmat) <- as.vector(as.character(barcode))
+  colnames(gmat) <- as.vector(as.character(geneName))
   ## filter barcode
   if(is.null(ibarcode)) {
     gmat <- gmat[as.vector(ibarcode), ]
   }
   ## filter blacklist
-  if( (!is.null(blacklistBedFile)) & (!is.null(geneBedFile)) ) {
-    blacklist <- read.table(file = blacklistBedFile, header = FALSE)
-    blackgr <- GenomicRanges::GRanges(seqnames = blacklist[,1],
-                                      ranges = IRanges::IRanges(start = blacklist[,2], end = blacklist[, 3]))
-    genelist <- read.table(file = geneBedFile, header = FALSE)
-    ggr <- GenomicRanges::GRanges(seqnames = genelist[,1],
-                                  ranges = IRanges::IRanges(start = genelist[,2], end = genelist[,3]))
-    black_ovs <- as.data.frame(GenomicRanges::findOverlaps(query = ggr, subject = blackgr))
-    if(nrow(black_ovs) >= 1) {
-      gmat <- gmat[,-sort(unique(black_ovs$queryHits))]
-    }
-  }
+  ## NOTE: temp remove this due to the duplicates happen in geneBedFile
+  ## if( (!is.null(blacklistBedFile)) & (!is.null(geneBedFile)) ) {
+  ##   blacklist <- read.table(file = blacklistBedFile, header = FALSE)
+  ##   blackgr <- GenomicRanges::GRanges(seqnames = blacklist[,1],
+  ##                                     ranges = IRanges::IRanges(start = blacklist[,2], end = blacklist[, 3]))
+  ##   genelist <- read.table(file = geneBedFile, header = FALSE)
+  ##   rownames(genelist) <- genelist[, 4]
+  ##   ## select and reorder the gene list as geneName in snap
+  ##   genelist <- genelist[geneName]
+  ##   ggr <- GenomicRanges::GRanges(seqnames = genelist[,1],
+  ##                                 ranges = IRanges::IRanges(start = genelist[,2], end = genelist[,3]))
+  ##   black_ovs <- as.data.frame(GenomicRanges::findOverlaps(query = ggr, subject = blackgr))
+  ##   if(nrow(black_ovs) >= 1) {
+  ##     gmat <- gmat[,-sort(unique(black_ovs$queryHits))]
+  ##   }
+  ## }
   ## save gmat
   if(!is.null(outfile)) {
     outdir <- dirname(outfile)
