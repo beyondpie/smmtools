@@ -37,9 +37,8 @@ def detectDoublet(
     # Fit a Gaussian mixture model
     X = scrub.doublet_scores_sim_
     X = np.array([X]).T
-    gmm = BayesianGaussianMixture(n_components=2, max_iter=1000, random_state=2394).fit(
-        X
-    )
+    gmm = BayesianGaussianMixture(n_components=2,
+                                  max_iter=10000, random_state=1).fit(X)
     i = np.argmax(gmm.means_)
 
     probs_sim = gmm.predict_proba(X)[:, i]

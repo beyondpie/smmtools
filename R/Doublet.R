@@ -75,7 +75,7 @@ getScrubletThresholdByMixEM <- function(scrubletSimScores, defaultCutoff,
                                         prob = 0.5, lower = 0.2) {
   x <- scrubletSimScores[scrubletSimScores > 0]
   x <- x[is.finite(x)]
-  model <- normalmixEM(x, k = 2, maxit = 2000)
+  model <- normalmixEM(x, k = 2, maxit = 10000)
   i <- which.min(model$mu)
   
   myfun <- function(x) {
@@ -92,7 +92,7 @@ getScrubletThresholdByMixEM <- function(scrubletSimScores, defaultCutoff,
     message(cond)
     return(defaultCutoff)
   }, finally = {
-    message("Finish normalmixEM.")
+    message("\nFinish normalmixEM.")
   })
   return(out)
 }
