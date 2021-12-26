@@ -54,7 +54,7 @@ SnapATAC_runScrublet <- function(mat, path_to_python, expected_doublet_rate = 0.
   message("Epoch: summary doublets detection results ... \n")
   message(paste("Threshold from GMM:", round(tgmm, 3)))
   message(paste("Threshold from Raw Scrublets", round(tscrub, 3)))
-  message(paste("Threshold from Raw Scrublets", round(tMixEM, 3)))
+  message(paste("Threshold from MixEM", round(tMixEM, 3)))
   message(paste("Number of cells in total:"), ncell)
   message(paste("Doublet rate based on GMM:", round(sum(scores > tgmm) / ncell, 4)))
   message(paste("Doublet rate based on RawScrublet:",round(sum(scores > tscrub) / ncell, 4)))
