@@ -54,6 +54,7 @@ SnapATAC_runScrublet <- function(mat, path_to_python, expected_doublet_rate = 0.
   message("Epoch: summary doublets detection results ... \n")
   message(paste("Threshold from GMM:", round(tgmm, 3)))
   message(paste("Threshold from Raw Scrublets", round(tscrub, 3)))
+  message(paste("Threshold from Raw Scrublets", round(tMixEM, 3)))
   message(paste("Number of cells in total:"), ncell)
   message(paste("Doublet rate based on GMM:", round(sum(scores > tgmm) / ncell, 4)))
   message(paste("Doublet rate based on RawScrublet:",round(sum(scores > tscrub) / ncell, 4)))
@@ -67,12 +68,11 @@ SnapATAC_runScrublet <- function(mat, path_to_python, expected_doublet_rate = 0.
 #' @param scrubletSimScores numeric vector
 #' @param defaultCutoff double, if mixEM failed, use this as threschold.
 #' @param prob double, prob of a scrublet score treated as doublet, default is 0.5
-#' @param lower double, used for uniroot
 #' @return double 
 #' @importFrom mixtools normalmixEM
 #' @export
 getScrubletThresholdByMixEM <- function(scrubletSimScores, defaultCutoff,
-                                        prob = 0.5, lower = 0.2) {
+                                        prob = 0.5) {
   x <- scrubletSimScores[scrubletSimScores > 0]
   x <- x[is.finite(x)]
   model <- normalmixEM(x, k = 2, maxit = 10000)
@@ -84,7 +84,7 @@ getScrubletThresholdByMixEM <- function(scrubletSimScores, defaultCutoff,
                   model$lambda[2]*dnorm(x, model$mu[2], model$sigma[2])))
   }
   out <- tryCatch({
-    stats::uniroot(f = myfun, interval = c(1e-4, 1), maxiter = 2000, trace = 0)$root
+    stats::uniroot(f = myfun, interval = c(1e-2, 1), maxiter = 5000, trace = 0)$root
   }, error = function(cond) {
     message(cond)
     return(defaultCutoff)
