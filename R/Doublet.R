@@ -57,7 +57,7 @@ SnapATAC_runScrublet <- function(mat, path_to_python, expected_doublet_rate = 0.
   message(paste("Number of cells in total:"), ncell)
   message(paste("Doublet rate based on GMM:", round(sum(scores > tgmm) / ncell, 4)))
   message(paste("Doublet rate based on RawScrublet:",round(sum(scores > tscrub) / ncell, 4)))
-  message(paste("Doublet rate based on RawScrublet:", round(sum(scores > tMixEM) / ncell, 4)))
+  message(paste("Doublet rate based on MixEM:", round(sum(scores > tMixEM) / ncell, 4)))
   ## get result
   return(out)
 }
@@ -75,21 +75,26 @@ getScrubletThresholdByMixEM <- function(scrubletSimScores, defaultCutoff,
                                         prob = 0.5, lower = 0.2) {
   x <- scrubletSimScores[scrubletSimScores > 0]
   x <- x[is.finite(x)]
-  model <- normalmixEM(x, k = 2)
+  model <- normalmixEM(x, k = 2, maxit = 2000)
   i <- which.min(model$mu)
-  f <- function(x) {
+  
+  myfun <- function(x) {
     prob - (model$lambda[i]*dnorm(x, model$mu[i], model$sigma[i]) /
                (model$lambda[1]*dnorm(x, model$mu[1], model$sigma[1]) +
                   model$lambda[2]*dnorm(x, model$mu[2], model$sigma[2])))
   }
-  ## How about using try-catch?
-  t <- try(stats::uniroot(f = f, prob = 0.5, lower = 0.2, upper = 1), silent = TRUE)
-  if("try-error" %in% class(t)) {
-    cutoff <- defaultCutoff
-  } else {
-    cutoff <- stats::uniroot(f = f, prob = 0.5, lower = 0.2, upper = 1)$root
-  }
-  return(cutoff)
+  out <- tryCatch({
+    stats::uniroot(f = myfun, interval = c(1e-4, 1), maxiter = 2000, trace = 0)$root
+  }, error = function(cond) {
+    message(cond)
+    return(defaultCutoff)
+  }, warning = function(cond) {
+    message(cond)
+    return(defaultCutoff)
+  }, finally = {
+    message("Finish normalmixEM.")
+  })
+  return(out)
 }
 
 
