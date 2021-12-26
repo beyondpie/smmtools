@@ -83,11 +83,11 @@ getScrubletThresholdByMixEM <- function(scrubletSimScores, defaultCutoff,
                   model$lambda[2]*dnorm(x, model$mu[2], model$sigma[2])))
   }
   ## How about using try-catch?
-  t <- try(stats::uniroot(f = f, lower = 0.2, upper = 1)$root, silent = TRUE)
+  t <- try(stats::uniroot(f = f, prob = 0.5, lower = 0.2, upper = 1), silent = TRUE)
   if("try-error" %in% class(t)) {
     cutoff <- defaultCutoff
   } else {
-    cutoff <- stats::uniroot(f = f, lower = 0.2, upper = 1)$root
+    cutoff <- stats::uniroot(f = f, prob = 0.5, lower = 0.2, upper = 1)$root
   }
   return(cutoff)
 }
