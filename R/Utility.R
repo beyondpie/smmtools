@@ -197,7 +197,11 @@ removeSampleName <- function(barcodes, sep = "#") {
   return(r)
 }
 
+#' Sampling cells based on their sequencing depths.
+#' 
 #' @param bmat Matrix, cell by feature
+#' @param n integer
+#' @return vector of integers, index for the sampled cells
 #' @export
 sampleBasedOnDepth <- function(bmat, n) {
   depths <- log(Matrix::rowSums(bmat) + 1, 10)
@@ -207,6 +211,7 @@ sampleBasedOnDepth <- function(bmat, n) {
   return(idx)
 }
 
+#' NormOVE from SnapATAC
 #' @return matrix
 #' @export
 getNormOVE <- function(p1, p2){
@@ -217,6 +222,9 @@ getNormOVE <- function(p1, p2){
 	return(ee)	
 }
 
+#' Get eigen decomposion
+#' @param M matrix
+#' @n_eigs integer, number of eigns
 #' @export
 eig_decomp <- function(M, n_eigs) {
   sym <- Matrix::isSymmetric(M)

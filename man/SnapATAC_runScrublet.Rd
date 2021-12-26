@@ -16,17 +16,31 @@ SnapATAC_runScrublet(
 }
 \arguments{
 \item{mat}{sparse matrix, cell by feature}
+
+\item{path_to_python}{string}
+
+\item{expected_doublet_rate}{double, default is 0.08}
+
+\item{min_counts}{numeric, default is 3}
+
+\item{min_cells}{integer, default is 5}
+
+\item{min_conv_pctl}{numeric, default is 85}
+
+\item{n_pc}{integer, default is 30}
 }
 \value{
 list, five fields
-\enumerate{
-\item threshold based on GMM for simulation scores \link{5}
-\item threshold estimated from Scrublets
-\item probs of real data based on GMM
-\item doublet scores of real data based on Scrublets
-\item doublet scores of simulation data based on Scrublets
+\itemize{
+\item thresGMM: threshold based on GMM for simulation scores
+\item thresScrublet: threshold estimated from Scrublets
+\item probs: probs of real data based on GMM
+\item scrubletScore: doublet scores of real data based on Scrublets
+\item simuScrubletScore: doublet scores of simulation data based on Scrublets
+\item thresMixEM: threshold based normalmixEM for simulation scores.
 }
 }
 \description{
-Doublet removement using Scrublet
+GMM is used by Kai Zhang in his Cell ATAC Atlas paper.
+NormalMixEM is used by Yang Li in his CEMBA 1.0
 }

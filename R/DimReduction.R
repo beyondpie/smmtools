@@ -1,7 +1,12 @@
+#' DiffusionMaps method in SnapATAC
+#'
 #' @param bmatSnap sparse matrix, cell by feature
+#' @param nLandmark integer, numebr of landmark cells, default is 10,000
+#' @param nPC integer, default is 30
+#' @param seed integer, default is 1
 #' @return list of two element
-#' dmat dense matrix, cell by principle components, keep the same order of cells
-#' sdev vector, length of principle components
+#' - dmat dense matrix, cell by principle components, keep the same order of cells
+#' - sdev vector, length of principle components
 #' @export
 SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000, nPC = 30, seed = 1) {
   set.seed(1)
@@ -30,7 +35,21 @@ SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000, nPC = 30, seed =
   return(invisible(list(dmat = mapReorder, sdev = mapLandmark$sdev)))
 }
 
+#' Core of DiffusionMaps for landmark cells.
+#' 
 #' @param bmat sparse Matrix, cell by feature
+#' @param nPC integer, default is 30
+#' @param n integer, used for fitting regression of random depth effect, default is 1000.
+#' @param outlier double, used for choosing threshold of normalized Jaccard similarity matrix,
+#' default is 0.999
+#' @return list of five elements
+#' - dmat dense matrix, cell by features
+#' - sdev vector, standard deviation
+#' - cutoff numeric, cutoff of outiliers for the normalized Jaccard similarity matrix
+#' - betas numeric vector of three elements, regression coefficients for reducing the random
+#' depth effect in Jaccard similarity matrix.
+#' - diagFactor Diagonal Matrix, inverse of square root of
+#' the rowSums of normalized Jaccard similarity matrix.
 #' @importFrom Matrix diag diag<-
 #' @export
 SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999) {
@@ -80,6 +99,14 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
                         diagFactor = diagFactor)))
 }
 
+#' Run DiffusionMaps for query cells baesd on the landmark results.
+#' 
+#' @param bmatLandmark matrix, cell by feature
+#' @param bmatQuery matrix, cell by feature
+#' @param mapLandmark results from difusionMaps for landmark cells.
+#' @return list of two elements
+#' - dmat matrix, nquery cell by feature
+#' - sdev numeric vector, standard deviation for the query cells.
 #' @export
 SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandmark) {
   if(ncol(bmatLandmark) != ncol(bmatQuery)) {

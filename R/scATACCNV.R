@@ -3,20 +3,25 @@
 
 #' Generate Alleloscope object for analysis
 #'
-#' @param raw_mat A binned coverage matrix (m1 bin by n1 cell) with values being read counts for scATAC-seq of tumor sample (with some normal cells).
-#'                The matrix can be generated using https://github.com/seasoncloud/Basic_CNV_SNV/blob/main/scripts/Gen_bin_cell_atac.R
-#' @param cell_type A matrix with two columns: COL1- cell barcodes; COL2- cell types (Tumor cells should be labeled with "tumor1, tumor2 and etc.").
-#' @param normal_lab Character(s) indicating the cell types considered as normal cells. If not specify, "normal" cell type should exist in the cell_type dataframe.
-#' @param size A matrix with two columns: col1: different chromosome; col2: for the size (bp) of different chromosomes (eq.1-22).
+#' @param raw_mat A binned coverage matrix (m1 bin by n1 cell) with
+#' values being read counts for scATAC-seq of tumor sample (with some
+#' normal cells).The matrix can be generated using
+#' https://github.com/seasoncloud/Basic_CNV_SNV/blob/main/scripts/Gen_bin_cell_atac.R 
+#' @param cell_type A matrix with two columns: COL1- cell barcodes;
+#' COL2- cell types (Tumor cells should be labeled with "tumor1,
+#' tumor2 and etc."). 
+#' @param normal_lab Character(s) indicating the cell types considered
+#' as normal cells. If not specify, "normal" cell type should exist in
+#' the cell_type dataframe. 
+#' @param size A matrix with two columns: col1: different chromosome;
+#' col2: for the size (bp) of different chromosomes (eq.1-22). 
 #' @param window_w window size for signal pooling in individual cells.
 #' @param window_step step size for signal smoothing in individual cells.
 #' @param plot_path Path to plot the heatmap.
 #' @param nclust Integer. Number of clusters the rows are divided into for visualization and clustering.
 #' @param var_filter Logical (TRUE/FALSE) Whether or not to filter our highly variable features.
 #' @param ... parameters for pheatmap::pheatmap
-#'
 #' @return A vector indicating the ordered cluster number (from hierarchical clustering) of each cell and a heatmap saved.
-#'
 #' @export
 plot_scATAC_cnv = function(raw_mat = NULL, cell_type = NULL, normal_lab = "normal", size = NULL,
                            window_w = 10000000, window_step = 2000000, plot_path = NULL, var_filter = FALSE, ...) {
