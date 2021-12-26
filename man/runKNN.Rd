@@ -10,6 +10,9 @@ runKNN(smat, k = 20, nn_eps = 0)
 \item{nn_eps}{Error bound when performing nearest neighbor seach using RANN.
 default of 0.0 implies exact nearest neighbor search}
 }
+\value{
+sparseMatrix, KNN matrix
+}
 \description{
 Simplified runKNN in SnapATAC
 }
