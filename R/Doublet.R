@@ -34,15 +34,18 @@ SnapATAC_runScrublet <- function(mat, path_to_python, expected_doublet_rate = 0.
   out <- py_to_r(out)
   names(out) <- c("thresGMM", "thresScrublet", "probs", "scrubletScore", "simuScrubletScore")
   ## summary
+  scores <- out$scrubletScore
+  ncell <- length(out$scrubletScore)
+  tgmm <- out$thresGMM
+  tscrub <- out$thresScrublet
   message("Epoch: summary doublets detection results ... \n")
-  message(paste("Threshold from GMM:", round(out[[1]], 3)))
-  message(paste("Threshold from Raw Scrublets", round(out[[2]], 3)))
-  message(paste("Number of cells in total:"), length(out[[3]]))
-  message(paste("Doublet rate based on GMM:", round(length(which(out[[3]]> 0.5)) / length(out[[3]]), 4)))
+  message(paste("Threshold from GMM:", round(tgmm, 3)))
+  message(paste("Threshold from Raw Scrublets", round(tscrub, 3)))
+  message(paste("Number of cells in total:"), ncell)
+  message(paste("Doublet rate based on GMM:", round(sum(scores > tgmm) / ncell, 4)))
   message(paste("Doublet rate based on RawScrublet:",
-                round(length(which(out[[4]]> out[[2]])) / length(out[[4]]), 4)))
+                round(sum(scores > tscrub) / ncell, 4)))
   return(out)
 }
 
-
-
+## getScrubletThresholdByEM <- function()
