@@ -285,9 +285,9 @@ getvalFromSparseMatrix <- function(sm) {
 
 #' Transpose a sparseMatrix
 #' A method for the generics function "t"
+#' DEPRECATED: we can directly use Matrix::t.
 #' @param sm sparseMatrix
 #' @return sparseMatrix
-#' @export
 t.sparseMatrix <- function(sm) {
   smi <- getiFromSparseMatrix(sm)
   smj <- getjFromSparseMatrix(sm)
