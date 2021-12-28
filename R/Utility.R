@@ -197,17 +197,19 @@ removeSampleName <- function(barcodes, sep = "#") {
   return(r)
 }
 
-#' Sampling cells based on their sequencing depths.
-#' 
+#' Sampling cells based on their sequencing depths without replace.
+#'
 #' @param bmat Matrix, cell by feature
 #' @param n integer
 #' @return vector of integers, index for the sampled cells
+#' with length of min(n, ncells)
 #' @export
 sampleBasedOnDepth <- function(bmat, n) {
   depths <- log(Matrix::rowSums(bmat) + 1, 10)
   dens <- stats::density(x = depths, bw = "nrd", adjust = 1)
   samplingProb <- 1 / (stats::approx(x = dens$x, y = dens$y, xout = depths)$y + .Machine$double.eps)
-  idx <- sort(sample(x = seq_along(depths), size = min(n, nrow(bmat)), prob = samplingProb))
+  idx <- sort(sample(x = seq_along(depths), size = min(n, nrow(bmat)),
+                     prob = samplingProb, replace = FALSE))
   return(idx)
 }
 
