@@ -270,11 +270,11 @@ getBmatFromSnap <- function(snapFile, binSize = 5000,
   if(!is.null(outfile)) {
     outdir <- dirname(outfile)
     if (!dir.exists(outdir)) {
-      message(paste(outdir, "not exists and create it."))
+      message(paste(outdir, "does not exist and will be created it."))
       dir.create(outdir)
     }
     if (file.exists(outfile)) {
-      message(paste(outfile, "exists and remove it."))
+      message(paste(outfile, "exists and will be removed."))
       file.remove(outfile)
     }
     t <- as(bmat, "TsparseMatrix")
