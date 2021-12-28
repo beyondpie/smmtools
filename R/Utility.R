@@ -248,23 +248,51 @@ eig_decomp <- function(M, n_eigs) {
 	return(ar)
 }
 
+#' Get i from sparseMatrix
+#' i index starts froms 1.
 #' Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
+#' @param sm sparseMatrix
+#' @return vector of integer
 #' @import Matrix
+#' @export
 getiFromSparseMatrix <- function(sm) {
   t <- as(sm, "TsparseMatrix")
-  return(t@i)
+  return(t@i+1)
 }
 
+#' Get j from sparseMatrix
+#' j index starts froms 1.
 #' Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
+#' @param sm sparseMatrix
+#' @return vector of integer
 #' @import Matrix
+#' @export
 getjFromSparseMatrix <- function(sm) {
   t <- as(sm, "TsparseMatrix")
-  return(t@j)
+  return(t@j+1)
 }
-
+#' Get x/values from sparseMatrix
+#' 
 #' Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
+#' @param sm sparseMatrix
+#' @return numeric vector
 #' @import Matrix
+#' @export
 getvalFromSparseMatrix <- function(sm) {
   t <- as(sm, "TsparseMatrix")
   return(t@x)
+}
+
+#' Transpose a sparseMatrix
+#' A method for the generics function "t"
+#' @param sm sparseMatrix
+#' @return sparseMatrix
+#' @export
+t.sparseMatrix <- function(sm) {
+  smi <- getiFromSparseMatrix(sm)
+  smj <- getjFromSparseMatrix(sm)
+  smx <- getvalFromSparseMatrix(sm)
+  r <- Matrix::sparseMatrix(i = smj, j = smi, x = smx,
+                            dims = c(ncol(sm), nrow(sm)), index1 = TRUE)
+  return(r)
 }
