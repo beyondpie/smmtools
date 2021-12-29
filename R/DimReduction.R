@@ -2,20 +2,26 @@
 #'
 #' @param bmatSnap sparse matrix, cell by feature
 #' @param nLandmark integer, numebr of landmark cells, default is 10,000
+#' @param n integer, used for fitting regression of random depth effect, default is 1000
+#' @param outlier double, used for choosing threshold of normalized Jaccard similarity matrix,
+#' default is 0.999
 #' @param nPC integer, default is 30
 #' @param seed integer, default is 1
 #' @return list of two element
 #' - dmat dense matrix, cell by principle components, keep the same order of cells
 #' - sdev vector, length of principle components
 #' @export
-SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000, nPC = 30, seed = 1) {
-  set.seed(1)
+SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000,
+                                   n = 1000, outlier = 0.999,
+                                   nPC = 30, seed = 1) {
+  set.seed(seed)
   nCell <- nrow(bmatSnap)
 
   idxLandmark <- sampleBasedOnDepth(bmat = bmatSnap, n = nLandmark)
   
   bmatLandmark <- bmatSnap[idxLandmark, ]
-  mapLandmark <- SnapATAC_runDiffusionMaps(bmat = bmatLandmark, nPC = nPC)
+  mapLandmark <- SnapATAC_runDiffusionMaps(bmat = bmatLandmark,
+                                           nPC = nPC, n = n, outlier = outlier)
   message("Finish getting landmark mappings.")
   rownames(mapLandmark$dmat) <- rownames(bmatSnap)[idxLandmark]
   if (nCell > nLandmark) {
