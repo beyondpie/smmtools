@@ -10,7 +10,7 @@
 #' @return data.frame from read.csv
 #'
 #' @export
-read_columns <- function(filenm, cols = c(1), sep = ",", ...) {
+readColumnsFromTextFile <- function(filenm, cols = c(1), sep = ",", ...) {
   args <- c(
     "-f", paste(cols, collapse = ","),
     "-d", paste0("'", sep, "'"), filenm
@@ -31,7 +31,7 @@ read_columns <- function(filenm, cols = c(1), sep = ",", ...) {
 #' @return sparseMatrix
 #'
 #' @export
-load_sparse_matrix <- function(matfile, ...) {
+loadSparseMatrixFromMatTextFile <- function(matfile, ...) {
   lines <- data.table::fread(input = matfile, sep = "\n", header = FALSE)
   row_col_value <- lapply(seq(nrow(lines)), FUN = function(j) {
     l <- as.character(lines[j, 1])
