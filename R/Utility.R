@@ -296,3 +296,17 @@ t.sparseMatrix <- function(sm) {
                             dims = c(ncol(sm), nrow(sm)), index1 = TRUE)
   return(r)
 }
+
+#' Get index in the subject vector for the query vector
+#' @param query vector, same type as in subject
+#' @param subject vector, same type as in query
+#' @return integer vector, index in subject for the query vector
+#' @export
+getIndex <- function(query, subject) {
+  t <- match(query, subject, nomatch = 0)
+  r <- t[t>0]
+  if(length(r) < 1){
+    warning("Query has no element in subject. Empty vector will be returned.")
+  }
+  return(t[t > 0])
+}
