@@ -6,16 +6,28 @@
 \usage{
 SnapATAC_runHarmony(
   mapSnapATAC,
-  nPC,
   meta_data,
+  nPC = 30,
   vars_use = NULL,
   weightDimReduct = FALSE
 )
 }
 \arguments{
+\item{mapSnapATAC}{list, output of SnapATAC_runDiffusionMaps, at least contains
+\itemize{
+\item dmat matrix, cell by feature, dense matrix of embedding for the cells
+\item sdev numeric vector, standard deviation from runDiffusionMaps.
+}}
+
 \item{meta_data}{Either (1) Dataframe with variables to integrate or (2) vector with labels.}
 
-\item{vars_use}{If meta_data is dataframe, this defined which variable(s) to remove (character vector).}
+\item{nPC}{integer, how many PCs used for Harmony, default is 30.}
+
+\item{vars_use}{string, if meta_data is dataframe,
+this defined which variable(s) to remove (character vector).
+Default is NULL}
+
+\item{weightDimReduct}{bool, if weighted the PCs by multiplying sdev, default is FALSE}
 }
 \value{
 Matrix, cell by updated principle components

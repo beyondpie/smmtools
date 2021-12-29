@@ -4,18 +4,45 @@
 \alias{SnapATAC_BinarizeBmat}
 \title{Binarize Bmat according SnapATAC}
 \usage{
-SnapATAC_BinarizeBmat(bmat, z_threshold = 1.65, outlier = 0.001)
+SnapATAC_BinarizeBmat(
+  bmat,
+  cell_by_feature = FALSE,
+  mu = NULL,
+  sigma = NULL,
+  z_threshold = 1.65,
+  outlier = 0.001
+)
 }
 \arguments{
-\item{bmat}{sparse matrix, feature by cells.
-NOTE: in SnapATAC, bmat is cell by feature}
+\item{bmat}{sparse matrix, feature by cells (default) or verse
+In SnapATAC package, bmat is cell by feature. Be sure to claim the format
+with the parameter cell_by_feature below.}
 
-\item{nFragms}{data.frame, cols: barcode, nFragment}
+\item{cell_by_feature, }{bool, if bmat is cell by feature or not,
+default is FALSE}
+
+\item{mu}{double or NULL, mean of log10 count to get z score,
+default is NULL, which will be estimated from the data.}
+
+\item{sigma}{double or NULL, standard deviation of log10 count to get z score,
+default is NULL, which will be estimated from the data.}
+
+\item{z_threshold}{double, z score threshold, features highter than it or lower than -it,
+will be removed, default is 1.65}
+
+\item{outlier}{double, count larger than quantile of 1- outlier will be treated as zero,
+default is 1e-3.}
 }
 \value{
 list of two elements
-bmat sparse matrix, cell by feature (consistent with SnapATAC)
-featureIndexKept:  feature index kept after filtering
+\itemize{
+\item bmat sparse matrix, cell by feature (consistent with SnapATAC)
+\item featureIndexKept integer vector, feature index kept after filtering
+\item mu double, mean for z_score
+\item sigma double, standard deviation for z_score
+\item z_threshold double, cutoff for z_threshold
+\item outlier double, cutoff for count
+}
 }
 \description{
 \itemize{

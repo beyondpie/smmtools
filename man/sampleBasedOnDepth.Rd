@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utility.R
 \name{sampleBasedOnDepth}
 \alias{sampleBasedOnDepth}
-\title{Sampling cells based on their sequencing depths.}
+\title{Sampling cells based on their sequencing depths without replace.}
 \usage{
 sampleBasedOnDepth(bmat, n)
 }
@@ -13,7 +13,8 @@ sampleBasedOnDepth(bmat, n)
 }
 \value{
 vector of integers, index for the sampled cells
+with length of min(n, ncells)
 }
 \description{
-Sampling cells based on their sequencing depths.
+Sampling cells based on their sequencing depths without replace.
 }

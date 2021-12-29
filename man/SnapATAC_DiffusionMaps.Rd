@@ -4,12 +4,24 @@
 \alias{SnapATAC_DiffusionMaps}
 \title{DiffusionMaps method in SnapATAC}
 \usage{
-SnapATAC_DiffusionMaps(bmatSnap, nLandmark = 10000, nPC = 30, seed = 1)
+SnapATAC_DiffusionMaps(
+  bmatSnap,
+  nLandmark = 10000,
+  n = 1000,
+  outlier = 0.999,
+  nPC = 30,
+  seed = 1
+)
 }
 \arguments{
 \item{bmatSnap}{sparse matrix, cell by feature}
 
 \item{nLandmark}{integer, numebr of landmark cells, default is 10,000}
+
+\item{n}{integer, used for fitting regression of random depth effect, default is 1000}
+
+\item{outlier}{double, used for choosing threshold of normalized Jaccard similarity matrix,
+default is 0.999}
 
 \item{nPC}{integer, default is 30}
 

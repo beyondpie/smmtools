@@ -2,10 +2,20 @@
 % Please edit documentation in R/Utility.R
 \name{getjFromSparseMatrix}
 \alias{getjFromSparseMatrix}
-\title{Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix}
+\title{Get j from sparseMatrix
+j index starts froms 1.
+Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix}
 \usage{
 getjFromSparseMatrix(sm)
 }
+\arguments{
+\item{sm}{sparseMatrix}
+}
+\value{
+vector of integer
+}
 \description{
+Get j from sparseMatrix
+j index starts froms 1.
 Ref: https://stackoverflow.com/questions/21099612/extract-i-and-j-from-a-sparse-matrix
 }

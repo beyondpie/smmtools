@@ -5,12 +5,7 @@
 \title{Another way to estimate the threshold for Scrublet
 Method used by Yang Li in CEMBA 1.0.}
 \usage{
-getScrubletThresholdByMixEM(
-  scrubletSimScores,
-  defaultCutoff,
-  prob = 0.5,
-  lower = 0.2
-)
+getScrubletThresholdByMixEM(scrubletSimScores, defaultCutoff, prob = 0.5)
 }
 \arguments{
 \item{scrubletSimScores}{numeric vector}
@@ -18,8 +13,6 @@ getScrubletThresholdByMixEM(
 \item{defaultCutoff}{double, if mixEM failed, use this as threschold.}
 
 \item{prob}{double, prob of a scrublet score treated as doublet, default is 0.5}
-
-\item{lower}{double, used for uniroot}
 }
 \value{
 double
