@@ -397,3 +397,20 @@ plotDimReductElbow <- function(sdev, outpdf = NULL, point_size = 1.5,
     dev.off()
   }
 }
+
+#' Create outdir if not exist, and remove the old file if needed.
+#' @param outf string
+#' @param remove bool, default is TRUE
+#' @return None
+#' @export
+cleanOutfile <- function(outf, remvove = TRUE){
+  outdir <- dirname(outf)
+  if(!dir.exists(outdir)) {
+    message(paste(outdir, "does not exist and will be created."))
+    dir.create(outdir)
+  }
+  if(file.exists(outf) & remove) {
+    message(paste(outf, "exists and will be removed."))
+    file.remove(outf)
+  }
+}
