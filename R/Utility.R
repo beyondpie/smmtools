@@ -310,3 +310,90 @@ getIndex <- function(query, subject) {
   }
   return(t[t > 0])
 }
+
+#' Plot correlations between adjacent two principle components.
+#' Refer: SnapATAC plotDimReductPW
+#' @param smat cell by feature
+#' @param outpdf string, output of pdf file, default is NULL.
+#' @param ndim integer, max dims to plot, default is 50
+#' @param point_size double, default 0.5
+#' @param point_color string, default "grey"
+#' @param point_shape integer, default 19
+#' @param point_alpha double, default 0.5
+#' @param nsample integer, max number of random cells to use, default 10000
+#' @param height double, height of pdf, default 7
+#' @param width, double, width of pdf, default 7
+#' @param ... parameters, used for plot.
+#' @return value returned by graphics::par()
+#' @export
+plotDimReductPairwise <- function(smat, outpdf = NULL,ndim = 50, point_size = 0.5,
+                                  point_color = "grey", point_shape = 19,
+                                  point_alpha = 0.5, nsample = 10000,
+                                  height = 7, width = 7, ...) {
+  ## only less than 50 dims will be used.
+  p <- min(ncol(smat), ndim, 50)
+  if(!is.null(outpdf)) {
+    outdir <- dirname(outpdf)
+    if(!dir.exists(outdir)) {
+      message(paste(outdir, "does not exist and will be created."))
+      dir.create(outdir)
+    }
+    if(file.exists(outpdf)) {
+      message(paste(outpdf, "exists and will be re-created."))
+      file.remove(outpdf)
+    }
+    pdf(outpdf, width = width, height = height)
+  }
+  op <- par(mfrow = c(5, 5), oma = c(3, 3, 1,1) + 0.2,
+            mar = c(0, 0, 1,1) + 0.2)
+  pca_plot <- split(seq(p), ceiling(seq(p)/2))
+  if( (p %% 2 ) == 1) {
+    pca_plot <- pca_plot[1:length(pca_plot)-1]
+  }
+  for(x in pca_plot) {
+    rows <- sort(sample(seq(nrow(smat)), size = min(nrow(smat), nsample)))
+    plot(x = smat[rows, x[1]], y = smat[rows, x[2]],
+         cex = point_size, col = scales::alpha(point_color, point_alpha),
+         xlab = paste0("Dim", x[1]), ylab = paste0("Dim", x[2]), ...)
+  }
+  if(!is.null(outpdf)) {
+    dev.off()
+  }
+  invisible(graphics::par(mfrow = c(1,1)))
+}
+
+#' Plot correlations between adjacent two principle components.
+#' Refer: SnapATAC plotDimReductElbow
+#' @param sdev numeric vector, standard deviation for PCs.
+#' @param outpdf string, output of pdf file, default is NULL.
+#' @param point_size double, default 1.5
+#' @param point_color string, default "red"
+#' @param point_shape integer, default 19
+#' @param point_alpha double, default 1
+#' @param height double, height of pdf, default 7
+#' @param width, double, width of pdf, default 7
+#' @param ... parameters, used for plot.
+#' @return None
+#' @export
+plotDimReductElbow <- function(sdev, outpdf = NULL, point_size = 1.5,
+                               point_shape = 19, point_color = "red",
+                               point_alpha = 1, height= 7, width = 7, ...) {
+  if(!is.null(outpdf)) {
+    outdir <- dirname(outpdf)
+    if(!dir.exists(outdir)) {
+      message(paste(outdir, "does not exist and will be created."))
+      dir.create(outdir)
+    }
+    if(file.exists(outpdf)) {
+      message(paste(outpdf, "exists and will be re-created."))
+      file.remove(outpdf)
+    }
+    pdf(outpdf, width = width, height = height)
+  }
+  plot(x = seq(length(sdev)), y = sdev, cex = point_size, pch = point_shape,
+       col = scales::alpha(point_color, point_alpha), xlab = "Principle Components",
+       ylab = "Standard Deviation of PCs.", ...)
+  if(!is.null(outpdf)) {
+    dev.off()
+  }
+}
