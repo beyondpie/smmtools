@@ -1,10 +1,20 @@
 #' Simplified runKNN in SnapATAC
-#' 
+#'
+#' @param smat dense matrix or matrix, cell by feature
+#' @param k integer, max number of nearest neighbours, should be between 10 to 50.
+#' @param treetype string, "kd" or "bd", "bd" is usuful for larger point sets and
+#' local clusters in the dataset, which could reduce the depth of the tree.
+#' Default is "kd".
+#' @param searchtype string, "standard", "priority", or "radius".
+#' Default is "standard"
 #' @param nn_eps Error bound when performing nearest neighbor seach using RANN.
 #' default of 0.0 implies exact nearest neighbor search
-#' @return sparseMatrix, KNN matrix
+#' @return sparseMatrix, KNN matrix, ncell by ncell, value is 1 (unweighted),
+#' including the diagnal part.
 #' @export
-runKNN <- function(smat, k = 20, nn_eps = 0.0){
+runKNN <- function(smat, k = 20, treetype = "kd",
+                   searchtype = "standard",
+                   nn_eps = 0.0){
   message(paste("Generate KNN with", k))
   ncell <- nrow(smat)
   if(ncell < k){
@@ -13,7 +23,9 @@ runKNN <- function(smat, k = 20, nn_eps = 0.0){
     message("Set k as Ncell - 1.")
   }
   
-  nnRanked <- RANN::nn2(data = smat, k = k, searchtype = "standard",
+  nnRanked <- RANN::nn2(data = smat, k = k,
+                        treetype = treetype,
+                        searchtype = searchtype,
                         eps = nn_eps)$nn.idx
   j <- as.numeric(t(nnRanked))
   i <- (seq_along(j)-1) %/% k + 1
