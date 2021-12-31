@@ -4,14 +4,26 @@
 \alias{runKNN}
 \title{Simplified runKNN in SnapATAC}
 \usage{
-runKNN(smat, k = 20, nn_eps = 0)
+runKNN(smat, k = 20, treetype = "kd", searchtype = "standard", nn_eps = 0)
 }
 \arguments{
+\item{smat}{dense matrix or matrix, cell by feature}
+
+\item{k}{integer, max number of nearest neighbours, should be between 10 to 50.}
+
+\item{treetype}{string, "kd" or "bd", "bd" is usuful for larger point sets and
+local clusters in the dataset, which could reduce the depth of the tree.
+Default is "kd".}
+
+\item{searchtype}{string, "standard", "priority", or "radius".
+Default is "standard"}
+
 \item{nn_eps}{Error bound when performing nearest neighbor seach using RANN.
 default of 0.0 implies exact nearest neighbor search}
 }
 \value{
-sparseMatrix, KNN matrix
+sparseMatrix, KNN matrix, ncell by ncell, value is 1 (unweighted),
+including the diagnal part.
 }
 \description{
 Simplified runKNN in SnapATAC
