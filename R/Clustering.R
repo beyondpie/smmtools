@@ -30,6 +30,9 @@ runKNN <- function(smat, k = 20, treetype = "kd",
   j <- as.numeric(t(nnRanked))
   i <- (seq_along(j)-1) %/% k + 1
   kmat <- Matrix::sparseMatrix(i = i, j = j, x = 1, dims = c(ncell, ncell))
+  if (!is.null(rownames(smat))) {
+    rownames(kmat) <- rownames(smat)
+  }
   return(kmat)
 }
 
