@@ -354,7 +354,10 @@ plotDimReductPairwise <- function(smat, outpdf = NULL,ndim = 50, point_size = 0.
     rows <- sort(sample(seq(nrow(smat)), size = min(nrow(smat), nsample)))
     plot(x = smat[rows, x[1]], y = smat[rows, x[2]],
          cex = point_size, col = scales::alpha(point_color, point_alpha),
-         xlab = paste0("Dim", x[1]), ylab = paste0("Dim", x[2]), ...)
+         mtext(paste(paste("PCs", x[1]), x[2], sep = " vs "), side = 3),
+         xlab = "", ylab = "", yaxt = "n", xaxt = "n"
+         )       
+         ## xlab = paste0("Dim", x[1]), ylab = paste0("Dim", x[2]), ...)
   }
   if(!is.null(outpdf)) {
     dev.off()
