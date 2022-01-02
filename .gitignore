@@ -53,3 +53,4 @@ vignettes/*.pdf
 *.snap
 /eval/snap/
 /eval/scrublet/*.csv
+/inst/smmuty/dist/
