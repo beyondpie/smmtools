@@ -5,6 +5,9 @@
 #' @param treetype string, "kd" or "bd", "bd" is usuful for larger point sets and
 #' local clusters in the dataset, which could reduce the depth of the tree.
 #' Default is "kd".
+#' NOTE: "bd" may have bugs on Linux (Ubuntu) but not on MacOS. When I use bd, my task is
+#' always be killed no mater how big memory I use (I even use 200GB for a small dataset: < 60,000 points).
+#' This does not happen on MacOS. But "kd" works on Linux
 #' @param searchtype string, "standard", "priority", or "radius".
 #' Default is "standard"
 #' @param nn_eps Error bound when performing nearest neighbor seach using RANN.
