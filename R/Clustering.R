@@ -43,7 +43,6 @@ runKNN <- function(smat, k = 20, treetype = "kd",
 #' @param seed integer, used for Leiden
 #' @param partitionType string, used for Leiden, default is "RB"
 #' @return vector of factor, cluster index for cells
-#' @importFrom reticulate r_to_py py_to_r
 #' @export
 runLeiden <- function(kmat,
                       path_to_python = NULL,
@@ -57,7 +56,7 @@ runLeiden <- function(kmat,
   setSessionTimeLimit(cpu = Inf, elapsed = Inf)
   ld <- reticulate::import(module = "smmuty", convert = FALSE)
   ldCluster <- as.factor(reticulate::py_to_r(
-    ld$leiden(knn = r_to_py(kmat), reso = reso, seed = seed, opt = partitionType)))
+    ld$leiden(knn = reticulate::r_to_py(kmat), reso = reso, seed = seed, opt = partitionType)))
   
   message("Summary of clustering:")
   print(table(ldCluster))
