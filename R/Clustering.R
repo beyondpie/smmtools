@@ -56,7 +56,7 @@ runLeiden <- function(kmat,
   }
   setSessionTimeLimit(cpu = Inf, elapsed = Inf)
   ld <- reticulate::import(module = "smmuty", convert = FALSE)
-  ldCluster <- as.factor(py_to_r(
+  ldCluster <- as.factor(reticulate::py_to_r(
     ld$leiden(knn = r_to_py(kmat), reso = reso, seed = seed, opt = partitionType)))
   
   message("Summary of clustering:")
