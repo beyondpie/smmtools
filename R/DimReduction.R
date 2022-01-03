@@ -113,6 +113,8 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
 #' @return list of two elements
 #' - dmat matrix, nquery cell by feature
 #' - sdev numeric vector, standard deviation for the query cells.
+#' NOTE: when one query have all zeros, the function will not fail, but
+#' return NaN for that query.
 #' @export
 SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandmark) {
   if(ncol(bmatLandmark) != ncol(bmatQuery)) {
