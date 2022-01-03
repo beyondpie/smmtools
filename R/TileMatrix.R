@@ -1,28 +1,26 @@
 #' Generate matrix of couts for each tile per cell
 #'
 #' Ref: ArchR
-#'
-#' @param outfilenm string, end with .h5
+#' @param rawH5File string
+#' @param outfile string
+#' @param genome string, default is "mm10"
+#' @param sampleName string, default is NULL
 #' @param barcodes vector of string, no need to append sampleName, will do that in this code block
+#' @param tileSize integer, default is 5000,
+#' @param excludeChr vector of string, default is c("chrM")
+#' @return  string, where the matrix are saved 
 #' @importFrom rhdf5 h5createFile h5createGroup h5createDataset h5closeAll h5write
 #' @importFrom S4Vectors start end match DataFrame mcols Rle
 #' @importFrom GenomicRanges seqnames split
-#' @return  outfile string, where the matrix are saved 
 #' @export
-getTileMatrix <- function(rawH5File, outdir, outfilenm,
+getTileMatrix <- function(rawH5File, outfile,
                           genome = "mm10",
                           sampleName = NULL, barcodes = NULL,
                           tileSize = 5000,
                           excludeChr = c("chrM")) {
   tstart <- Sys.time()
   message(paste("Begin to run getTileMatrix with tileSize: ", tileSize, "at", tstart))
-
-  dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
-  outfile <- file.path(outdir, outfilenm)
-  if(file.exists(outfile)) {
-    message(paste(outfile, "exist, and remove it."))
-    file.remove(outfile)
-  }
+  cleanOutfile(outfile)
   rhdf5::h5createFile(file = outfile)
   ## h5createGroup(file = outfile, group = "TileMatrix")
   ## h5createGroup(file = outfile, group = "colnames")
@@ -150,15 +148,12 @@ getTileMatrix <- function(rawH5File, outdir, outfilenm,
 
 #' load TileMatrix into a sparseMatrix
 #' Ref: ArchR
-#'
+#' @param tileMatrixFile string
 #' @param barcodes vector of string, if not null, filter tilematrix by barcodes, default is NULL.
 #' We assume barcodes are all in the tileMatrixFile. NOTE: No check for this.
-#' @param binarize bool, default is FALSE, this is a simple binarization,
-#' is not the version SnapATAC describes, should not be used.
-#' TODO: remove this binarize param.
 #' @return sparseMatrix, feature by cell, both row and colnames, ordered by barcodes if provides.
 #' @export
-loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
+loadTileMatrix <- function(tileMatrixFile, barcodes = NULL) {
   colNames <- removeSampleName(barcodes = h5read(file = tileMatrixFile, name = "/Barcodes"))
   if(!is.null(barcodes)) {
     barcodes <- removeSampleName(barcodes = barcodes)
@@ -185,11 +180,7 @@ loadTileMatrix <- function(tileMatrixFile, barcodes = NULL, binarize = FALSE) {
     j <- j[idxI]
     i <- matchI[idxI]
     
-    if(binarize) {
-      x <- rep(1, length(j))
-    } else {
-      x <- h5read(file = tileMatrixFile, name = paste0("/", chr, "/x"))[idxJ][idxI]
-    }
+    x <- h5read(file = tileMatrixFile, name = paste0("/", chr, "/x"))[idxJ][idxI]
     mat <- Matrix::sparseMatrix(
       i = as.integer(i),
       j = j,
@@ -268,15 +259,7 @@ getBmatFromSnap <- function(snapFile, binSize = 5000,
   bmat <- bmat[, idy_chrs]
   ## save bmat
   if(!is.null(outfile)) {
-    outdir <- dirname(outfile)
-    if (!dir.exists(outdir)) {
-      message(paste(outdir, "does not exist and will be created it."))
-      dir.create(outdir)
-    }
-    if (file.exists(outfile)) {
-      message(paste(outfile, "exists and will be removed."))
-      file.remove(outfile)
-    }
+    cleanOutfile(outfile)
     t <- as(bmat, "TsparseMatrix")
     rhdf5::h5createFile(outfile)
     suppressAll(rhdf5::h5createDataset(
