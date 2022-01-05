@@ -13,7 +13,10 @@ runKNN(smat, k = 20, treetype = "kd", searchtype = "standard", nn_eps = 0)
 
 \item{treetype}{string, "kd" or "bd", "bd" is usuful for larger point sets and
 local clusters in the dataset, which could reduce the depth of the tree.
-Default is "kd".}
+Default is "kd".
+NOTE: "bd" may have bugs on Linux (Ubuntu) but not on MacOS. When I use bd, my task is
+always be killed no mater how big memory I use (I even use 200GB for a small dataset: < 60,000 points).
+This does not happen on MacOS. But "kd" works on Linux}
 
 \item{searchtype}{string, "standard", "priority", or "radius".
 Default is "standard"}

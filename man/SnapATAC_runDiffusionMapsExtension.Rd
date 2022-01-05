@@ -18,6 +18,8 @@ list of two elements
 \itemize{
 \item dmat matrix, nquery cell by feature
 \item sdev numeric vector, standard deviation for the query cells.
+NOTE: when one query have all zeros, the function will not fail, but
+return NaN for that query.
 }
 }
 \description{

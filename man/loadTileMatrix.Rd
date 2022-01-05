@@ -5,15 +5,13 @@
 \title{load TileMatrix into a sparseMatrix
 Ref: ArchR}
 \usage{
-loadTileMatrix(tileMatrixFile, barcodes = NULL, binarize = FALSE)
+loadTileMatrix(tileMatrixFile, barcodes = NULL)
 }
 \arguments{
+\item{tileMatrixFile}{string}
+
 \item{barcodes}{vector of string, if not null, filter tilematrix by barcodes, default is NULL.
 We assume barcodes are all in the tileMatrixFile. NOTE: No check for this.}
-
-\item{binarize}{bool, default is FALSE, this is a simple binarization,
-is not the version SnapATAC describes, should not be used.
-TODO: remove this binarize param.}
 }
 \value{
 sparseMatrix, feature by cell, both row and colnames, ordered by barcodes if provides.

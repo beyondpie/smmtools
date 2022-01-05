@@ -6,8 +6,7 @@
 \usage{
 getTileMatrix(
   rawH5File,
-  outdir,
-  outfilenm,
+  outfile,
   genome = "mm10",
   sampleName = NULL,
   barcodes = NULL,
@@ -16,12 +15,22 @@ getTileMatrix(
 )
 }
 \arguments{
-\item{outfilenm}{string, end with .h5}
+\item{rawH5File}{string}
+
+\item{outfile}{string}
+
+\item{genome}{string, default is "mm10"}
+
+\item{sampleName}{string, default is NULL}
 
 \item{barcodes}{vector of string, no need to append sampleName, will do that in this code block}
+
+\item{tileSize}{integer, default is 5000,}
+
+\item{excludeChr}{vector of string, default is c("chrM")}
 }
 \value{
-outfile string, where the matrix are saved
+string, where the matrix are saved
 }
 \description{
 Ref: ArchR
