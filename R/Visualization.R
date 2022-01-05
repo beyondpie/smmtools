@@ -10,6 +10,13 @@
 #' @param sdev vector, scaling factors for dims, default is NULL
 #' @param nPC integer, dims till the nPC-th dim will be used for UMAP, default is 30.
 #' When nfeature in mat is less than nPC, nfeature will be used.
+#' @param outpdf string, default is NULL
+#' @param width double, for outpdf, default is 7
+#' @param height double, for outpdf, default is 7
+#' @param xlab string, default is "UMAP-1"
+#' @param ylab string, default is "UMAP-2"
+#' @param title string, default is NULL
+#' @param color vector of string or factor, default is NULL
 #' @param ncomp integer, defaul is 2
 #' @param seed integer, default is 10
 #' @param weightDimReduct bool, default is FALSE, together used with sdev.
@@ -34,6 +41,12 @@
 #' @return matrix, cell by ncomp
 #' @export
 runUmap <- function(dmat, sdev = NULL, nPC = 30,
+                    outpdf = NULL,
+                    width = 7, height = 7,
+                    xlab = "UMAP-1",
+                    ylab = "UMAP-1",
+                    title = NULL,
+                    color = NULL,
                     ncomp = 2,
                     seed = 10, weightDimReduct = FALSE,
                     umapNeighbors = 30, umapMindist = 0.3,
@@ -58,6 +71,15 @@ runUmap <- function(dmat, sdev = NULL, nPC = 30,
                          min_dist = umapMindist,
                          a = a, b = b, init = init,
                          ret_nn = retnn, ret_model = retmodel)
+  if(!is.null(outpdf) & (!is.null(color))) {
+    cleanOutfile(outpdf)
+    pdf(outpdf, width = width, height = height)
+    ggPoint(x = as.vector(uwotUmap[, 1]),
+          y = as.vector(uwotUmap[, 2]),
+          color = color,
+          xlab = xlab, ylab = ylab, title = title)
+    dev.off()
+  }
   return(uwotUmap)
 }
 

@@ -382,15 +382,7 @@ plotDimReductElbow <- function(sdev, outpdf = NULL, point_size = 1.5,
                                point_shape = 19, point_color = "red",
                                point_alpha = 1, height= 7, width = 7, ...) {
   if(!is.null(outpdf)) {
-    outdir <- dirname(outpdf)
-    if(!dir.exists(outdir)) {
-      message(paste(outdir, "does not exist and will be created."))
-      dir.create(outdir)
-    }
-    if(file.exists(outpdf)) {
-      message(paste(outpdf, "exists and will be re-created."))
-      file.remove(outpdf)
-    }
+    cleanOutfile(outpdf)
     pdf(outpdf, width = width, height = height)
   }
   plot(x = seq(length(sdev)), y = sdev, cex = point_size, pch = point_shape,
