@@ -74,10 +74,11 @@ runUMAP <- function(dmat, sdev = NULL, nPC = 30,
   if(!is.null(outpdf) & (!is.null(color))) {
     cleanOutfile(outpdf)
     pdf(outpdf, width = width, height = height)
-    ggPoint(x = as.vector(uwotUmap[, 1]),
+    p <- ggPoint(x = as.vector(uwotUmap[, 1]),
           y = as.vector(uwotUmap[, 2]),
           color = color,
           xlab = xlab, ylab = ylab, title = title)
+    p
     dev.off()
   }
   return(uwotUmap)
