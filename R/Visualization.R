@@ -25,7 +25,7 @@
 #' @param umapMindist double, default is 0.3
 #' In umot::umap, default is 0.01
 #' @param umapMetric string, default is "cosine"
-#'"euclidean" is the default in uwot::umap
+#' NOTE: "euclidean" is the default in uwot::umap
 #' @param umapVerbose bool, default is FALSE
 #' @param umapFastSGD bool, default is TRUE
 #' @param umapNthread integer, default is 1
