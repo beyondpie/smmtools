@@ -4,7 +4,7 @@ RCODES := R/*.R
 CPPCODES := src/*.cpp
 SMMUTYCODES := inst/smmuty/smmuty/*.py inst/smmuty/bin/*.py
 
-all: README.md doc smmuty
+all: README.md doc
 
 README.md: README.Rmd
 	Rscript -e "devtools::build_readme()"
@@ -18,7 +18,7 @@ doc: $(RCODES)
 	-rm src/*.so
 	Rscript -e "devtools::document(pkg = '.')"
 
-smmuty: $(SMMUTYCODES)
+install_local_smmuty: $(SMMUTYCODES)
 	cd inst; \
   python3 -m pip install -e smmuty
 
