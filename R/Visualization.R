@@ -40,7 +40,7 @@
 #' Set both retnn and retmodel as TRUE to save model
 #' @return matrix, cell by ncomp
 #' @export
-runUmap <- function(dmat, sdev = NULL, nPC = 30,
+runUMAP <- function(dmat, sdev = NULL, nPC = 30,
                     outpdf = NULL,
                     width = 7, height = 7,
                     xlab = "UMAP-1",
