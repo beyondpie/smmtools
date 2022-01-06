@@ -214,7 +214,9 @@ sampleBasedOnDepth <- function(bmat, n) {
 }
 
 #' NormOVE from SnapATAC
-#' @return matrix
+#' @param p1, vector, cell by 1, each point describe the ratio of 1 over detpth in that cell
+#' @param p2, vector, cell by 1, each point describe the ratio of 1 over detpth in that cell
+#' @return dense matrix, each point means the ratio of expectation of Jaccard approximately.
 #' @export
 getNormOVE <- function(p1, p2){
   pp = tcrossprod(p1, p2);

@@ -43,7 +43,7 @@ SnapATAC_DiffusionMaps <- function(bmatSnap, nLandmark = 10000,
 
 #' Core of DiffusionMaps for landmark cells.
 #' 
-#' @param bmat sparse Matrix, cell by feature
+#' @param bmat sparse Matrix, cell by feature, after binarization
 #' @param nPC integer, default is 30
 #' @param n integer, used for fitting regression of random depth effect, default is 1000.
 #' @param outlier double, used for choosing threshold of normalized Jaccard similarity matrix,
@@ -104,8 +104,8 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
 
 #' Run DiffusionMaps for query cells baesd on the landmark results.
 #' 
-#' @param bmatLandmark matrix, cell by feature
-#' @param bmatQuery matrix, cell by feature
+#' @param bmatLandmark matrix, cell by feature, after binarization
+#' @param bmatQuery matrix, cell by feature, after binarization
 #' @param mapLandmark results from difusionMaps for landmark cells.
 #' @return list of two elements
 #' - dmat matrix, nquery cell by feature
@@ -140,11 +140,16 @@ SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandm
   return(invisible(list(dmat = dmatQuery, sdev = sdevQuery)))
 }
 
+#' Get Jaccard Matrix
 #' Ref: SnapATAC runJaccard2
+#' @param xi matrix/sparseMatrix, cell by feature, multi-hot representation
+#' @param xj matrix/sparseMatrix, cell by feature, multi-hot representation
+#' @return dense matrix, Jaccard Matrix
+#' @export
 runJaccard2 <- function(xi, xj) {
   A <- Matrix::tcrossprod(xi, xj)
   sumi <- Matrix::rowSums(xi)
   sumj <- Matrix::rowSums(xj)
-  jmat <- as.matrix(A / (replicate(ncol(A), xi) + t(replicate(nrow(A), bj)) - A))
+  jmat <- as.matrix(A / (replicate(ncol(A), sumi) + t(replicate(nrow(A), sumj)) - A))
   return(jmat)
 }
