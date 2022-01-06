@@ -64,10 +64,7 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
     stop("Some cells have no reads, please remove them firstly.")
   }
   message("Step1: calculate Jaccard similarity matrix.")
-  A <- Matrix::tcrossprod(bmat, bmat)
-  rowDepth <- Matrix::rowSums(A)
-  J <- as.matrix(A / (2 * replicate(ncol(A), rowDepth) - A ))
-
+  J <- runJaccard2(xi = bmat, xj = bmat)
   message("Step2: fit regression model to reduce cell depth effect.")
   idx <- sampleBasedOnDepth(bmat = bmat, n = n)
   subrmeans <- Matrix::rowMeans(bmat[idx, ])
@@ -121,10 +118,7 @@ SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandm
     stop("Features have different dims between Landmark and Query.")
   }
   message("Step1: calculate Jaccard similarity matrix.")
-  A <- Matrix::tcrossprod(x = bmatQuery, y = bmatLandmark)
-  rsumQuery <- Matrix::rowSums(bmatQuery)
-  rsumLandmark <- Matrix::rowSums(bmatLandmark)
-  J <- as.matrix(A / (replicate(ncol(A), rsumQuery) + t(replicate(nrow(A), rsumLandmark))-A))
+  J <- runJaccard2(xi = bmatQuery, xj = bmatLandmark)
   message("Step2: normalze Jaccard similarity matrix.")
   rmeanQuery <- Matrix::rowMeans(bmatQuery)
   rmeanLandmark <- Matrix::rowMeans(bmatLandmark)
@@ -144,4 +138,13 @@ SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandm
   dmatQuery <- as.matrix(t( t(as.matrix(transition) %*% dmatLandmark) / sdevLandmark ))
   sdevQuery <- sdevLandmark
   return(invisible(list(dmat = dmatQuery, sdev = sdevQuery)))
+}
+
+#' Ref: SnapATAC runJaccard2
+runJaccard2 <- function(xi, xj) {
+  A <- Matrix::tcrossprod(xi, xj)
+  sumi <- Matrix::rowSums(xi)
+  sumj <- Matrix::rowSums(xj)
+  jmat <- as.matrix(A / (replicate(ncol(A), xi) + t(replicate(nrow(A), bj)) - A))
+  return(jmat)
 }
