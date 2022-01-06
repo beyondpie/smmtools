@@ -2,13 +2,28 @@
 % Please edit documentation in R/Utility.R
 \name{eig_decomp}
 \alias{eig_decomp}
-\title{Get eigen decomposion}
+\title{Get eigen decomposion
+Ref: SnapATAC eig_decomp}
 \usage{
 eig_decomp(M, n_eigs)
 }
 \arguments{
-\item{M}{matrix}
+\item{M}{dense matrix}
+
+\item{n_eigs}{integer, number of eigns
+
+Questions:
+\itemize{
+\item Can M be sparse?
+\item What does ncv means here ?
+\item Can we use multi-cores to accelrate this?
+\item Does SVD will accelarte the speed?
+NOTE: https://github.com/yixuan/RSpectra
+Maybe this could be a better solution to directly
+support sparse matrix, which means more cells.
+}}
 }
 \description{
 Get eigen decomposion
+Ref: SnapATAC eig_decomp
 }

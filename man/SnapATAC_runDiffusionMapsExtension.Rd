@@ -7,9 +7,9 @@
 SnapATAC_runDiffusionMapsExtension(bmatLandmark, bmatQuery, mapLandmark)
 }
 \arguments{
-\item{bmatLandmark}{matrix, cell by feature}
+\item{bmatLandmark}{matrix, cell by feature, after binarization}
 
-\item{bmatQuery}{matrix, cell by feature}
+\item{bmatQuery}{matrix, cell by feature, after binarization}
 
 \item{mapLandmark}{results from difusionMaps for landmark cells.}
 }

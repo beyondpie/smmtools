@@ -6,8 +6,13 @@
 \usage{
 getNormOVE(p1, p2)
 }
+\arguments{
+\item{p1, }{vector, cell by 1, each point describe the ratio of 1 over detpth in that cell}
+
+\item{p2, }{vector, cell by 1, each point describe the ratio of 1 over detpth in that cell}
+}
 \value{
-matrix
+dense matrix, each point means the ratio of expectation of Jaccard approximately.
 }
 \description{
 NormOVE from SnapATAC

@@ -7,7 +7,7 @@
 SnapATAC_runDiffusionMaps(bmat, nPC = 30, n = 1000, outlier = 0.999)
 }
 \arguments{
-\item{bmat}{sparse Matrix, cell by feature}
+\item{bmat}{sparse Matrix, cell by feature, after binarization}
 
 \item{nPC}{integer, default is 30}
 
