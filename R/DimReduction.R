@@ -69,7 +69,7 @@ SnapATAC_runDiffusionMaps <- function(bmat, nPC = 30, n = 1000, outlier = 0.999)
   J <- as.matrix(A / (2 * replicate(ncol(A), rowDepth) - A ))
 
   message("Step2: fit regression model to reduce cell depth effect.")
-  idx <- sampleBasedOnDepth(bmat = bmat, n = 1000)
+  idx <- sampleBasedOnDepth(bmat = bmat, n = n)
   subrmeans <- Matrix::rowMeans(bmat[idx, ])
   subNormOVE <- getNormOVE(p1 = subrmeans, p2 = subrmeans)
   jmat <- J[idx, idx]
