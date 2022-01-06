@@ -229,8 +229,14 @@ getNormOVE <- function(p1, p2){
 #' Get eigen decomposion
 #' Ref: SnapATAC eig_decomp
 #' 
-#' @param M matrix
+#' @param M dense matrix
 #' @param n_eigs integer, number of eigns
+#'
+#' Questions:
+#' - Can M be sparse?
+#' - What does ncv means here ?
+#' - Can we use multi-cores to accelrate this?
+#' - Does SVD will accelarte the speed?
 #' @export
 eig_decomp <- function(M, n_eigs) {
   sym <- Matrix::isSymmetric(M)
@@ -247,7 +253,10 @@ eig_decomp <- function(M, n_eigs) {
             "Real part of vectors and values from igraph::arpack returned.")
 		ar$vectors <- Re(ar$vectors)
 		ar$values  <- Re(ar$values)
-	}
+	} else {
+    message("Input matrix is symmetric.")
+  }
+  message("igraph::arpack is done.")
 	if (length(dim(ar$vectors)) == 0L) {
     message("Eigen vector is a scalar from igraph::arpack.")
 		ar$vectors <- matrix(ar$vectors, ncol = 1L)
