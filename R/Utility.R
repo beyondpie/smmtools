@@ -237,6 +237,9 @@ getNormOVE <- function(p1, p2){
 #' - What does ncv means here ?
 #' - Can we use multi-cores to accelrate this?
 #' - Does SVD will accelarte the speed?
+#' NOTE: https://github.com/yixuan/RSpectra
+#' Maybe this could be a better solution to directly
+#' support sparse matrix, which means more cells.
 #' @export
 eig_decomp <- function(M, n_eigs) {
   sym <- Matrix::isSymmetric(M)
