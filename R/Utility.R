@@ -225,8 +225,10 @@ getNormOVE <- function(p1, p2){
 }
 
 #' Get eigen decomposion
+#' Ref: SnapATAC eig_decomp
+#' 
 #' @param M matrix
-#' @n_eigs integer, number of eigns
+#' @param n_eigs integer, number of eigns
 #' @export
 eig_decomp <- function(M, n_eigs) {
   sym <- Matrix::isSymmetric(M)
@@ -239,10 +241,13 @@ eig_decomp <- function(M, n_eigs) {
 	ar <- igraph::arpack(f, extra = M, sym = sym, options = list(
 		which = wh, n = n, ncv = min(n, 4*n_eigs), nev = n_eigs + 1))
 	if (!sym) {
+    message("Input matrix is not symmetric. ",
+            "Real part of vectors and values from igraph::arpack returned.")
 		ar$vectors <- Re(ar$vectors)
 		ar$values  <- Re(ar$values)
 	}
 	if (length(dim(ar$vectors)) == 0L) {
+    message("Eigen vector is a scalar from igraph::arpack.")
 		ar$vectors <- matrix(ar$vectors, ncol = 1L)
   }
 	return(ar)
