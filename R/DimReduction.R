@@ -117,6 +117,9 @@ SnapATAC_runDiffusionMapsExtension <- function(bmatLandmark, bmatQuery, mapLandm
   if(ncol(bmatLandmark) != ncol(bmatQuery)) {
     stop("Features have different dims between Landmark and Query.")
   }
+  if(!identical(colnames(bmatLandmark), colnames(bmatQuery))) {
+    stop("bmatQuery has no identical colnames with bmatLandmark.")
+  }
   message("Step1: calculate Jaccard similarity matrix.")
   J <- runJaccard2(xi = bmatQuery, xj = bmatLandmark)
   message("Step2: normalze Jaccard similarity matrix.")
