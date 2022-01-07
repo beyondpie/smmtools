@@ -95,7 +95,9 @@ getGeneMatrix <- function(rawH5File, outfile,
     message(paste("This might because of no barcodes matched with the one you given."))
     return(NULL)
   }
-  
+
+  ## NOTE: check if rbind considers the same colnames
+  ## Should be right for data.frame, but not for matrix.
   wdf <- do.call(rbind, chrDFs)
   
   message(paste("Finish getGeneMatrix, and now write it into:", outfile))
