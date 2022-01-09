@@ -46,6 +46,7 @@ runKNN <- function(smat, k = 20, treetype = "kd",
 #' @param seed integer, used for Leiden
 #' @param partitionType string, used for Leiden, default is "RB"
 #' @return vector of factor, cluster index for cells
+#' @import reticulate
 #' @export
 runLeiden <- function(kmat,
                       path_to_python = NULL,
@@ -53,13 +54,13 @@ runLeiden <- function(kmat,
                       partitionType = "RB") {
   message(paste("Run Leiden for clustering with resolution", reso, "and partitionType", partitionType))
   if(!is.null(path_to_python)) {
-    reticulate::use_python(path_to_python, required = TRUE)
+    use_python(path_to_python, required = TRUE)
     message("Use the Python located in:", path_to_python, "\n")
   }
   setSessionTimeLimit(cpu = Inf, elapsed = Inf)
-  ld <- reticulate::import(module = "smmuty", convert = FALSE)
-  ldCluster <- as.factor(reticulate::py_to_r(
-    ld$leiden(knn = reticulate::r_to_py(kmat), reso = reso, seed = seed, opt = partitionType)))
+  ld <- import(module = "smmuty", convert = FALSE)
+  ldCluster <- as.factor(py_to_r(
+    ld$leiden(knn = r_to_py(kmat), reso = reso, seed = seed, opt = partitionType)))
   
   message("Summary of clustering:")
   print(table(ldCluster))
