@@ -53,7 +53,7 @@ runLeiden <- function(kmat,
                       partitionType = "RB") {
   message(paste("Run Leiden for clustering with resolution", reso, "and partitionType", partitionType))
   if(!is.null(path_to_python)) {
-    reticulate::use_python(path_to_python)
+    reticulate::use_python(path_to_python, required = TRUE)
     message("Use the Python located in:", path_to_python, "\n")
   }
   setSessionTimeLimit(cpu = Inf, elapsed = Inf)
