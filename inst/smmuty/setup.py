@@ -23,7 +23,10 @@ setuptools.setup(
         "scrublet",
         "sklearn",
         "igraph",
-        "pysam"
+        "pysam",
+        "scipy",
+        "matplotlib",
+        "fastcluster"
     ],
     python_requires=">=3.6",
 )
