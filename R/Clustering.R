@@ -1,5 +1,8 @@
 #' Simplified runKNN in SnapATAC
 #'
+#' We have checked this function:
+#' it returns the same KNN mat as SnapATAC does.
+#'
 #' @param smat dense matrix or matrix, cell by feature
 #' @param k integer, max number of nearest neighbours, should be between 10 to 50.
 #' @param treetype string, "kd" or "bd", "bd" is usuful for larger point sets and
