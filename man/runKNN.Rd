@@ -29,5 +29,6 @@ sparseMatrix, KNN matrix, ncell by ncell, value is 1 (unweighted),
 including the diagnal part.
 }
 \description{
-Simplified runKNN in SnapATAC
+We have checked this function:
+it returns the same KNN mat as SnapATAC does.
 }

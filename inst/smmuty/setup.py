@@ -5,13 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="smmuty",
-    version="0.0.1",
+    version="0.0.3",
     author="Songpeng Zu",
     author_email="szu@health.ucsd.edu",
-    description="utilities for single-cell multi-omics data",
+    description="Utilities for single-cell multi-omics data",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/beyondpie/smmtools/inst",
+    url="https://github.com/beyondpie/smmtools/tree/main/inst/smmuty",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

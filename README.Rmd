@@ -26,9 +26,7 @@ This package is mainly based on ArchR, SnapATAC and SnapTools. The significant d
 ## Install locally the python package smmuty under repo's inst directory.
 ```shell
 ## install the local package smmuty with utilities like scrublet, lenden algorithm support.
-git clone https://github.com/beyondpie/smmtools
-cd smmtools/inst
-pip install -e smmuty
+pip install smmuty
 ```
 ## Install R package of smmtools
 ``` r

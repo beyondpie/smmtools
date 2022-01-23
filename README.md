@@ -20,9 +20,7 @@ by either adding new functions or change some functions.
 
 ``` shell
 ## install the local package smmuty with utilities like scrublet, lenden algorithm support.
-git clone https://github.com/beyondpie/smmtools
-cd smmtools/inst
-pip install -e smmuty
+pip install smmuty
 ```
 
 ## Install R package of smmtools

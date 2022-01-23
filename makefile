@@ -23,7 +23,9 @@ install_local_smmuty: $(SMMUTYCODES)
   python3 -m pip install -e smmuty
 
 upload_smmuty:
-	cd inst; \
+	cd inst/smmuty; \
+  rm dist/* ; \
+  rm -rf smmuty.egg-info; \
 	python setup.py sdist bdist_wheel; \
 	twine upload dist/*
 
