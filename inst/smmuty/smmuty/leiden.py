@@ -37,7 +37,8 @@ def leiden(knn, reso: float = 1.0, seed: int = None, opt: str = "RB"):
           CPM short for CPMVertexPartition
 
     Returns:
-        two-column matrix: [node, cluster], all the index start from zero
+        integer vector, cluster idx (start from 0) for the nodes in order.
+        the index are ordered based on the sizes of the clusters. (0 -> max size)
     """
     start_time = pc()
     vcount = max(knn.shape)
