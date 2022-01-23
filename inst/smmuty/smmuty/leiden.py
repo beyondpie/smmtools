@@ -27,6 +27,8 @@ plt.switch_backend("agg")
 def leiden(knn, reso: float = 1.0, seed: int = None, opt: str = "RB"):
     """Run and count to peak
 
+    We validate this function with Yang's script.
+
     Args:
         knn (sparse matrix): scipy.sparse.csc_matrix format when using
           R reticult::r_to_py.
