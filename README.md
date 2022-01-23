@@ -16,7 +16,7 @@ by either adding new functions or change some functions.
 
 # Installation
 
-## Install locally the python package smmuty under repo’s inst directory.
+## Install python package *smmuty*
 
 ``` shell
 ## install the local package smmuty with utilities like scrublet, lenden algorithm support.

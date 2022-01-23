@@ -23,7 +23,7 @@ This package is mainly based on ArchR, SnapATAC and SnapTools. The significant d
 
 # Installation
 
-## Install locally the python package smmuty under repo's inst directory.
+## Install python package _smmuty_
 ```shell
 ## install the local package smmuty with utilities like scrublet, lenden algorithm support.
 pip install smmuty
