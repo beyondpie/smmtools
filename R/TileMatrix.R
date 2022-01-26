@@ -205,6 +205,11 @@ loadTileMatrix <- function(tileMatrixFile, barcodes = NULL) {
 }
 
 #' Get Bmat from Snap object.
+#'
+#' Note: this function is validated with SnapATAC::addBmatFromSnap
+#' To include all the chromes in snap file,
+#' chrs <- unique(unlist(lapply(strsplit(snap@feature$name, ":"), function(x){x[1]})))
+#' where snap is a snap object created by SnapATAC.
 #' 
 #' @param chrs vector of string, the chroms we want. Since there might exist chroms like
 #' chrM, chrY_JH584303_random, chrUn_GL456390, so here we use explicitly chrs we want to
