@@ -28,5 +28,8 @@ this snapFile. So use this carefully.}
 sparseMatrix, cell by feature, with both row and colname and ordered by ibarcode if provided
 }
 \description{
-Get Bmat from Snap object.
+Note: this function is validated with SnapATAC::addBmatFromSnap
+To include all the chromes in snap file,
+chrs <- unique(unlist(lapply(strsplit(snap@feature$name, ":"), function(x){x\link{1}})))
+where snap is a snap object created by SnapATAC.
 }
