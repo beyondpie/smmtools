@@ -54,3 +54,4 @@ vignettes/*.pdf
 /eval/snap/
 /eval/scrublet/*.csv
 /inst/smmuty/dist/
+/R/.Utility.R.~undo-tree~
