@@ -13,7 +13,7 @@ snapGmat2Seurat <- function(snap, eigDims = 1:50,
                             pcaPrefix = "SnapATAC_") {
   # check snap@gmat
   # check snap@smat@dmat
-  pcaUse <- snap@smat@dmat
+  pcaUse <- snap@smat@dmat[, eigDims]
   metaData <- snap@metaData
   rownames(pcaUse) <- paste(metaData$sample, metaData$barcode, sep = ".")
   colnames(pcaUse) <- paste0(pcaPrefix, 1:ncol(pcaUse))
@@ -30,7 +30,5 @@ snapGmat2Seurat <- function(snap, eigDims = 1:50,
   snapSeurat <- NormalizeData(snapSeurat)
   snapSeurat <- FindVariableFeatures(object = snapSeurat, assay = assay)
   snapSeurat <- ScaleData(snapSeurat, features = rownames(snapSeurat))
-  snapSeurat <- RunUMAP(snapSeurat, dims = eigDims, n.neighbors = min(30L, nrow(pcaUse)-1),
-                        umap.method = "uwot")
   return(snapSeurat)
 }
