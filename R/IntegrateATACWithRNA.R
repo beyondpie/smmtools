@@ -1,4 +1,5 @@
-#' Conver snap object to Seurat by gmat
+#' Conver snap object to Seurat by gmat and non-linear embedding
+#' provided by SnapATAC
 #'
 #' @param snap snap object defined in SnapATAC package
 #' snap@gmat must be not empty; snap@smat@dmat should not be empty 
@@ -26,9 +27,5 @@ snapGmat2Seurat <- function(snap, eigDims = 1:50,
                              feature.loadings = matrix(0,0,0), feature.loadings.projected = matrix(0,0,0),
                              assay.used = assay, stdev = rep(1, ncol(pcaUse)),
                              key = pcaPrefix, jackstraw = new(Class = "JackStrawData"), misc = list())
-
-  snapSeurat <- NormalizeData(snapSeurat)
-  snapSeurat <- FindVariableFeatures(object = snapSeurat, assay = assay)
-  snapSeurat <- ScaleData(snapSeurat, features = rownames(snapSeurat))
   return(snapSeurat)
 }
