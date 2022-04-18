@@ -14,8 +14,6 @@ README.md: README.Rmd
 	# Rscript -e "devtools::document()"
 
 doc: $(RCODES)
-	-rm src/*.o
-	-rm src/*.so
 	Rscript -e "devtools::document(pkg = '.')"
 
 install_local_smmuty: $(SMMUTYCODES)
@@ -30,10 +28,10 @@ upload_smmuty:
 	twine upload dist/*
 
 install:
-	-rm src/*.o
-	-rm src/*.so
 	Rscript -e 'devtools::install_github("beyondpie/smmtools")'
 
 install_local:
 	Rscript -e 'install.packages(".", repos = NULL, type = "source")'
 
+test:
+	Rscript -e 'devtools::test()'
