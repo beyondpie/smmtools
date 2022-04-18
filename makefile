@@ -33,5 +33,8 @@ install:
 install_local:
 	Rscript -e 'install.packages(".", repos = NULL, type = "source")'
 
+check:
+	Rscript -e "devtools::check()"
+
 test:
 	Rscript -e 'devtools::test()'
