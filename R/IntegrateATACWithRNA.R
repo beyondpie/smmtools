@@ -2,7 +2,7 @@
 #' provided by SnapATAC
 #'
 #' @param snap snap object defined in SnapATAC package
-#' snap@gmat must be not empty; snap@smat@dmat should not be empty 
+#' snap@gmat must be not empty; snap@smat@dmat should not be empty
 #' @param eigDims vector, used for choosing PCA components, default 1:50
 #' @param assay characters, name used in Seurat object
 #' @param pcaPrefix characters, default "SnapATAC_"
@@ -24,11 +24,11 @@ snapGmat2Seurat <- function(snap, eigDims = 1:50,
   snapSeurat <- CreateSeuratObject(counts = gmatUse, assay = assay)
   snapSeurat <- AddMetaData(snapSeurat, metadata = metaData)
   snapSeurat[["pca"]] <- new(Class = "DimReduc", cell.embeddings = pcaUse,
-                             feature.loadings = matrix(0,0,0),
-                             feature.loadings.projected = matrix(0,0,0),
-                             assay.used = assay, stdev = rep(1, ncol(pcaUse)),
-                             key = pcaPrefix,
-                             jackstraw = new(Class = "JackStrawData"), misc = list())
+    feature.loadings = matrix(0, 0, 0),
+    feature.loadings.projected = matrix(0, 0, 0),
+    assay.used = assay, stdev = rep(1, ncol(pcaUse)),
+    key = pcaPrefix,
+    jackstraw = new(Class = "JackStrawData"), misc = list())
   return(snapSeurat)
 }
 
@@ -37,31 +37,37 @@ snapGmat2Seurat <- function(snap, eigDims = 1:50,
 #' @param snapSeurat Seurat object transformed from snap object
 #' Assume meta.data has no column named ClusterName
 #' @param rnaSeurat Seurat obejct, reference scRNA sequencing ddta
-#' Assume meta.data has a column named ClusterName
-#' @param outprefix characters, used for naming output file
-#' @param outdir characters, if dir not exists with create it
+#' Assume meta.data has a column for rnaType
+#' @param eigDims dims used for snapSeurat pca,
+#' if NULL (default), use all the dims.
 #' @param snapAssay characters, snapSeurat assay name, default "GeneScore"
-#' @return 
+#' @param preprocessSnap bool, if need to normalize and scale snap, default TRUE
+#' @param preprocessRNA bool, if need to normalize, scale rnaSeurat, default TRUE
+#' @param rnaTypeColnm characters, colname for rnaSeurat's type, default "ClusterName"
+#' @param reso numeric, clustering resolution parameter, default 0.5
+#' @return Seurat object, merge snapSeurat and rnaSeurat
+#' Add predict Id from rnaSeurat for snapSeurat on metaData,
+#' Add imputed gene expression from rnaSeurat for snapSeurat with Assay: "RNA"
+#' Clustering on the merged Seurat object as Co-Embedding Seurat object
 #' @import ggplot2 Seurat
 #' @export
 integrateWithScRNASeq <- function(snapSeurat,
                                   rnaSeurat,
-                                  outprefix,
-                                  outdir,
                                   eigDims = NULL,
                                   snapAssay = "GeneScore",
                                   preprocessSnap = TRUE,
-                                  preprocessRNA = TRUE) {
-  if (nrow(snapSeruat) < 1) {
+                                  preprocessRNA = TRUE,
+                                  rnaTypeColnm = "ClusterName",
+                                  reso = 0.5) {
+  if (nrow(snapSeurat) < 1) {
     stop("No cells in snapSeurat.")
   }
-  if (nrow(rnaSeurat) < 1 ) {
+  if (nrow(rnaSeurat) < 1) {
     stop("No cells in rnaSeurat.")
   }
-  dir.create(path = outdir, showWarnings = FALSE)
   DefaultAssay(snapSeurat) <- snapAssay
-  if(is.null(eigDims)) {
-    eigDims <- 1:nrow(snapSeruat[["pca"]])
+  if (is.null(eigDims)) {
+    eigDims <- 1:nrow(snapSeurat[["pca"]])
   }
   if (preprocessSnap) {
     snapSeurat <- NormalizeData(snapSeurat)
@@ -70,12 +76,12 @@ integrateWithScRNASeq <- function(snapSeurat,
   if (preprocessRNA) {
     rnaSeurat <- NormalizeData(rnaSeurat)
     rnaSeurat <- FindVariableFeatures(rnaSeurat)
-    rnaSeurat <- ScaleData(rnaSeruat, features = rownames(rnaSeurat))
+    rnaSeurat <- ScaleData(rnaSeurat, features = rownames(rnaSeurat))
     rnaSeurat <- RunPCA(rnaSeurat, features = VariableFeatures(rnaSeurat))
   }
   anchors <- FindTransferAnchors(
-    reference = rnaSeruat,
-    query = snapSeurat, 
+    reference = rnaSeurat,
+    query = snapSeurat,
     features = VariableFeatures(rnaSeurat),
     reference.assay = "RNA",
     query.assay = snapAssay,
@@ -84,14 +90,14 @@ integrateWithScRNASeq <- function(snapSeurat,
   ## predict type
   transferLabel <- TransferData(
     anchorset = anchors,
-    refdata = rnaSeurat,
+    refdata = rnaSeurat@meta.data[, rnaTypeColnm],
     weight.reduction = snapSeurat[["pca"]],
     dims = eigDims
   )
   rownames(transferLabel) <- colnames(snapSeurat)
   t <- data.frame(
     predictId = transferLabel$predicted.id,
-    predictMaxScore = apply(transferLabel[,-1], 1, max),
+    predictMaxScore = apply(transferLabel[, -1], 1, max),
     row.names = colnames(snapSeurat)
   )
   snapSeurat <- AddMetaData(snapSeurat, metadata = t)
@@ -109,38 +115,27 @@ integrateWithScRNASeq <- function(snapSeurat,
   )
   snapSeurat[["RNA"]] <- CreateAssayObject(counts = geneImpute@data)
   rm(geneImpute)
+
   ## coEmbed
   coEmbed <- merge(x = snapSeurat, y = rnaSeurat)
   DefaultAssay(coEmbed) <- "RNA"
-  coEmbed$tech <- with(coEmbed@meta.data, {
-    ifelse(!is.na(ClusterName), "RNA", "ATAC")
-  })
-  ## save predict score histogram
-  with_pdf(
-    new = file.path(outdir,
-                    paste(outprefix, "cellTypePredictScore.pdf", sep = ".")),
-    code = {
-      hist(snapSeurat$predictMaxScore,
-        xlim = c(0, 1),
-        xlab = "Cell Type Prediction Score",
-        main = "Histogram of Cell Type Prediction Scores from scRNA-seq data")
-      abline(v = 0.5, col = "red", lwd = 2, lty = 2)
-    })
-
-  ## output co-embedding tech labels
-    p <- DimPlot(coEmbed, group.by = "tech") +
-      ggtitle("Co embedding with technique label")
-    ggsave(
-      filename = file.path(outputDir,
-        paste(prefix, "coEmbed.tech.umap.pdf", sep = ".")),
-      plot = p)
+  coEmbed$tech <- ifelse(!is.na(coEmbed@meta.data[, rnaTypeColnm]), "RNA", "ATAC")
+  coEmbed <- ScaleData(coEmbed,
+    features = VariableFeatures(rnaSeurat),
+    do.scale = FALSE)
+  coEmbed <- RunPCA(coEmbed,
+    features = VariableFeatures(rnaSeurat),
+    verbose = FALSE)
+  coEmbed <- RunUMAP(coEmbed, dims = eigDims)
+  coEmbed <- FindNeighbors(coEmbed, dims = eigDims)
+  coEmbed <- FindClusters(coEmbed, resolution = reso)
   return(coEmbed)
 }
 
-getPredictId <- function(ovlp, atacLabel = "MajorType", coEmbed = coembedF) {
+getPredictId <- function(ovlp, atacLabel = "MajorType", coEmbed) {
   nms <- rownames(ovlp)
   p1 <- vapply(nms, function(i) {
-    colnames(ovlp)[which.max(ovlp[i,])]
+    colnames(ovlp)[which.max(ovlp[i, ])]
   }, "")
   p2 <- vapply(nms, function(i) {
     pred <- coEmbed$predictId[coEmbed[[atacLabel]] %in% i]
@@ -148,7 +143,7 @@ getPredictId <- function(ovlp, atacLabel = "MajorType", coEmbed = coembedF) {
     names(stat)[which.max(stat)]
   }, "")
   data.frame(fromOvlp = p1, fromCoEmbed = p2,
-             row.names = nms)
+    row.names = nms)
 }
 
 
@@ -189,7 +184,8 @@ cal_ovlpScore <- function(t1, t2) {
   return(ovlpScore.df)
 }
 
-getOverlapMatrix <- function(metaF = coembedF, atacLabel = "MajorType", rnaLabel = "ClusterName") {
+getOverlapMatrix <- function(metaF,
+                             atacLabel = "MajorType", rnaLabel = "ClusterName") {
   ident2rna <- data.frame(idents = metaF$coembed.idents, rna_label = metaF[[rnaLabel]])
   ident2rna <- ident2rna[complete.cases(ident2rna), ]
   ident2atac <- data.frame(idents = metaF$coembed.idents, atac_label = metaF[[atacLabel]])
@@ -197,7 +193,7 @@ getOverlapMatrix <- function(metaF = coembedF, atacLabel = "MajorType", rnaLabel
   ovlp <- cal_ovlpScore(ident2rna, ident2atac)
   colnames(ovlp) <- c(rnaLabel, atacLabel, "ovlpScore")
   ovlp <- reshape2::dcast(ovlp, as.formula(paste(atacLabel, "~", rnaLabel, sep = " ")),
-                          value.var = "ovlpScore", fun.aggregate =  identity, fill = 0.0)
+    value.var = "ovlpScore", fun.aggregate = identity, fill = 0.0)
   ovlp <- as.data.frame(ovlp)
   rnm <- ovlp[[atacLabel]]
   rownames(ovlp) <- rnm

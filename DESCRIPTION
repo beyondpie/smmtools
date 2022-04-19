@@ -30,7 +30,9 @@ Imports:
     S4Vectors,
     gridExtra,
     gtools,
-    mixtools
+    mixtools,
+    ggplot2,
+    Seurat
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
