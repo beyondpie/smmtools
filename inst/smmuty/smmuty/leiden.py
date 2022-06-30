@@ -7,10 +7,9 @@ Ref: Kai's and Yang's codes
 from time import perf_counter as pc
 import leidenalg as la
 import igraph as ig
-from scipy.io import mmread
 from scipy import sparse
 from time import perf_counter as pc
-from scipy.sparse import csr_matrix, lil_matrix
+from scipy.sparse import csr_matrix
 from scipy.sparse import save_npz
 import numpy as np
 import itertools
@@ -18,7 +17,7 @@ from scipy.cluster.hierarchy import linkage, leaves_list, cophenet
 from scipy.spatial.distance import squareform
 
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import savefig, imshow, set_cmap
+from matplotlib.pyplot import imshow, set_cmap
 import fastcluster as fc
 
 plt.switch_backend("agg")
@@ -63,8 +62,10 @@ def leiden(knn, reso: float = 1.0, seed: int = None, opt: str = "RB"):
         )
     part_membership = partition.membership
     end_time = pc()
+    ## python will automatically concat string without comma.
     print(
-        f"leiden uses (secs) with partition type {opt}: {round(end_time - start_time, 3)}"
+        f"leiden uses (secs) with partition type {opt} "
+        f"and time: {round(end_time - start_time, 3)}."
     )
     return part_membership
 
@@ -135,8 +136,8 @@ def plot_CDF(prefix, C, u1, u2, num_bins=100):
 
 
 def cumfreq(a, numbins=100, defaultreallimits=None):
-    # docstring omitted
-    h, l, b, e = histogram(a, numbins, defaultreallimits)
+    """NOTE: not used in this function."""
+    h, l, b, e = np.histogram(a, numbins, defaultreallimits)
     cumhist = np.cumsum(h * 1, axis=0)
     return cumhist, l, b, e
 
@@ -146,9 +147,12 @@ def cal_cophenetic(C):
     print("=== calculate cophenetic correlation coefficient ===")
     X = C
     """Z = linkage(X)"""
-    Z = fc.linkage_vector(X)  # Clustering
-    orign_dists = fc.pdist(X)  # Matrix of original distances between observations
-    cophe_dists = cophenet(Z)  # Matrix of cophenetic distances between observations
+    # Clustering
+    Z = fc.linkage_vector(X)
+    # Matrix of original distances between observations
+    orign_dists = fc.pdist(X)
+    # Matrix of cophenetic distances between observations
+    cophe_dists = cophenet(Z)
     corr_coef = np.corrcoef(orign_dists, cophe_dists)[0, 1]
     return corr_coef
 
@@ -184,7 +188,9 @@ def cal_stab(x):
 
 
 def run(
-    knn, reso: float, N: int, outf: str, u1: float = 0.05, u2: float = 0.95
+    knn, reso: float, N: int, outf: str,
+        u1: float = 0.05, u2: float = 0.95,
+        sampleN: int = 10000
 ) -> None:
     """Run and count to peak
 
@@ -195,6 +201,7 @@ def run(
         out (str): output file name prefix, incluses the directory
         u1 (float): 0.05, left interval cutoff of CDF
         u2 (float): 0.95, right interval cutoff of CDF
+        sampleN (int): 10,000, number of cells
 
     Side effects:
         - saved consensus matrix into '.'.join([outf, "consensus", "npz"])
@@ -228,10 +235,11 @@ def run(
     if dims > sampleN:
         dims = sampleN
         import random
-
         random.seed(2022)
         idxy = random.sample(range(dimN), sampleN)
         idxy = sorted(idxy)
+    else:
+        idxy = list(range(dims))
     consensus = csr_matrix((dims, dims))
 
     print("=== calculate connectivity matrix ===")
@@ -243,7 +251,8 @@ def run(
         part_membership = partition.membership
         part_membership = np.array(part_membership)
         if len(part_membership) > sampleN:
-            part_membership = part_membership[idxy]  # downsample (10,000 observations)
+            # downsample (10,000 observations)
+            part_membership = part_membership[idxy]
         outs = cal_connectivity(part_membership)
         consensus += outs
         end_t = pc()
